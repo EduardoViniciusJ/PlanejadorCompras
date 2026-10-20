@@ -53,6 +53,6 @@ export class MascotComponent {
 
   protected readonly source = computed(() => {
     const variant = this.variant();
-    return `/images/mascotes/mascote-${variant}.png`;
+    return `/images/new-mascotes/mascote-${variant}.png`;
   });
 }
