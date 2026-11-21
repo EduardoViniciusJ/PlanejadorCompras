@@ -10,8 +10,6 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzInputModule } from 'ng-zorro-antd/input';
 import { ModalDialogComponent } from '../../../../shared/ui/modal-dialog/modal-dialog.component';
 import { ShoppingListDetailService } from '../../../shopping-lists/data-access/shopping-list-detail.service';
 import { ShoppingListDetailItem } from '../../../shopping-lists/models/shopping-list-detail.model';
@@ -27,8 +25,6 @@ import {
   selector: 'app-shopping-list-items-dialog',
   imports: [
     FormsModule,
-    NzButtonModule,
-    NzInputModule,
     ModalDialogComponent,
     ShoppingItemBatchFormComponent,
   ],

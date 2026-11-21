@@ -6,77 +6,93 @@
   </div>
 </div>
 
-<form nz-form nzLayout="vertical" [formGroup]="form" (ngSubmit)="generate()">
-  <nz-form-item>
-    <nz-form-label nzFor="response-deadline">Responder até</nz-form-label>
-    <nz-form-control>
-      <nz-date-picker
-        id="response-deadline"
-        formControlName="responseDeadline"
-        nzFormat="dd/MM/yyyy"
-        nzPlaceHolder="Data limite opcional"
-        [nzDisabledDate]="disabledDate"
-      />
-    </nz-form-control>
-  </nz-form-item>
+<form class="quotation-request-form grid gap-4" [formGroup]="form" (ngSubmit)="generate()" novalidate>
+  <div class="form-field grid gap-1.5">
+    <label class="label" for="response-deadline">Responder até</label>
+    <input
+      type="date"
+      class="input w-full"
+      id="response-deadline"
+      formControlName="responseDeadline"
+      [min]="minDeadline"
+      [class.input-error]="deadlineInPast()"
+      [attr.aria-invalid]="deadlineInPast()"
+      aria-describedby="response-deadline-help"
+    />
+    <p id="response-deadline-help" class="text-sm text-base-content/60">Data limite opcional.</p>
+    @if (deadlineInPast()) {
+      <p class="text-error text-sm" role="alert">A data limite não pode ser anterior a hoje.</p>
+    }
+  </div>
 
-  <nz-form-item>
-    <nz-form-label nzFor="delivery-address">Local de entrega</nz-form-label>
-    <nz-form-control nzExtra="Opcional. Informe somente se o fornecedor precisar considerar frete.">
-      <textarea
-        nz-input
-        id="delivery-address"
-        formControlName="deliveryAddress"
-        maxlength="500"
-        rows="2"
-        placeholder="Endereço ou referência para entrega"
-      ></textarea>
-    </nz-form-control>
-  </nz-form-item>
+  <div class="form-field grid gap-1.5">
+    <label class="label" for="delivery-address">Local de entrega</label>
+    <textarea
+      class="textarea w-full"
+      id="delivery-address"
+      formControlName="deliveryAddress"
+      maxlength="500"
+      rows="2"
+      placeholder="Endereço ou referência para entrega"
+      aria-describedby="delivery-address-help"
+    ></textarea>
+    <p id="delivery-address-help" class="text-sm text-base-content/60">
+      Opcional. Informe somente se o fornecedor precisar considerar frete.
+    </p>
+  </div>
 
-  <nz-form-item>
-    <nz-form-label nzFor="quotation-instructions">Orientações ao fornecedor</nz-form-label>
-    <nz-form-control nzExtra="Ex.: informar marca, prazo, frete, validade e forma de pagamento.">
-      <textarea
-        nz-input
-        id="quotation-instructions"
-        formControlName="instructions"
-        maxlength="2000"
-        rows="3"
-        placeholder="Condições que devem acompanhar a proposta"
-      ></textarea>
-    </nz-form-control>
-  </nz-form-item>
+  <div class="form-field grid gap-1.5">
+    <label class="label" for="quotation-instructions">Orientações ao fornecedor</label>
+    <textarea
+      class="textarea w-full"
+      id="quotation-instructions"
+      formControlName="instructions"
+      maxlength="2000"
+      rows="3"
+      placeholder="Condições que devem acompanhar a proposta"
+      aria-describedby="quotation-instructions-help"
+    ></textarea>
+    <p id="quotation-instructions-help" class="text-sm text-base-content/60">
+      Ex.: informar marca, prazo, frete, validade e forma de pagamento.
+    </p>
+  </div>
 
   @if (errorMessage()) {
-    <nz-alert nzType="error" nzShowIcon [nzMessage]="errorMessage()!" />
+    <div role="alert" class="alert alert-error alert-soft">
+      <app-icon name="alert-circle" [size]="20" />
+      <span>{{ errorMessage() }}</span>
+    </div>
   }
 
   @if (generated()) {
-    <nz-alert
-      nzType="success"
-      nzShowIcon
-      [nzMessage]="'Solicitação ' + (generatedCode() || '') + ' salva'"
-      nzDescription="A solicitação foi salva. Baixe o documento ou compartilhe o PDF com o fornecedor."
-    />
+    <div role="status" class="alert alert-success alert-soft">
+      <app-icon name="circle-check" [size]="20" />
+      <div>
+        <strong class="block">{{ 'Solicitação ' + (generatedCode() || '') + ' salva' }}</strong>
+        <span>A solicitação foi salva. Baixe o documento ou compartilhe o PDF com o fornecedor.</span>
+      </div>
+    </div>
   }
 
   <div class="form-actions">
-    <button nz-button type="button" [disabled]="generating()" (click)="cancelRequested.emit()">
+    <button class="btn" type="button" [disabled]="generating()" (click)="cancelRequested.emit()">
       Fechar
     </button>
     @if (generated()) {
-      <button nz-button type="button" (click)="viewRequested.emit()">
+      <button class="btn" type="button" (click)="viewRequested.emit()">
         <app-icon name="eye" [size]="17" /> Ver registro
       </button>
-      <button nz-button type="button" (click)="downloadRequested.emit()">
+      <button class="btn" type="button" (click)="downloadRequested.emit()">
         <app-icon name="download" [size]="17" /> Baixar PDF
       </button>
-      <button nz-button type="button" class="whatsapp-button" (click)="shareRequested.emit()">
+      <button class="btn whatsapp-button" type="button" (click)="shareRequested.emit()">
         <app-icon name="brand-whatsapp" [size]="18" /> Compartilhar
       </button>
     } @else {
-      <button nz-button nzType="primary" type="submit" data-testid="generate-quotation-request" [nzLoading]="generating()">
+      <button class="btn btn-primary" type="submit" data-testid="generate-quotation-request" [disabled]="generating()">
+        @if (generating()) {
+          <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+        }
         <app-icon name="file-invoice" [size]="17" /> Gerar solicitação
       </button>
     }

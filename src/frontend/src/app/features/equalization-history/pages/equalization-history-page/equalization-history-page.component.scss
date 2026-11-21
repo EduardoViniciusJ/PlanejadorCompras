@@ -34,36 +34,6 @@
 
 .equalization-search {
   width: min(100%, 22rem);
-  height: 2.625rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0 0.75rem;
-  border: 1px solid var(--app-border);
-  border-radius: var(--app-control-radius);
-  background: var(--app-input-bg);
-  color: var(--app-text-muted);
-}
-
-.equalization-search:focus-within {
-  border-color: var(--app-border-strong);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-brand-accent) 25%, transparent);
-}
-
-.equalization-search input {
-  flex: 1;
-  min-width: 0;
-  height: 100%;
-  padding: 0;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  color: var(--app-text-primary);
-  font: inherit;
-}
-
-.equalization-search input::placeholder {
-  color: var(--app-text-soft);
 }
 
 .equalizations-grid {
@@ -219,10 +189,9 @@
   border-top: 1px solid var(--app-border);
 }
 
-.equalization-card footer .ant-btn {
+.equalization-card footer .btn {
   width: 100%;
   min-width: 0;
-  justify-content: center;
 }
 
 .equalizations-state {
@@ -254,11 +223,7 @@
   font-size: 0.8rem;
 }
 
-.equalizations-state .ant-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
+.equalizations-state .btn {
   margin-top: 0.35rem;
 }
 
@@ -286,12 +251,6 @@
 .equalizations-pagination span {
   color: var(--app-text-muted);
   font-size: 0.75rem;
-}
-
-.equalizations-pagination .ant-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
 }
 
 @container (max-width: 24rem) {

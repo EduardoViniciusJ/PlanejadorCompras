@@ -6,10 +6,6 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzFormModule } from 'ng-zorro-antd/form';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzSelectModule } from 'ng-zorro-antd/select';
 
 import { ShoppingItemRequestDto } from '../../dtos/shopping-item.dto';
 import { SHOPPING_ITEM_UNIT_OPTIONS } from '../../models/shopping-item-unit-option';
@@ -20,7 +16,7 @@ export type ShoppingItemFormMode = 'create' | 'edit';
 
 @Component({
   selector: 'app-shopping-item-form',
-  imports: [ReactiveFormsModule, NzButtonModule, NzFormModule, NzInputModule, NzSelectModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './shopping-item-form.component.html',
   styleUrl: './shopping-item-form.component.scss',
 })

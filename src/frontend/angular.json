@@ -27,28 +27,17 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public",
-                "ignore": [
-                  "images/mascotes/**",
-                  "images/MascotesNew2/**"
-                ]
-              },
-              {
-                "glob": "ng-zorro-antd.min.css",
-                "input": "node_modules/ng-zorro-antd",
-                "output": "themes"
-              },
-              {
-                "glob": "ng-zorro-antd.dark.min.css",
-                "input": "node_modules/ng-zorro-antd",
-                "output": "themes"
+                "input": "public"
               }
             ],
             "styles": [
               "node_modules/@fontsource-variable/inter/index.css",
               "node_modules/@fontsource-variable/jetbrains-mono/index.css",
+              "src/tailwind.css",
               "src/styles.scss"
-            ]
+            ],
+            "server": "src/main.server.ts",
+            "outputMode": "static"
           },
           "configurations": {
             "production": {

@@ -7,8 +7,7 @@
 }
 
 .suppliers-page,
-.suppliers-surface,
-.suppliers-surface nz-table {
+.suppliers-surface {
   width: 100%;
   min-width: 0;
 }
@@ -39,42 +38,6 @@
 
 .suppliers-filters {
   width: min(100%, 24rem);
-}
-
-.supplier-search {
-  height: 2.625rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0 0.75rem;
-  border: 1px solid var(--app-border);
-  border-radius: var(--app-control-radius);
-  background: var(--app-input-bg);
-  color: var(--app-text-muted);
-  transition:
-    border-color var(--app-transition-fast),
-    box-shadow var(--app-transition-fast);
-
-  &:focus-within {
-    border-color: var(--app-border-strong);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-brand-accent) 25%, transparent);
-  }
-
-  input {
-    flex: 1;
-    min-width: 0;
-    height: 100%;
-    border: 0;
-    outline: 0;
-    background: transparent;
-    color: var(--app-text-primary);
-    font: inherit;
-    font-size: 0.8rem;
-
-    &::placeholder {
-      color: var(--app-text-soft);
-    }
-  }
 }
 
 .suppliers-surface {
@@ -118,6 +81,17 @@
 .row-actions {
   display: flex;
   justify-content: flex-end;
+}
+
+.suppliers-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--app-border-color);
+  color: var(--app-text-muted);
+  font-size: 0.75rem;
 }
 
 .page-state {

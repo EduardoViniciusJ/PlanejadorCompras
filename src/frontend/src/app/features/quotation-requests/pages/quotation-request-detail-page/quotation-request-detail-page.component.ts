@@ -2,11 +2,9 @@ import { DOCUMENT } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { NzAlertModule } from 'ng-zorro-antd/alert';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzSpinModule } from 'ng-zorro-antd/spin';
 
 import { AppIconComponent } from '../../../../shared/ui/app-icon/app-icon.component';
+import { SkeletonComponent } from '../../../../shared/ui/skeleton/skeleton.component';
 import { ShoppingListReportFile } from '../../../reports/models/shopping-list-report-file.model';
 import { ReportFileDownloadService } from '../../../reports/services/report-file-download.service';
 import { QuotationRequestService } from '../../data-access/quotation-request.service';
@@ -14,7 +12,7 @@ import { QuotationRequestDetailDto } from '../../dtos/quotation-request.dto';
 
 @Component({
   selector: 'app-quotation-request-detail-page',
-  imports: [RouterLink, AppIconComponent, NzAlertModule, NzButtonModule, NzSpinModule],
+  imports: [RouterLink, AppIconComponent, SkeletonComponent],
   templateUrl: './quotation-request-detail-page.component.html',
   styleUrl: './quotation-request-detail-page.component.scss',
 })

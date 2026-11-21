@@ -29,17 +29,17 @@
         <p class="error" role="alert">{{ error() }}</p>
       }
       <div class="actions">
-        <button nz-button type="button" [disabled]="busy()" (click)="close()">Cancelar</button
+        <button class="btn" type="button" [disabled]="busy()" (click)="close()">Cancelar</button
         ><button
-          nz-button
-          nzDanger
-          nzType="primary"
+          class="btn btn-error"
           type="button"
           data-testid="confirm-delete-items"
-          [nzLoading]="busy()"
           [disabled]="busy()"
           (click)="confirmDelete()"
         >
+          @if (busy()) {
+            <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+          }
           Excluir itens
         </button>
       </div>
@@ -54,11 +54,11 @@
     @if (loading()) {
       <p role="status">Carregando itens...</p>
     } @else if (loadError()) {
-      <button nz-button type="button" (click)="load()">Tentar novamente</button>
+      <button class="btn" type="button" (click)="load()">Tentar novamente</button>
     } @else {
       <div class="toolbar">
         <input
-          nz-input
+          class="input"
           type="search"
           aria-label="Buscar item"
           placeholder="Buscar item pelo nome"
@@ -67,7 +67,7 @@
           [disabled]="busy() || !!editing()"
         />
         <button
-          nz-button
+          class="btn"
           type="button"
           [disabled]="busy() || !!editing()"
           (click)="adding.set(true); error.set(null)"
@@ -79,7 +79,7 @@
         <span>{{ items().length }} itens · {{ selected().size }} selecionados (máximo 200)</span>
         @if (selected().size) {
           <button
-            nz-button
+            class="btn btn-sm"
             type="button"
             [disabled]="busy() || !!editing()"
             (click)="clearSelection()"
@@ -87,8 +87,7 @@
             Limpar seleção
           </button>
           <button
-            nz-button
-            nzDanger
+            class="btn btn-sm btn-error"
             type="button"
             [disabled]="busy() || !!editing()"
             (click)="askDelete()"
@@ -133,7 +132,7 @@
                 @if (editing() === item.id) {
                   <td>
                     <input
-                      nz-input
+                      class="input w-full"
                       aria-label="Nome do item"
                       [(ngModel)]="draft.name"
                       [disabled]="busy()"
@@ -141,7 +140,7 @@
                   </td>
                   <td>
                     <input
-                      nz-input
+                      class="input w-full"
                       aria-label="Quantidade"
                       inputmode="decimal"
                       [(ngModel)]="draft.quantity"
@@ -150,7 +149,7 @@
                   </td>
                   <td>
                     <input
-                      nz-input
+                      class="input w-full"
                       aria-label="Unidade"
                       [(ngModel)]="draft.unit"
                       [disabled]="busy()"
@@ -160,16 +159,17 @@
                   <td>
                     <div class="actions">
                       <button
-                        nz-button
-                        nzType="primary"
+                        class="btn btn-sm btn-primary"
                         type="button"
                         [disabled]="busy()"
-                        [nzLoading]="busy()"
                         (click)="save()"
                       >
+                        @if (busy()) {
+                          <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+                        }
                         Salvar</button
                       ><button
-                        nz-button
+                        class="btn btn-sm"
                         type="button"
                         [disabled]="busy()"
                         (click)="editing.set(null); error.set(null)"
@@ -182,7 +182,7 @@
                   <td>
                     {{ item.name }}
                     @if (highlighted().has(item.id)) {
-                      <span class="badge">Novo</span>
+                      <span class="badge badge-soft badge-success badge-sm">Novo</span>
                     }
                     @if (item.quoteCount) {
                       <small>{{ item.quoteCount }} cotação(ões)</small>
@@ -193,7 +193,7 @@
                   <td>
                     <div class="actions">
                       <button
-                        nz-button
+                        class="btn btn-sm"
                         type="button"
                         [disabled]="busy() || !!editing()"
                         [attr.aria-label]="'Editar ' + item.name"
@@ -201,8 +201,7 @@
                       >
                         Editar</button
                       ><button
-                        nz-button
-                        nzDanger
+                        class="btn btn-sm btn-error"
                         type="button"
                         [disabled]="busy() || !!editing()"
                         [attr.aria-label]="'Excluir ' + item.name"
@@ -230,7 +229,7 @@
       </div>
     }
     <div class="actions footer">
-      <button nz-button type="button" [disabled]="busy()" (click)="close()">
+      <button class="btn" type="button" [disabled]="busy()" (click)="close()">
         {{ editing() ? 'Cancelar edição' : 'Fechar' }}
       </button>
     </div>

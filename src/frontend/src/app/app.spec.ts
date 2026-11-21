@@ -1,56 +1,39 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+
 import { App } from './app';
 
 describe('App', () => {
   beforeEach(async () => {
     localStorage.clear();
-    document.documentElement.removeAttribute('data-app-theme');
-    document.documentElement.style.colorScheme = '';
 
     await TestBed.configureTestingModule({
       imports: [App],
+      providers: [provideRouter([])],
     }).compileComponents();
   });
 
   afterEach(() => {
     localStorage.clear();
+    document.documentElement.removeAttribute('data-theme');
     document.documentElement.removeAttribute('data-app-theme');
     document.documentElement.style.colorScheme = '';
   });
 
   it('should create the app', () => {
     const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
 
-    expect(app).toBeTruthy();
+    expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('should render landing title', async () => {
+  it('should apply the theme on startup for both DaisyUI and the app variables', async () => {
+    localStorage.setItem('planejador-theme', 'dark');
+
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await fixture.whenStable();
 
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Planeje compras');
-    expect(compiled.querySelector('.hero-image')).toBeNull();
-    expect(compiled.querySelector('.hero-content')).not.toBeNull();
-  });
-
-  it('should apply and persist the selected theme', async () => {
-    const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    const themeToggle = compiled.querySelector<HTMLButtonElement>('.theme-toggle');
-
+    expect(document.documentElement.getAttribute('data-theme')).toBe('claude-dark');
     expect(document.documentElement.getAttribute('data-app-theme')).toBe('dark');
-
-    themeToggle?.click();
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    expect(document.documentElement.getAttribute('data-app-theme')).toBe('light');
-    expect(localStorage.getItem('planejador-theme')).toBe('light');
   });
 });

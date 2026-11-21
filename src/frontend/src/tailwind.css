@@ -1,0 +1,83 @@
+@import 'tailwindcss';
+
+@plugin 'daisyui' {
+  themes: false;
+}
+
+/* Tema claro: branco e preto, com azul só como destaque. */
+@plugin 'daisyui/theme' {
+  name: 'claude';
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+  --color-base-100: #ffffff;
+  --color-base-200: #f6f6f6;
+  --color-base-300: #e5e5e5;
+  --color-base-content: #111111;
+  --color-primary: #111111;
+  --color-primary-content: #ffffff;
+  --color-secondary: #525252;
+  --color-secondary-content: #ffffff;
+  --color-accent: #2563eb;
+  --color-accent-content: #ffffff;
+  --color-neutral: #1f1f1f;
+  --color-neutral-content: #fafafa;
+  --color-info: #3d6f9e;
+  --color-info-content: #ffffff;
+  --color-success: #4d7c3f;
+  --color-success-content: #ffffff;
+  --color-warning: #b7791f;
+  --color-warning-content: #ffffff;
+  --color-error: #b53333;
+  --color-error-content: #ffffff;
+  --radius-selector: 0.625rem;
+  --radius-field: 0.625rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+/* Tema escuro: preto e branco, com azul só como destaque. */
+@plugin 'daisyui/theme' {
+  name: 'claude-dark';
+  default: false;
+  prefersdark: true;
+  color-scheme: dark;
+  --color-base-100: #0c0c0c;
+  --color-base-200: #171717;
+  --color-base-300: #2a2a2a;
+  --color-base-content: #fafafa;
+  --color-primary: #fafafa;
+  --color-primary-content: #0c0c0c;
+  --color-secondary: #a3a3a3;
+  --color-secondary-content: #0c0c0c;
+  --color-accent: #60a5fa;
+  --color-accent-content: #0c0c0c;
+  --color-neutral: #1f1f1f;
+  --color-neutral-content: #fafafa;
+  --color-info: #7fabd6;
+  --color-info-content: #141413;
+  --color-success: #8fb573;
+  --color-success-content: #141413;
+  --color-warning: #e0b15c;
+  --color-warning-content: #141413;
+  --color-error: #e5807a;
+  --color-error-content: #141413;
+  --radius-selector: 0.625rem;
+  --radius-field: 0.625rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@theme {
+  --font-sans: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, Consolas, monospace;
+}

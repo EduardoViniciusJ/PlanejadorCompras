@@ -10,16 +10,17 @@
           <app-icon name="checklist" [size]="18" />
           <span>Lista</span>
         </label>
-        <nz-select
+        <select
           id="price-map-list"
+          class="select select-ghost w-full"
           [ngModel]="listId()"
-          nzPlaceHolder="Selecione uma lista"
           (ngModelChange)="changeList($event)"
         >
+          <option value="" disabled>Selecione uma lista</option>
           @for (list of lists(); track list.id) {
-            <nz-option [nzValue]="list.id" [nzLabel]="list.name" />
+            <option [value]="list.id">{{ list.name }}</option>
           }
-        </nz-select>
+        </select>
       </div>
       @if (listId()) {
         <app-shopping-list-report-export
@@ -28,24 +29,24 @@
           accessibleLabel="Exportar mapa de preços"
         />
       }
-      <button nz-button nzType="primary" type="button" (click)="openCreateList()">
+      <button class="btn btn-primary" type="button" (click)="openCreateList()">
         <app-icon name="plus" [size]="18" /> Nova lista
       </button>
       @if (detail(); as activeList) {
         @if (activeList.totalItems > 0 && activeList.quotedItems > 0) {
           <button
-            nz-button
-            nzType="primary"
-            class="equalization-action"
+            class="btn btn-primary equalization-action"
             type="button"
-            [nzLoading]="isSaving()"
             [disabled]="isSaving()"
             (click)="generateEqualization()"
           >
+            @if (isSaving()) {
+              <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+            }
             <app-icon name="layout-grid" [size]="18" /> Gerar equalização
           </button>
         }
-        <button nz-button type="button" (click)="openSupplierPicker()">
+        <button class="btn" type="button" (click)="openSupplierPicker()">
           <app-icon name="building-plus" [size]="18" /> Adicionar fornecedor
         </button>
       }
@@ -53,31 +54,36 @@
   </header>
 
   @if (feedback()) {
-    <nz-alert class="map-feedback" nzType="success" nzShowIcon [nzMessage]="feedback()!" />
+    <div role="status" class="alert alert-success alert-soft map-feedback">
+      <app-icon name="circle-check" [size]="20" />
+      <span>{{ feedback() }}</span>
+    </div>
   }
 
   @if (actionError()) {
-    <nz-alert
-      class="map-feedback"
-      nzType="error"
-      nzShowIcon
-      [nzMessage]="actionError()!"
-      nzCloseable
-      (nzOnClose)="actionError.set(null)"
-    />
+    <div role="alert" class="alert alert-error alert-soft map-feedback">
+      <app-icon name="alert-circle" [size]="20" />
+      <span>{{ actionError() }}</span>
+      <button
+        type="button"
+        class="btn btn-ghost btn-sm btn-square"
+        aria-label="Fechar mensagem"
+        title="Fechar"
+        (click)="actionError.set(null)"
+      >
+        <app-icon name="x" [size]="16" />
+      </button>
+    </div>
   }
 
   @if (isLoading()) {
-    <div class="page-state">
-      <nz-spin nzSimple />
-      <p>Preparando o mapa de preços...</p>
-    </div>
+    <app-skeleton variant="table" [count]="6" label="Preparando o mapa de preços..." />
   } @else if (loadError()) {
     <div class="page-state" role="alert">
       <app-icon name="alert-triangle" [size]="24" />
       <h2>Não foi possível abrir o mapa</h2>
       <p>{{ loadError() }}</p>
-      <button nz-button type="button" (click)="retry()">Tentar novamente</button>
+      <button class="btn" type="button" (click)="retry()">Tentar novamente</button>
     </div>
   } @else if (!listId()) {
     <div class="page-state welcome-state">
@@ -85,7 +91,7 @@
       <h2>Escolha uma lista de compras</h2>
       <p>Depois disso você poderá adicionar itens, fornecedores e preços no mesmo lugar.</p>
       @if (lists().length === 0) {
-        <button nz-button nzType="primary" type="button" (click)="openCreateList()">
+        <button class="btn btn-primary" type="button" (click)="openCreateList()">
           Criar primeira lista
         </button>
       }
@@ -96,14 +102,14 @@
         <app-mascot class="page-state-mascot" variant="01" size="medium" />
         <h2>Adicione itens na lista de compras</h2>
         <p>Prepare primeiro a lista e depois volte ao mapa para registrar os preços recebidos.</p>
-        <a nz-button nzType="primary" routerLink="/app">Ir para listas de compras</a>
+        <a class="btn btn-primary" routerLink="/app">Ir para listas de compras</a>
       </div>
     } @else if (suppliers().length === 0) {
       <div class="page-state workspace-empty">
         <app-mascot class="page-state-mascot" variant="07" size="medium" />
         <h2>Adicione um fornecedor à lista</h2>
         <p>Escolha um fornecedor já cadastrado ou cadastre um novo para esta lista.</p>
-        <button nz-button nzType="primary" type="button" (click)="openSupplierPicker()">
+        <button class="btn btn-primary" type="button" (click)="openSupplierPicker()">
           Adicionar fornecedor
         </button>
       </div>
@@ -412,18 +418,17 @@
                       [class.pinned-column]="isColumnPinned('unit')"
                       [style.left.px]="stickyLeft('unit')"
                     >
-                      <nz-select
-                        class="inline-unit-select"
-                        nzSize="small"
+                      <select
+                        class="select select-sm w-full inline-unit-select"
                         [ngModel]="item.unit"
-                        [nzDisabled]="isSaving()"
+                        [disabled]="isSaving()"
                         [attr.aria-label]="'Unidade de ' + item.name"
                         (ngModelChange)="updateItemUnit(item, $event)"
                       >
                         @for (option of unitOptionsFor(item.unit); track option.value) {
-                          <nz-option [nzValue]="option.value" [nzLabel]="option.value" />
+                          <option [value]="option.value">{{ option.value }}</option>
                         }
-                      </nz-select>
+                      </select>
                     </td>
                   }
                   @for (supplier of visibleSuppliers(); track supplier.id) {
@@ -451,8 +456,11 @@
                           <button
                             type="button"
                             class="price-button"
-                            title="Clique duas vezes para editar"
-                            (dblclick)="startInlineQuoteEdit(item, supplier)"
+                            title="Clique para editar"
+                            [attr.aria-label]="
+                              'Editar preço de ' + supplier.name + ': ' + formatCurrency(quote.unitPrice)
+                            "
+                            (click)="startInlineQuoteEdit(item, supplier)"
                           >
                             <strong>{{ formatCurrency(quote.unitPrice) }}</strong>
                           </button>
@@ -666,12 +674,11 @@
         </div>
       }
       <div class="supplier-picker-actions">
-        <button nz-button type="button" [disabled]="isSaving()" (click)="closeDialog()">
+        <button class="btn" type="button" [disabled]="isSaving()" (click)="closeDialog()">
           Fechar
         </button>
         <button
-          nz-button
-          nzType="primary"
+          class="btn btn-primary"
           type="button"
           [disabled]="isSaving()"
           (click)="openCreateSupplier()"
@@ -741,12 +748,10 @@
         <p class="dialog-error" role="alert">{{ deleteError() }}</p>
       }
       <div>
-        <button nz-button [disabled]="isDeleting()" (click)="closeDelete()">Cancelar</button
+        <button class="btn" type="button" [disabled]="isDeleting()" (click)="closeDelete()">Cancelar</button
         ><button
-          nz-button
-          nzDanger
-          nzType="primary"
-          class="confirm-delete-action"
+          class="btn btn-error confirm-delete-action"
+          type="button"
           [disabled]="isDeleting()"
           (click)="confirmDeleteItem()"
         >
@@ -774,12 +779,10 @@
         <p class="dialog-error" role="alert">{{ deleteError() }}</p>
       }
       <div>
-        <button nz-button [disabled]="isDeleting()" (click)="closeDelete()">Cancelar</button
+        <button class="btn" type="button" [disabled]="isDeleting()" (click)="closeDelete()">Cancelar</button
         ><button
-          nz-button
-          nzDanger
-          nzType="primary"
-          class="confirm-delete-action"
+          class="btn btn-error confirm-delete-action"
+          type="button"
           [disabled]="isDeleting()"
           (click)="confirmDeleteQuote()"
         >
@@ -808,12 +811,10 @@
         <p class="dialog-error" role="alert">{{ deleteError() }}</p>
       }
       <div>
-        <button nz-button [disabled]="isDeleting()" (click)="closeDelete()">Cancelar</button>
+        <button class="btn" type="button" [disabled]="isDeleting()" (click)="closeDelete()">Cancelar</button>
         <button
-          nz-button
-          nzDanger
-          nzType="primary"
-          class="confirm-delete-action"
+          class="btn btn-error confirm-delete-action"
+          type="button"
           [disabled]="isDeleting()"
           (click)="confirmRemoveSupplier()"
         >

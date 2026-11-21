@@ -9,18 +9,11 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NzAlertModule } from 'ng-zorro-antd/alert';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzSpinModule } from 'ng-zorro-antd/spin';
-import { NzTableModule } from 'ng-zorro-antd/table';
-import { NzTagModule } from 'ng-zorro-antd/tag';
-import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 
 import { ModalDialogComponent } from '../../../../shared/ui/modal-dialog/modal-dialog.component';
 import { AppIconComponent } from '../../../../shared/ui/app-icon/app-icon.component';
 import { MascotComponent } from '../../../../shared/ui/mascot/mascot.component';
+import { SkeletonComponent } from '../../../../shared/ui/skeleton/skeleton.component';
 
 import {
   SupplierFormComponent,
@@ -30,6 +23,8 @@ import { SupplierService } from '../../data-access/supplier.service';
 import { SupplierRequestDto } from '../../dtos/supplier.dto';
 import { Supplier } from '../../models/supplier.model';
 
+const SUPPLIERS_PAGE_SIZE = 10;
+
 @Component({
   selector: 'app-suppliers-page',
   imports: [
@@ -37,14 +32,7 @@ import { Supplier } from '../../models/supplier.model';
     ModalDialogComponent,
     AppIconComponent,
     MascotComponent,
-    NzAlertModule,
-    NzButtonModule,
-    NzEmptyModule,
-    NzInputModule,
-    NzSpinModule,
-    NzTableModule,
-    NzTagModule,
-    NzTooltipModule,
+    SkeletonComponent,
   ],
   templateUrl: './suppliers-page.component.html',
   styleUrl: './suppliers-page.component.scss',
@@ -69,6 +57,15 @@ export class SuppliersPageComponent implements OnInit {
         )
       : this.suppliers();
   });
+  private readonly pageIndex = signal(1);
+  protected readonly totalPages = computed(() =>
+    Math.max(1, Math.ceil(this.filteredSuppliers().length / SUPPLIERS_PAGE_SIZE)),
+  );
+  protected readonly currentPage = computed(() => Math.min(this.pageIndex(), this.totalPages()));
+  protected readonly pagedSuppliers = computed(() => {
+    const start = (this.currentPage() - 1) * SUPPLIERS_PAGE_SIZE;
+    return this.filteredSuppliers().slice(start, start + SUPPLIERS_PAGE_SIZE);
+  });
   protected readonly isLoading = signal(true);
   protected readonly loadError = signal<string | null>(null);
   protected readonly feedback = signal<string | null>(null);
@@ -80,6 +77,7 @@ export class SuppliersPageComponent implements OnInit {
   protected readonly deletingSupplier = signal<Supplier | null>(null);
   protected readonly isDeleting = signal(false);
   protected readonly deleteError = signal<string | null>(null);
+  protected readonly isSupplierInUse = signal(false);
 
   ngOnInit(): void {
     this.loadSuppliers();
@@ -94,6 +92,11 @@ export class SuppliersPageComponent implements OnInit {
 
   protected updateSearch(event: Event): void {
     this.searchTerm.set((event.target as HTMLInputElement).value);
+  }
+
+  protected goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages()) return;
+    this.pageIndex.set(page);
   }
 
   protected openCreate(): void {
@@ -151,6 +154,7 @@ export class SuppliersPageComponent implements OnInit {
   protected openDelete(supplier: Supplier): void {
     this.deletingSupplier.set(supplier);
     this.deleteError.set(null);
+    this.isSupplierInUse.set(false);
     this.feedback.set(null);
   }
 
@@ -158,13 +162,15 @@ export class SuppliersPageComponent implements OnInit {
     if (this.isDeleting()) return;
     this.deletingSupplier.set(null);
     this.deleteError.set(null);
+    this.isSupplierInUse.set(false);
   }
 
   protected confirmDelete(): void {
     const supplier = this.deletingSupplier();
-    if (!supplier || this.isDeleting()) return;
+    if (!supplier || this.isDeleting() || this.isSupplierInUse()) return;
 
     this.isDeleting.set(true);
+    this.deleteError.set(null);
     this.supplierService
       .delete(supplier.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -177,6 +183,7 @@ export class SuppliersPageComponent implements OnInit {
         },
         error: (error: HttpErrorResponse) => {
           this.isDeleting.set(false);
+          this.isSupplierInUse.set(error.status === 409);
           this.deleteError.set(
             error.status === 409
               ? 'Este fornecedor possui preços cadastrados e não pode ser excluído.'

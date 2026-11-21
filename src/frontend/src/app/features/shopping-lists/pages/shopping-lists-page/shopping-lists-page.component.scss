@@ -6,23 +6,8 @@
   --lists-card-padding: clamp(1rem, 2vw, 1.25rem);
 }
 
-.page-primary-action,
-.shopping-list-card-actions .ant-btn,
-.page-state .ant-btn,
-.confirmation-actions .ant-btn {
-  min-height: var(--app-control-height-sm);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  border-radius: var(--app-control-radius);
-  font-weight: 700;
-}
-
 .page-primary-action {
-  min-height: var(--app-control-height);
   flex: 0 0 auto;
-  padding-inline: 1rem;
 }
 
 .page-feedback {
@@ -366,19 +351,14 @@
   color: var(--app-danger-strong);
 }
 
-.shopping-list-card-actions .ant-btn {
+.shopping-list-card-actions .btn {
   min-width: 0;
-  height: 2rem;
-  min-height: 2rem;
-  padding-inline: 0.58rem;
-  font-size: 0.73rem;
-  line-height: 1;
   white-space: nowrap;
 }
 
-.secondary-actions .ant-btn {
-  width: 2rem;
-  padding-inline: 0;
+.primary-actions .action-tooltip {
+  display: inline-flex;
+  min-width: 0;
 }
 
 @container (max-width: 24rem) {
@@ -401,7 +381,8 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .primary-actions .ant-btn {
+  .primary-actions .btn,
+  .primary-actions .action-tooltip {
     width: 100%;
   }
 

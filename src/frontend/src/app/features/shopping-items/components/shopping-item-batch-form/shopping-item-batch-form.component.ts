@@ -1,8 +1,5 @@
 import { Component, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzSelectModule } from 'ng-zorro-antd/select';
 import { ShoppingItemRequestDto } from '../../dtos/shopping-item.dto';
 import { SHOPPING_ITEM_UNIT_OPTIONS } from '../../models/shopping-item-unit-option';
 
@@ -25,7 +22,7 @@ export function parsePastedRows(text: string): Row[] {
 
 @Component({
   selector: 'app-shopping-item-batch-form',
-  imports: [FormsModule, NzButtonModule, NzInputModule, NzSelectModule],
+  imports: [FormsModule],
   templateUrl: './shopping-item-batch-form.component.html',
   styleUrl: './shopping-item-batch-form.component.scss',
 })

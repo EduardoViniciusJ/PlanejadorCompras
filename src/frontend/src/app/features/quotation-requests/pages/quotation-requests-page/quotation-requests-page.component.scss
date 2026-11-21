@@ -20,39 +20,6 @@
 
 .request-search {
   width: min(100%, 22rem);
-  height: 2.625rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0 0.75rem;
-  border: 1px solid var(--app-border);
-  border-radius: var(--app-control-radius);
-  background: var(--app-input-bg);
-  color: var(--app-text-muted);
-  transition:
-    border-color var(--app-transition-fast),
-    box-shadow var(--app-transition-fast);
-
-  &:focus-within {
-    border-color: var(--app-border-strong);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-brand-accent) 25%, transparent);
-  }
-
-  input {
-    flex: 1;
-    min-width: 0;
-    height: 100%;
-    border: 0;
-    outline: 0;
-    background: transparent;
-    color: var(--app-text-primary);
-    font: inherit;
-    font-size: 0.8rem;
-
-    &::placeholder {
-      color: var(--app-text-soft);
-    }
-  }
 }
 
 .requests-grid {
@@ -174,7 +141,7 @@
   border-top: 1px solid var(--app-border-color);
 }
 
-.quotation-request-card footer .ant-btn {
+.quotation-request-card footer .btn {
   width: 100%;
   min-width: 0;
   justify-content: center;

@@ -12,41 +12,10 @@ label,
   font-size: 0.875rem;
   font-weight: 700;
 }
-nz-select {
-  width: 100%;
-}
-:host ::ng-deep .ant-select-selector {
-  height: var(--app-control-height) !important;
-  min-height: var(--app-control-height) !important;
-  display: flex;
-  align-items: center;
-}
-:host ::ng-deep .ant-select-selection-item,
-:host ::ng-deep .ant-select-selection-placeholder {
-  line-height: calc(var(--app-control-height) - 2px) !important;
-}
-input,
-select {
-  box-sizing: border-box;
-  min-height: var(--app-control-height);
-  width: 100%;
-  min-width: 0;
-  border: 1px solid var(--app-border-color);
-  border-radius: var(--app-control-radius);
-  background: var(--app-page-bg);
-  color: var(--app-text-color);
-  padding: 0 0.75rem;
-}
-input:focus,
-select:focus {
-  border-color: var(--app-border-strong);
-  box-shadow: none;
-  outline: 0;
-}
 small,
 .form-error {
   margin: 0;
-  color: #dc3545;
+  color: var(--app-danger);
   font-size: 0.8rem;
 }
 .form-hint {
@@ -66,7 +35,7 @@ small,
     flex-direction: column-reverse;
   }
 
-  .form-actions .ant-btn {
+  .form-actions .btn {
     width: 100%;
   }
 }

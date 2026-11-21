@@ -9,13 +9,10 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NzAlertModule } from 'ng-zorro-antd/alert';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzSpinModule } from 'ng-zorro-antd/spin';
-import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 
 import { ModalDialogComponent } from '../../../../shared/ui/modal-dialog/modal-dialog.component';
 import { AppIconComponent } from '../../../../shared/ui/app-icon/app-icon.component';
+import { SkeletonComponent } from '../../../../shared/ui/skeleton/skeleton.component';
 import { MascotComponent } from '../../../../shared/ui/mascot/mascot.component';
 import { ShoppingItemBatchFormComponent } from '../../../shopping-items/components/shopping-item-batch-form/shopping-item-batch-form.component';
 import { ShoppingListItemsDialogComponent } from '../../../shopping-items/components/shopping-list-items-dialog/shopping-list-items-dialog.component';
@@ -74,11 +71,8 @@ const dateFormatter = new Intl.DateTimeFormat('pt-BR', {
     QuotationRequestFormComponent,
     ModalDialogComponent,
     AppIconComponent,
+    SkeletonComponent,
     MascotComponent,
-    NzAlertModule,
-    NzButtonModule,
-    NzSpinModule,
-    NzTooltipModule,
   ],
   templateUrl: './shopping-lists-page.component.html',
   styleUrl: './shopping-lists-page.component.scss',

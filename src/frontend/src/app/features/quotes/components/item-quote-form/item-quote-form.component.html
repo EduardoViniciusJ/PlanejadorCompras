@@ -1,24 +1,35 @@
-<form nz-form nzLayout="vertical" class="feature-form" [formGroup]="form" (ngSubmit)="submit()">
+<form class="feature-form" [formGroup]="form" (ngSubmit)="submit()">
   <div class="form-field">
     <span id="item-quote-supplier-label" class="form-label">Fornecedor</span>
-    <nz-select
+    <select
+      class="select w-full"
       formControlName="supplierId"
-      nzPlaceHolder="Selecione um fornecedor"
       aria-labelledby="item-quote-supplier-label"
+      [class.select-error]="form.controls.supplierId.touched && form.controls.supplierId.invalid"
+      [attr.aria-invalid]="form.controls.supplierId.touched && form.controls.supplierId.invalid"
     >
+      <option value="" disabled>Selecione um fornecedor</option>
       @for (supplier of suppliers(); track supplier.id) {
-        <nz-option [nzValue]="supplier.id" [nzLabel]="supplier.name" />
+        <option [value]="supplier.id">{{ supplier.name }}</option>
       }
-    </nz-select>
+    </select>
     @if (form.controls.supplierId.touched && form.controls.supplierId.invalid) {
       <small>Selecione um fornecedor cadastrado.</small>
     }
   </div>
   <label>
-    <span>Preco unitario (R$)</span>
-    <input nz-input type="number" formControlName="unitPrice" min="0" step="0.01" />
+    <span>Preço unitário (R$)</span>
+    <input
+      class="input w-full"
+      type="number"
+      formControlName="unitPrice"
+      min="0"
+      step="0.01"
+      [class.input-error]="form.controls.unitPrice.touched && form.controls.unitPrice.invalid"
+      [attr.aria-invalid]="form.controls.unitPrice.touched && form.controls.unitPrice.invalid"
+    />
     @if (form.controls.unitPrice.touched && form.controls.unitPrice.invalid) {
-      <small>Use um preco maior ou igual a zero.</small>
+      <small>Use um preço maior ou igual a zero.</small>
     }
   </label>
   <p class="form-hint">O preço total será calculado automaticamente pela quantidade do item.</p>
@@ -26,10 +37,13 @@
     <p class="form-error" role="alert">{{ serverError() }}</p>
   }
   <div class="form-actions">
-    <button nz-button type="button" [disabled]="submitting()" (click)="cancel()">Cancelar</button>
-    <button nz-button nzType="primary" type="submit" [nzLoading]="submitting()">
+    <button class="btn" type="button" [disabled]="submitting()" (click)="cancel()">Cancelar</button>
+    <button class="btn btn-primary" type="submit" [disabled]="submitting()">
+      @if (submitting()) {
+        <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+      }
       {{
-        submitting() ? 'Salvando...' : mode() === 'create' ? 'Adicionar preço' : 'Salvar alteracoes'
+        submitting() ? 'Salvando...' : mode() === 'create' ? 'Adicionar preço' : 'Salvar alterações'
       }}
     </button>
   </div>

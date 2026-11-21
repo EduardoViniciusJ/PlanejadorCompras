@@ -1,15 +1,12 @@
 <section class="matrix-page saved-equalization-page">
   @if (isLoading()) {
-    <div class="page-state">
-      <nz-spin nzSimple />
-      <p>Carregando equalização...</p>
-    </div>
+    <app-skeleton variant="detail" label="Carregando equalização..." />
   } @else if (loadError()) {
     <div class="page-state" role="alert">
       <app-icon name="alert-triangle" [size]="24" />
       <h1>Não foi possível carregar</h1>
       <p>{{ loadError() }}</p>
-      <button nz-button type="button" (click)="retry()">
+      <button class="btn" type="button" (click)="retry()">
         Tentar novamente
       </button>
     </div>
@@ -29,7 +26,7 @@
               {{ saved.createdByName || saved.createdByEmail }}.
             </p>
           </div>
-          <a nz-button class="management-action" routerLink="/app/purchase-orders">
+          <a class="btn management-action" routerLink="/app/purchase-orders">
             <app-icon name="file-invoice" [size]="18" />
             Ver pedidos
           </a>
@@ -146,9 +143,7 @@
               </div>
 
               <a
-                nz-button
-                nzType="primary"
-                class="issue-order-action"
+                class="btn btn-primary issue-order-action"
                 [routerLink]="['/app/purchase-orders/new']"
                 [queryParams]="{
                   shoppingListId: saved.shoppingListId,

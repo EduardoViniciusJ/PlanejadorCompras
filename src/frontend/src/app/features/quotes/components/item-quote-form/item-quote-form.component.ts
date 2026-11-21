@@ -1,9 +1,5 @@
 import { Component, effect, inject, input, output } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzFormModule } from 'ng-zorro-antd/form';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzSelectModule } from 'ng-zorro-antd/select';
 
 import { Supplier } from '../../../suppliers/models/supplier.model';
 import { ItemQuoteRequestDto } from '../../dtos/item-quote.dto';
@@ -13,7 +9,7 @@ export type ItemQuoteFormMode = 'create' | 'edit';
 
 @Component({
   selector: 'app-item-quote-form',
-  imports: [ReactiveFormsModule, NzButtonModule, NzFormModule, NzInputModule, NzSelectModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './item-quote-form.component.html',
   styleUrl: './item-quote-form.component.scss',
 })

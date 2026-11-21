@@ -1,16 +1,22 @@
-import { DOCUMENT } from '@angular/common';
-import { effect, inject, Injectable, signal } from '@angular/core';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { effect, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 
 export type AppTheme = 'light' | 'dark';
 
 const THEME_STORAGE_KEY = 'planejador-theme';
-const ZORRO_THEME_LINK_ID = 'zorro-theme';
+
+/** Nome do tema do DaisyUI (definido em tailwind.css) para cada modo. */
+const DAISY_THEME: Record<AppTheme, string> = {
+  light: 'claude',
+  dark: 'claude-dark',
+};
 
 @Injectable({
   providedIn: 'root',
 })
 export class ThemeService {
   private readonly document = inject(DOCUMENT);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly themeState = signal<AppTheme>(this.resolveInitialTheme());
 
   readonly theme = this.themeState.asReadonly();
@@ -30,8 +36,18 @@ export class ThemeService {
     this.setTheme(this.themeState() === 'dark' ? 'light' : 'dark');
   }
 
+  /** Escolha salva; sem ela, segue a preferência do sistema. */
   private resolveInitialTheme(): AppTheme {
-    return this.readStoredTheme() ?? 'dark';
+    return this.readStoredTheme() ?? (this.systemPrefersDark() ? 'dark' : 'light');
+  }
+
+  private systemPrefersDark(): boolean {
+    const browserWindow = this.document.defaultView;
+
+    return (
+      typeof browserWindow?.matchMedia === 'function' &&
+      browserWindow.matchMedia('(prefers-color-scheme: dark)').matches
+    );
   }
 
   private readStoredTheme(): AppTheme | null {
@@ -45,7 +61,11 @@ export class ThemeService {
   }
 
   private storeTheme(theme: AppTheme): void {
-    this.getStorage()?.setItem(THEME_STORAGE_KEY, theme);
+    try {
+      this.getStorage()?.setItem(THEME_STORAGE_KEY, theme);
+    } catch {
+      // Sem armazenamento (modo privado): o tema vale só para esta visita.
+    }
   }
 
   private getStorage(): Storage | null {
@@ -63,32 +83,16 @@ export class ThemeService {
   }
 
   private applyTheme(theme: AppTheme): void {
-    const root = this.document.documentElement;
-
-    root.setAttribute('data-app-theme', theme);
-    root.style.colorScheme = theme;
-    this.loadZorroTheme(theme);
-  }
-
-  private loadZorroTheme(theme: AppTheme): void {
-    const href = theme === 'dark'
-      ? '/themes/ng-zorro-antd.dark.min.css'
-      : '/themes/ng-zorro-antd.min.css';
-    const currentLink = this.document.getElementById(
-      ZORRO_THEME_LINK_ID,
-    ) as HTMLLinkElement | null;
-
-    if (currentLink?.getAttribute('href') === href) {
+    // No pré-render o HTML fica sem tema; o script do index.html escolhe antes da primeira pintura.
+    if (!this.isBrowser) {
       return;
     }
 
-    const link = currentLink ?? this.document.createElement('link');
-    link.id = ZORRO_THEME_LINK_ID;
-    link.rel = 'stylesheet';
-    link.href = href;
+    const root = this.document.documentElement;
 
-    if (!currentLink) {
-      this.document.head.prepend(link);
-    }
+    // `data-theme` troca o tema do DaisyUI; `data-app-theme` troca as variáveis `--app-*`.
+    root.setAttribute('data-theme', DAISY_THEME[theme]);
+    root.setAttribute('data-app-theme', theme);
+    root.style.colorScheme = theme;
   }
 }

@@ -1,15 +1,12 @@
 <section class="management-page purchase-order-detail-page">
   @if (isLoading()) {
-    <div class="detail-state">
-      <nz-spin nzSimple />
-      <p>Carregando pedido...</p>
-    </div>
+    <app-skeleton variant="detail" label="Carregando pedido..." />
   } @else if (loadError()) {
     <div class="detail-state" role="alert">
       <app-icon name="alert-triangle" [size]="26" />
       <h1>Não foi possível abrir o pedido</h1>
       <p>{{ loadError() }}</p>
-      <button nz-button type="button" (click)="retry()">Tentar novamente</button>
+      <button class="btn" type="button" (click)="retry()">Tentar novamente</button>
     </div>
   } @else if (order(); as purchaseOrder) {
     <header class="order-hero management-surface">
@@ -31,32 +28,33 @@
 
       <div class="management-actions">
         @if (purchaseOrder.equalizationId) {
-          <a nz-button [routerLink]="['/app/equalizations', purchaseOrder.equalizationId]">
+          <a class="btn" [routerLink]="['/app/equalizations', purchaseOrder.equalizationId]">
             <app-icon name="scale" [size]="18" />
             Ver equalização de origem
           </a>
         }
         <button
-          nz-button
+          class="btn"
           type="button"
-          [nzLoading]="isDownloadingPdf()"
           [disabled]="isDownloadingPdf()"
           (click)="downloadPdf()"
         >
-          @if (!isDownloadingPdf()) {
+          @if (isDownloadingPdf()) {
+            <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+          } @else {
             <app-icon name="file-type-pdf" [size]="18" />
           }
           Baixar PDF
         </button>
         <button
-          nz-button
           type="button"
-          class="whatsapp-button"
-          [nzLoading]="isSharing()"
+          class="btn btn-soft btn-success whatsapp-button"
           [disabled]="isSharing()"
           (click)="shareOnWhatsApp()"
         >
-          @if (!isSharing()) {
+          @if (isSharing()) {
+            <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+          } @else {
             <app-icon name="brand-whatsapp" [size]="19" />
           }
           Compartilhar
@@ -65,10 +63,16 @@
     </header>
 
     @if (actionError()) {
-      <nz-alert nzType="error" nzShowIcon [nzMessage]="actionError()!" />
+      <div role="alert" class="alert alert-error alert-soft">
+        <app-icon name="alert-circle" [size]="20" />
+        <span>{{ actionError() }}</span>
+      </div>
     }
     @if (feedback()) {
-      <nz-alert nzType="success" nzShowIcon [nzMessage]="feedback()!" />
+      <div role="status" class="alert alert-success alert-soft">
+        <app-icon name="circle-check" [size]="20" />
+        <span>{{ feedback() }}</span>
+      </div>
     }
 
     <section class="detail-summary" aria-label="Resumo do pedido">
@@ -153,8 +157,7 @@
         </div>
         <div class="status-actions-buttons">
           <button
-            nz-button
-            nzType="primary"
+            class="btn btn-primary"
             type="button"
             [disabled]="isUpdatingStatus()"
             (click)="updateStatus('completed')"
@@ -163,8 +166,7 @@
             Marcar como concluído
           </button>
           <button
-            nz-button
-            nzDanger
+            class="btn btn-error"
             type="button"
             [disabled]="isUpdatingStatus()"
             (click)="updateStatus('cancelled')"

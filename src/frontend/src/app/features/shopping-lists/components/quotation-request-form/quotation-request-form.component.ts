@@ -1,25 +1,12 @@
 import { Component, inject, input, output } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { NzAlertModule } from 'ng-zorro-antd/alert';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
-import { NzFormModule } from 'ng-zorro-antd/form';
-import { NzInputModule } from 'ng-zorro-antd/input';
 
 import { AppIconComponent } from '../../../../shared/ui/app-icon/app-icon.component';
 import { QuotationRequestPdfRequestDto } from '../../dtos/quotation-request.dto';
 
 @Component({
   selector: 'app-quotation-request-form',
-  imports: [
-    ReactiveFormsModule,
-    AppIconComponent,
-    NzAlertModule,
-    NzButtonModule,
-    NzDatePickerModule,
-    NzFormModule,
-    NzInputModule,
-  ],
+  imports: [ReactiveFormsModule, AppIconComponent],
   templateUrl: './quotation-request-form.component.html',
   styleUrl: './quotation-request-form.component.scss',
 })
@@ -37,28 +24,28 @@ export class QuotationRequestFormComponent {
   readonly viewRequested = output<void>();
   readonly cancelRequested = output<void>();
 
-  protected readonly today = startOfDay(new Date());
+  // Valor do <input type="date">: texto ISO yyyy-MM-dd (mesmo formato enviado à API).
+  protected readonly minDeadline = toLocalDate(new Date());
   protected readonly form = this.formBuilder.group({
-    responseDeadline: this.formBuilder.control<Date | null>(null),
+    responseDeadline: this.formBuilder.control<string | null>(null),
     deliveryAddress: ['', []],
     instructions: ['', []],
   });
 
-  protected disabledDate = (date: Date): boolean => startOfDay(date) < this.today;
+  protected deadlineInPast(): boolean {
+    const deadline = this.form.controls.responseDeadline.value;
+    return !!deadline && deadline < this.minDeadline;
+  }
 
   protected generate(): void {
-    if (this.generating()) return;
+    if (this.generating() || this.deadlineInPast()) return;
     const value = this.form.getRawValue();
     this.generateRequested.emit({
-      responseDeadline: value.responseDeadline ? toLocalDate(value.responseDeadline) : null,
+      responseDeadline: value.responseDeadline || null,
       deliveryAddress: optional(value.deliveryAddress),
       instructions: optional(value.instructions),
     });
   }
-}
-
-function startOfDay(value: Date): Date {
-  return new Date(value.getFullYear(), value.getMonth(), value.getDate());
 }
 
 function toLocalDate(value: Date): string {

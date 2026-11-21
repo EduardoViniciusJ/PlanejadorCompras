@@ -10,37 +10,7 @@
 
 .export-button {
   width: 100%;
-  height: var(--app-control-height);
-  min-height: var(--app-control-height);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  padding: 0 0.9rem;
-  font-size: var(--app-font-size-base);
-  line-height: var(--app-line-height-body);
   white-space: nowrap;
-  border-color: var(--app-contrast-bg);
-  background: var(--app-contrast-bg);
-  color: var(--app-contrast-text);
-}
-
-:host-context([data-app-theme='dark']) .export-button {
-  border-color: var(--app-border-strong);
-  background: var(--app-surface-alt-bg);
-  color: var(--app-text-color);
-}
-
-.export-button:hover:not(:disabled) {
-  border-color: color-mix(in srgb, var(--app-contrast-bg) 88%, white);
-  background: color-mix(in srgb, var(--app-contrast-bg) 88%, white);
-  color: var(--app-contrast-text);
-}
-
-:host-context([data-app-theme='dark']) .export-button:hover:not(:disabled) {
-  border-color: var(--app-brand-accent);
-  background: var(--app-surface-inset-bg);
-  color: var(--app-brand-accent);
 }
 
 .export-chevron {
@@ -69,25 +39,7 @@
 
 .export-options button {
   width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.6rem 0.7rem;
-  border: 0;
-  border-radius: calc(var(--app-radius-sm) - 0.15rem);
-  background: transparent;
-  color: var(--app-text-color);
-  text-align: left;
-}
-
-.export-options button:hover:not(:disabled),
-.export-options button:focus-visible {
-  background: var(--app-surface-alt-bg);
-}
-
-.export-options button:disabled {
-  cursor: wait;
-  opacity: 0.7;
+  justify-content: flex-start;
 }
 
 .export-message {

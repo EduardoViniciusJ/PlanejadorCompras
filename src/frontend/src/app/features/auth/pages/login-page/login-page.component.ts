@@ -1,13 +1,20 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  NonNullableFormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { environment } from '../../../../../environments/environment';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { GoogleIdentityService } from '../../../../core/auth/google/google-identity.service';
+import { AppIconComponent } from '../../../../shared/ui/app-icon/app-icon.component';
+import { BrandMarkComponent } from '../../../../shared/ui/brand-mark/brand-mark.component';
 
 type AuthPageMode = 'confirm-email' | 'forgot-password' | 'login' | 'register' | 'reset-password';
 
@@ -22,7 +29,12 @@ const DEFAULT_ERROR_MESSAGE = 'Não foi possível concluir a solicitação. Tent
 
 @Component({
   selector: 'app-login-page',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    AppIconComponent,
+    BrandMarkComponent,
+  ],
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.scss'],
 })
@@ -37,6 +49,9 @@ export class LoginPageComponent implements OnInit {
   protected readonly mode = signal<AuthPageMode>('login');
   protected readonly isLoading = signal(false);
   protected readonly isPreparingGoogleLogin = signal(false);
+  /** Sem client ID configurado, o botão do Google nem aparece. */
+  protected readonly isGoogleAvailable = signal(environment.googleClientId.trim().length > 0);
+  protected readonly isPasswordVisible = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
 
@@ -59,14 +74,38 @@ export class LoginPageComponent implements OnInit {
     const routeMode = this.route.snapshot.data['authMode'];
     this.mode.set(this.isAuthPageMode(routeMode) ? routeMode : 'login');
 
-    if (this.mode() === 'login') {
-      if (this.route.snapshot.queryParamMap.get('reason') === 'session-expired') {
+    if (this.mode() === 'login' || this.mode() === 'register') {
+      if (
+        this.mode() === 'login' &&
+        this.route.snapshot.queryParamMap.get('reason') === 'session-expired'
+      ) {
         this.errorMessage.set('Sua sessão expirou. Entre novamente para continuar.');
       }
-      void this.prepareGoogleLogin();
+      if (this.isGoogleAvailable()) {
+        void this.prepareGoogleLogin();
+      }
     } else if (this.mode() === 'confirm-email') {
       this.confirmEmail();
     }
+  }
+
+  /** Erro de campo só aparece depois que a pessoa passou por ele. */
+  protected showError(control: AbstractControl): boolean {
+    return control.invalid && (control.touched || control.dirty);
+  }
+
+  protected credentialsMismatch(): boolean {
+    const { password, passwordConfirmation } = this.credentialsForm.controls;
+    return passwordConfirmation.dirty && password.value !== passwordConfirmation.value;
+  }
+
+  protected resetMismatch(): boolean {
+    const { password, passwordConfirmation } = this.resetPasswordForm.controls;
+    return passwordConfirmation.dirty && password.value !== passwordConfirmation.value;
+  }
+
+  protected togglePasswordVisibility(): void {
+    this.isPasswordVisible.update((isVisible) => !isVisible);
   }
 
   protected submitCredentials(): void {
@@ -214,7 +253,8 @@ export class LoginPageComponent implements OnInit {
       this.isPreparingGoogleLogin.set(true);
       await this.googleIdentityService.prepare(environment.googleClientId);
     } catch {
-      this.errorMessage.set(GOOGLE_LOGIN_ERROR_MESSAGE);
+      // Script bloqueado ou indisponível: esconde o botão em vez de abrir a página com erro.
+      this.isGoogleAvailable.set(false);
     } finally {
       this.isPreparingGoogleLogin.set(false);
     }

@@ -1,0 +1,228 @@
+:host {
+  display: block;
+}
+
+/* Traço sob o trecho de destaque do título. */
+.hero-underline {
+  position: relative;
+  white-space: nowrap;
+}
+
+.hero-underline::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.1em;
+  height: 0.12em;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--app-accent) 45%, transparent);
+}
+
+/* Realce leve dos cartões ao passar o ponteiro. */
+.hover-card {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+@media (hover: hover) {
+  .hover-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--app-shadow-md);
+  }
+}
+
+/* Botões de envio e exportação do mockup, cada um na cor do seu destino. */
+.demo-action {
+  --demo-color: var(--app-text-color);
+  border-color: color-mix(in srgb, var(--demo-color) 35%, transparent);
+  background: color-mix(in srgb, var(--demo-color) 14%, transparent);
+  color: var(--demo-color);
+}
+
+.demo-action-whatsapp {
+  --demo-color: #1fa855;
+}
+
+.demo-action-ai {
+  --demo-color: var(--app-accent);
+}
+
+.demo-action-pdf {
+  --demo-color: #d93025;
+}
+
+.demo-action-excel {
+  --demo-color: #1d7a45;
+}
+
+:host-context([data-app-theme='dark']) {
+  .demo-action-whatsapp {
+    --demo-color: #3ddc84;
+  }
+
+  .demo-action-pdf {
+    --demo-color: #ff6b5e;
+  }
+
+  .demo-action-excel {
+    --demo-color: #4cc38a;
+  }
+}
+
+/* Botões do mockup sobem ao passar o ponteiro. */
+.demo-lift {
+  cursor: pointer;
+  transition: transform 160ms ease;
+}
+
+/* Traço que se desenha da esquerda para a direita sob o texto. */
+.line-label {
+  position: relative;
+}
+
+.line-label::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.2em;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 260ms ease;
+}
+
+@media (hover: hover) {
+  .demo-lift:hover {
+    transform: translateY(-2px);
+  }
+
+  .line-hover:hover .line-label::after,
+  .line-hover:focus-visible .line-label::after {
+    transform: scaleX(1);
+  }
+}
+
+/* Itens do mockup respondem como clicáveis, para dar imersão. */
+.line-hover {
+  cursor: pointer;
+}
+
+/* Linhas das tabelas do mockup: realce de item clicável. */
+.demo-row {
+  cursor: pointer;
+  transition: background-color 140ms ease;
+}
+
+@media (hover: hover) {
+  .demo-row:hover {
+    background: color-mix(in srgb, var(--app-text-color) 6%, transparent);
+  }
+
+  .demo-row:hover th {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+}
+
+/* Perguntas: o "+" vira "x" quando a resposta abre. */
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-icon {
+  transition: transform 180ms ease;
+}
+
+.faq-item[open] .faq-icon {
+  transform: rotate(45deg);
+}
+
+/* Público: a linha avança levemente ao passar o ponteiro. */
+.audience-row h3 {
+  transition: transform 200ms ease;
+}
+
+@media (hover: hover) {
+  .audience-row:hover h3 {
+    transform: translateX(0.5rem);
+  }
+}
+
+/* Gráfico de linha do dashboard: eixo à esquerda, área de desenho e rótulos embaixo. */
+.chart {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem 0.75rem;
+}
+
+.chart-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-size: 0.6875rem;
+  line-height: 1;
+  color: var(--app-text-soft);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.chart-plot {
+  position: relative;
+  height: 12.25rem;
+  /* Linhas de grade discretas no topo, no meio e na base. */
+  background: linear-gradient(var(--app-border-color), var(--app-border-color)) top / 100% 1px no-repeat,
+    linear-gradient(var(--app-border-color), var(--app-border-color)) center / 100% 1px no-repeat,
+    linear-gradient(var(--app-border-color), var(--app-border-color)) bottom / 100% 1px no-repeat;
+}
+
+.chart-plot svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.chart-line {
+  fill: none;
+  stroke: var(--app-accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.chart-area {
+  fill: color-mix(in srgb, var(--app-accent) 10%, transparent);
+}
+
+/* Ponto com anel da cor do fundo e área de toque maior que a marca. */
+.chart-dot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  background: var(--app-accent);
+  box-shadow: 0 0 0 2px var(--app-page-bg);
+  cursor: pointer;
+}
+
+.chart-dot::after {
+  content: '';
+  position: absolute;
+  inset: -9px;
+}
+
+.chart-labels {
+  grid-column: 2;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6875rem;
+  color: var(--app-text-soft);
+}

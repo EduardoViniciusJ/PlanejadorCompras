@@ -2,11 +2,9 @@ import { DOCUMENT } from '@angular/common';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { NzAlertModule } from 'ng-zorro-antd/alert';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzSpinModule } from 'ng-zorro-antd/spin';
 
 import { AppIconComponent } from '../../../../shared/ui/app-icon/app-icon.component';
+import { SkeletonComponent } from '../../../../shared/ui/skeleton/skeleton.component';
 import { ReportFileDownloadService } from '../../../reports/services/report-file-download.service';
 import { PurchaseOrderService } from '../../data-access/purchase-order.service';
 import {
@@ -17,7 +15,7 @@ import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-purchase-order-detail-page',
-  imports: [RouterLink, AppIconComponent, NzAlertModule, NzButtonModule, NzSpinModule],
+  imports: [RouterLink, AppIconComponent, SkeletonComponent],
   templateUrl: './purchase-order-detail-page.component.html',
   styleUrl: './purchase-order-detail-page.component.scss',
 })
