@@ -1,7 +1,6 @@
 import { Component, DestroyRef, HostListener, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterOutlet } from '@angular/router';
-import { NzLayoutModule } from 'ng-zorro-antd/layout';
 
 import { AuthService } from '../../core/auth/auth.service';
 import { ThemeService } from '../../core/theme/theme.service';
@@ -9,7 +8,7 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
 
 @Component({
   selector: 'app-app-layout',
-  imports: [RouterOutlet, SidebarComponent, NzLayoutModule],
+  imports: [RouterOutlet, SidebarComponent],
   templateUrl: './app-layout.component.html',
   styleUrl: './app-layout.component.scss',
 })
@@ -109,7 +108,7 @@ export class AppLayoutComponent {
         next: () => void this.router.navigateByUrl('/login'),
         error: () => {
           this.isLoggingOut.set(false);
-          this.logoutErrorMessage.set('Nao foi possivel encerrar a sessao agora.');
+          this.logoutErrorMessage.set('Não foi possível encerrar a sessão agora.');
         },
       });
   }

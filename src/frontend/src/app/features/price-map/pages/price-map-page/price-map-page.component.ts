@@ -4,10 +4,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize, forkJoin, map, of, switchMap } from 'rxjs';
-import { NzAlertModule } from 'ng-zorro-antd/alert';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzSpinModule } from 'ng-zorro-antd/spin';
-import { NzSelectModule } from 'ng-zorro-antd/select';
 
 import { ItemQuoteFormComponent } from '../../../quotes/components/item-quote-form/item-quote-form.component';
 import { ItemQuoteService } from '../../../quotes/data-access/item-quote.service';
@@ -35,6 +31,7 @@ import { SupplierRequestDto } from '../../../suppliers/dtos/supplier.dto';
 import { Supplier } from '../../../suppliers/models/supplier.model';
 import { ModalDialogComponent } from '../../../../shared/ui/modal-dialog/modal-dialog.component';
 import { AppIconComponent } from '../../../../shared/ui/app-icon/app-icon.component';
+import { SkeletonComponent } from '../../../../shared/ui/skeleton/skeleton.component';
 import { MascotComponent } from '../../../../shared/ui/mascot/mascot.component';
 
 type PriceMapDialog = 'list' | 'item' | 'supplier-picker' | 'supplier-create' | 'quote' | null;
@@ -78,12 +75,9 @@ const resultColumnWidth = 144;
     SupplierFormComponent,
     ItemQuoteFormComponent,
     AppIconComponent,
+    SkeletonComponent,
     MascotComponent,
     FormsModule,
-    NzAlertModule,
-    NzButtonModule,
-    NzSpinModule,
-    NzSelectModule,
   ],
   templateUrl: './price-map-page.component.html',
   styleUrl: './price-map-page.component.scss',

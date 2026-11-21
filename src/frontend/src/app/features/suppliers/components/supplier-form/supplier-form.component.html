@@ -1,156 +1,147 @@
-<form nz-form nzLayout="vertical" class="supplier-form" [formGroup]="form" (ngSubmit)="submit()">
+<form class="supplier-form" [formGroup]="form" (ngSubmit)="submit()">
   <section class="supplier-form-section">
     <header>
       <strong>Identificação</strong>
       <span>Dados principais para localizar o fornecedor em cotações e pedidos.</span>
     </header>
 
-    <div nz-row [nzGutter]="16">
-      <div nz-col [nzXs]="24" [nzMd]="14">
-        <nz-form-item>
-          <nz-form-label nzRequired nzFor="supplier-name">Nome do fornecedor</nz-form-label>
-          <nz-form-control
-            [nzValidateStatus]="form.controls.name"
-            nzErrorTip="Informe um nome com até 100 caracteres."
-          >
-            <input
-              nz-input
-              id="supplier-name"
-              type="text"
-              formControlName="name"
-              maxlength="100"
-              autocomplete="organization"
-              placeholder="Ex.: Papelaria Central"
-            />
-          </nz-form-control>
-        </nz-form-item>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-24">
+      <div class="form-field md:col-span-14">
+        <label class="label" for="supplier-name">Nome do fornecedor <span class="text-error" aria-hidden="true">*</span></label>
+        <input
+          class="input w-full"
+          id="supplier-name"
+          type="text"
+          formControlName="name"
+          maxlength="100"
+          autocomplete="organization"
+          placeholder="Ex.: Papelaria Central"
+          [class.input-error]="form.controls.name.invalid && (form.controls.name.touched || form.controls.name.dirty)"
+          [attr.aria-invalid]="form.controls.name.invalid && (form.controls.name.touched || form.controls.name.dirty) ? 'true' : null"
+          [attr.aria-describedby]="form.controls.name.invalid && (form.controls.name.touched || form.controls.name.dirty) ? 'supplier-name-error' : null"
+        />
+        @if (form.controls.name.invalid && (form.controls.name.touched || form.controls.name.dirty)) {
+          <p class="text-error text-sm" id="supplier-name-error">Informe um nome com até 100 caracteres.</p>
+        }
       </div>
 
-      <div nz-col [nzXs]="24" [nzMd]="10">
-        <nz-form-item>
-          <nz-form-label nzFor="supplier-cnpj">CNPJ</nz-form-label>
-          <nz-form-control
-            [nzValidateStatus]="form.controls.cnpj"
-            nzErrorTip="Informe um CNPJ válido."
-          >
-            <input
-              nz-input
-              id="supplier-cnpj"
-              type="text"
-              formControlName="cnpj"
-              maxlength="18"
-              inputmode="numeric"
-              placeholder="00.000.000/0000-00"
-            />
-          </nz-form-control>
-        </nz-form-item>
+      <div class="form-field md:col-span-10">
+        <label class="label" for="supplier-cnpj">CNPJ</label>
+        <input
+          class="input w-full"
+          id="supplier-cnpj"
+          type="text"
+          formControlName="cnpj"
+          maxlength="18"
+          inputmode="numeric"
+          placeholder="00.000.000/0000-00"
+          [class.input-error]="form.controls.cnpj.invalid && (form.controls.cnpj.touched || form.controls.cnpj.dirty)"
+          [attr.aria-invalid]="form.controls.cnpj.invalid && (form.controls.cnpj.touched || form.controls.cnpj.dirty) ? 'true' : null"
+          [attr.aria-describedby]="form.controls.cnpj.invalid && (form.controls.cnpj.touched || form.controls.cnpj.dirty) ? 'supplier-cnpj-error' : null"
+        />
+        @if (form.controls.cnpj.invalid && (form.controls.cnpj.touched || form.controls.cnpj.dirty)) {
+          <p class="text-error text-sm" id="supplier-cnpj-error">Informe um CNPJ válido.</p>
+        }
       </div>
     </div>
   </section>
 
-  <nz-divider nzText="Endereço opcional" nzOrientation="left" />
+  <div class="divider divider-start">Endereço opcional</div>
 
   <section class="supplier-form-section">
-    <div nz-row [nzGutter]="16">
-      <div nz-col [nzXs]="24">
-        <nz-form-item>
-          <nz-form-label nzFor="supplier-street">Rua e número</nz-form-label>
-          <nz-form-control [nzValidateStatus]="form.controls.street">
-            <input
-              nz-input
-              id="supplier-street"
-              type="text"
-              formControlName="street"
-              maxlength="200"
-              autocomplete="street-address"
-              placeholder="Ex.: Rua das Compras, 120"
-            />
-          </nz-form-control>
-        </nz-form-item>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-24">
+      <div class="form-field md:col-span-24">
+        <label class="label" for="supplier-street">Rua e número</label>
+        <input
+          class="input w-full"
+          id="supplier-street"
+          type="text"
+          formControlName="street"
+          maxlength="200"
+          autocomplete="street-address"
+          placeholder="Ex.: Rua das Compras, 120"
+          [class.input-error]="form.controls.street.invalid && (form.controls.street.touched || form.controls.street.dirty)"
+          [attr.aria-invalid]="form.controls.street.invalid && (form.controls.street.touched || form.controls.street.dirty) ? 'true' : null"
+        />
       </div>
 
-      <div nz-col [nzXs]="24" [nzMd]="15">
-        <nz-form-item>
-          <nz-form-label nzFor="supplier-city">Cidade</nz-form-label>
-          <nz-form-control [nzValidateStatus]="form.controls.city">
-            <input
-              nz-input
-              id="supplier-city"
-              type="text"
-              formControlName="city"
-              maxlength="100"
-              autocomplete="address-level2"
-              placeholder="Ex.: Curitiba"
-            />
-          </nz-form-control>
-        </nz-form-item>
+      <div class="form-field md:col-span-15">
+        <label class="label" for="supplier-city">Cidade</label>
+        <input
+          class="input w-full"
+          id="supplier-city"
+          type="text"
+          formControlName="city"
+          maxlength="100"
+          autocomplete="address-level2"
+          placeholder="Ex.: Curitiba"
+          [class.input-error]="form.controls.city.invalid && (form.controls.city.touched || form.controls.city.dirty)"
+          [attr.aria-invalid]="form.controls.city.invalid && (form.controls.city.touched || form.controls.city.dirty) ? 'true' : null"
+        />
       </div>
 
-      <div nz-col [nzXs]="24" [nzMd]="9">
-        <nz-form-item>
-          <nz-form-label nzFor="supplier-postal-code">CEP</nz-form-label>
-          <nz-form-control
-            [nzValidateStatus]="form.controls.postalCode"
-            nzErrorTip="Informe um CEP com 8 dígitos."
-          >
-            <input
-              nz-input
-              id="supplier-postal-code"
-              type="text"
-              formControlName="postalCode"
-              maxlength="9"
-              inputmode="numeric"
-              autocomplete="postal-code"
-              placeholder="00000-000"
-            />
-          </nz-form-control>
-        </nz-form-item>
+      <div class="form-field md:col-span-9">
+        <label class="label" for="supplier-postal-code">CEP</label>
+        <input
+          class="input w-full"
+          id="supplier-postal-code"
+          type="text"
+          formControlName="postalCode"
+          maxlength="9"
+          inputmode="numeric"
+          autocomplete="postal-code"
+          placeholder="00000-000"
+          [class.input-error]="form.controls.postalCode.invalid && (form.controls.postalCode.touched || form.controls.postalCode.dirty)"
+          [attr.aria-invalid]="form.controls.postalCode.invalid && (form.controls.postalCode.touched || form.controls.postalCode.dirty) ? 'true' : null"
+          [attr.aria-describedby]="form.controls.postalCode.invalid && (form.controls.postalCode.touched || form.controls.postalCode.dirty) ? 'supplier-postal-code-error' : null"
+        />
+        @if (form.controls.postalCode.invalid && (form.controls.postalCode.touched || form.controls.postalCode.dirty)) {
+          <p class="text-error text-sm" id="supplier-postal-code-error">Informe um CEP com 8 dígitos.</p>
+        }
       </div>
     </div>
   </section>
 
-  <nz-divider nzText="Contato opcional" nzOrientation="left" />
+  <div class="divider divider-start">Contato opcional</div>
 
   <section class="supplier-form-section">
-    <div nz-row [nzGutter]="16">
-      <div nz-col [nzXs]="24" [nzMd]="14">
-        <nz-form-item>
-          <nz-form-label nzFor="supplier-email">E-mail</nz-form-label>
-          <nz-form-control
-            [nzValidateStatus]="form.controls.email"
-            nzErrorTip="Informe um e-mail válido."
-          >
-            <input
-              nz-input
-              id="supplier-email"
-              type="email"
-              formControlName="email"
-              maxlength="254"
-              autocomplete="email"
-              placeholder="compras@fornecedor.com.br"
-            />
-          </nz-form-control>
-        </nz-form-item>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-24">
+      <div class="form-field md:col-span-14">
+        <label class="label" for="supplier-email">E-mail</label>
+        <input
+          class="input w-full"
+          id="supplier-email"
+          type="email"
+          formControlName="email"
+          maxlength="254"
+          autocomplete="email"
+          placeholder="compras@fornecedor.com.br"
+          [class.input-error]="form.controls.email.invalid && (form.controls.email.touched || form.controls.email.dirty)"
+          [attr.aria-invalid]="form.controls.email.invalid && (form.controls.email.touched || form.controls.email.dirty) ? 'true' : null"
+          [attr.aria-describedby]="form.controls.email.invalid && (form.controls.email.touched || form.controls.email.dirty) ? 'supplier-email-error' : null"
+        />
+        @if (form.controls.email.invalid && (form.controls.email.touched || form.controls.email.dirty)) {
+          <p class="text-error text-sm" id="supplier-email-error">Informe um e-mail válido.</p>
+        }
       </div>
 
-      <div nz-col [nzXs]="24" [nzMd]="10">
-        <nz-form-item>
-          <nz-form-label nzFor="supplier-phone">Telefone</nz-form-label>
-          <nz-form-control
-            [nzValidateStatus]="form.controls.phone"
-            nzErrorTip="Informe um telefone com DDD."
-          >
-            <input
-              nz-input
-              id="supplier-phone"
-              type="tel"
-              formControlName="phone"
-              maxlength="20"
-              autocomplete="tel"
-              placeholder="(41) 99999-9999"
-            />
-          </nz-form-control>
-        </nz-form-item>
+      <div class="form-field md:col-span-10">
+        <label class="label" for="supplier-phone">Telefone</label>
+        <input
+          class="input w-full"
+          id="supplier-phone"
+          type="tel"
+          formControlName="phone"
+          maxlength="20"
+          autocomplete="tel"
+          placeholder="(41) 99999-9999"
+          [class.input-error]="form.controls.phone.invalid && (form.controls.phone.touched || form.controls.phone.dirty)"
+          [attr.aria-invalid]="form.controls.phone.invalid && (form.controls.phone.touched || form.controls.phone.dirty) ? 'true' : null"
+          [attr.aria-describedby]="form.controls.phone.invalid && (form.controls.phone.touched || form.controls.phone.dirty) ? 'supplier-phone-error' : null"
+        />
+        @if (form.controls.phone.invalid && (form.controls.phone.touched || form.controls.phone.dirty)) {
+          <p class="text-error text-sm" id="supplier-phone-error">Informe um telefone com DDD.</p>
+        }
       </div>
     </div>
   </section>
@@ -160,10 +151,13 @@
   }
 
   <div class="form-actions">
-    <button nz-button type="button" [disabled]="submitting()" (click)="cancel()">
+    <button class="btn" type="button" [disabled]="submitting()" (click)="cancel()">
       Cancelar
     </button>
-    <button nz-button nzType="primary" type="submit" [nzLoading]="submitting()">
+    <button class="btn btn-primary" type="submit" [disabled]="submitting()">
+      @if (submitting()) {
+        <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+      }
       {{ mode() === 'create' ? 'Adicionar fornecedor' : 'Salvar alterações' }}
     </button>
   </div>

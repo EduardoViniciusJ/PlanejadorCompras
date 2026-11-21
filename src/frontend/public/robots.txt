@@ -1,0 +1,9 @@
+# Páginas públicas liberadas; a área logada e as telas de conta ficam de fora.
+User-agent: *
+Allow: /
+Disallow: /app
+Disallow: /login
+Disallow: /cadastro
+Disallow: /esqueci-minha-senha
+Disallow: /reset-password
+Disallow: /confirmar-email

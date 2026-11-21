@@ -1,16 +1,19 @@
-<form nz-form nzLayout="vertical" class="feature-form" [formGroup]="form" (ngSubmit)="submit()">
+<form class="feature-form" [formGroup]="form" (ngSubmit)="submit()">
   @if (showShoppingListSelect()) {
     <div class="form-field">
       <span id="shopping-item-list-label" class="form-label">Lista de compras</span>
-      <nz-select
+      <select
+        class="select w-full"
         formControlName="shoppingListId"
-        nzPlaceHolder="Selecione uma lista de compras"
         aria-labelledby="shopping-item-list-label"
+        [class.select-error]="form.controls.shoppingListId.touched && form.controls.shoppingListId.invalid"
+        [attr.aria-invalid]="form.controls.shoppingListId.touched && form.controls.shoppingListId.invalid"
       >
+        <option value="" disabled>Selecione uma lista de compras</option>
         @for (list of shoppingLists(); track list.id) {
-          <nz-option [nzValue]="list.id" [nzLabel]="list.name" />
+          <option [value]="list.id">{{ list.name }}</option>
         }
-      </nz-select>
+      </select>
       @if (form.controls.shoppingListId.touched && form.controls.shoppingListId.invalid) {
         <small>Selecione a lista deste item.</small>
       }
@@ -19,7 +22,15 @@
 
   <label class="name-field">
     <span>Nome do item</span>
-    <input nz-input type="text" formControlName="name" maxlength="100" autocomplete="off" />
+    <input
+      class="input w-full"
+      type="text"
+      formControlName="name"
+      maxlength="100"
+      autocomplete="off"
+      [class.input-error]="form.controls.name.touched && form.controls.name.invalid"
+      [attr.aria-invalid]="form.controls.name.touched && form.controls.name.invalid"
+    />
     @if (form.controls.name.touched && form.controls.name.hasError('required')) {
       <small>Informe o nome do item.</small>
     }
@@ -28,24 +39,35 @@
   <div class="form-grid">
     <label class="quantity-field">
       <span>Quantidade</span>
-      <input nz-input type="number" formControlName="quantity" min="0.01" step="0.01" />
+      <input
+        class="input w-full"
+        type="number"
+        formControlName="quantity"
+        min="0.01"
+        step="0.01"
+        [class.input-error]="form.controls.quantity.touched && form.controls.quantity.invalid"
+        [attr.aria-invalid]="form.controls.quantity.touched && form.controls.quantity.invalid"
+      />
       @if (form.controls.quantity.touched && form.controls.quantity.invalid) {
         <small>Use uma quantidade maior que zero.</small>
       }
     </label>
     <div class="form-field unit-field">
       <span id="shopping-item-unit-label" class="form-label">Unidade</span>
-      <nz-select
+      <select
+        class="select w-full"
         formControlName="unit"
-        nzPlaceHolder="Selecione a unidade"
         aria-labelledby="shopping-item-unit-label"
+        [class.select-error]="form.controls.unit.touched && form.controls.unit.invalid"
+        [attr.aria-invalid]="form.controls.unit.touched && form.controls.unit.invalid"
       >
+        <option value="" disabled>Selecione a unidade</option>
         @for (option of unitOptions(); track option.value) {
-          <nz-option [nzValue]="option.value" [nzLabel]="option.label" />
+          <option [value]="option.value">{{ option.label }}</option>
         }
-      </nz-select>
+      </select>
       @if (form.controls.unit.touched && form.controls.unit.invalid) {
-        <small>Informe uma unidade valida.</small>
+        <small>Informe uma unidade válida.</small>
       }
     </div>
   </div>
@@ -55,10 +77,13 @@
   }
 
   <div class="form-actions">
-    <button nz-button type="button" [disabled]="submitting()" (click)="cancel()">Cancelar</button>
-    <button nz-button nzType="primary" type="submit" [nzLoading]="submitting()">
+    <button class="btn" type="button" [disabled]="submitting()" (click)="cancel()">Cancelar</button>
+    <button class="btn btn-primary" type="submit" [disabled]="submitting()">
+      @if (submitting()) {
+        <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+      }
       {{
-        submitting() ? 'Salvando...' : mode() === 'create' ? 'Adicionar item' : 'Salvar alteracoes'
+        submitting() ? 'Salvando...' : mode() === 'create' ? 'Adicionar item' : 'Salvar alterações'
       }}
     </button>
   </div>

@@ -1,6 +1,5 @@
 import { Component, DestroyRef, computed, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NzButtonModule } from 'ng-zorro-antd/button';
 
 import { AppIconComponent } from '../../../../shared/ui/app-icon/app-icon.component';
 import { ShoppingListReportService } from '../../data-access/shopping-list-report.service';
@@ -11,7 +10,7 @@ let nextExportComponentId = 0;
 
 @Component({
   selector: 'app-shopping-list-report-export',
-  imports: [AppIconComponent, NzButtonModule],
+  imports: [AppIconComponent],
   templateUrl: './shopping-list-report-export.component.html',
   styleUrl: './shopping-list-report-export.component.scss',
 })

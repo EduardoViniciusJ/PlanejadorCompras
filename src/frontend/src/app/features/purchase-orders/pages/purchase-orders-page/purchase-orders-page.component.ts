@@ -1,12 +1,9 @@
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzAlertModule } from 'ng-zorro-antd/alert';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzSpinModule } from 'ng-zorro-antd/spin';
 
 import { AppIconComponent } from '../../../../shared/ui/app-icon/app-icon.component';
+import { SkeletonComponent } from '../../../../shared/ui/skeleton/skeleton.component';
 import { MascotComponent } from '../../../../shared/ui/mascot/mascot.component';
 import { ModalDialogComponent } from '../../../../shared/ui/modal-dialog/modal-dialog.component';
 import { PurchaseOrderService } from '../../data-access/purchase-order.service';
@@ -21,10 +18,7 @@ type PurchaseOrderStatusFilter = 'all' | PurchaseOrderStatus;
     AppIconComponent,
     MascotComponent,
     ModalDialogComponent,
-    NzAlertModule,
-    NzButtonModule,
-    NzInputModule,
-    NzSpinModule,
+    SkeletonComponent,
   ],
   templateUrl: './purchase-orders-page.component.html',
   styleUrl: './purchase-orders-page.component.scss',

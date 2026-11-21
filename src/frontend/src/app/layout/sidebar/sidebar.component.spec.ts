@@ -53,6 +53,7 @@ describe('SidebarComponent', () => {
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       '/app',
       '/app/quotation-requests',
+      '/app/price-map',
       '/app/equalizations',
       '/app/purchase-orders',
       '/app/suppliers',

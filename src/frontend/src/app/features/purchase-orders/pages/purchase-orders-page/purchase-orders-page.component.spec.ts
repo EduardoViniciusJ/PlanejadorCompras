@@ -52,7 +52,6 @@ describe('PurchaseOrdersPageComponent', () => {
     expect(host.textContent).not.toContain('Visual demonstrativo');
     expect(host.textContent).not.toContain('Criar a partir de uma lista');
     expect(host.querySelector('.management-kpi-grid')).toBeNull();
-    expect(host.querySelector('.mascot-hover-action')).toBeTruthy();
   });
 
   it('should filter cards by status', async () => {

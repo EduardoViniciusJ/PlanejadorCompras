@@ -6,14 +6,17 @@
       <p>Mantenha os dados comerciais usados nas cotações e nos pedidos de compra.</p>
     </div>
     <div class="management-actions">
-      <button nz-button nzType="primary" type="button" class="mascot-hover-action" data-testid="add-supplier" (click)="openCreate()">
+      <button type="button" class="btn btn-primary mascot-hover-action" data-testid="add-supplier" (click)="openCreate()">
         <app-icon name="plus" [size]="18" /> Novo fornecedor
       </button>
     </div>
   </header>
 
   @if (feedback()) {
-    <nz-alert nzType="success" nzShowIcon [nzMessage]="feedback()!" />
+    <div role="status" class="alert alert-success alert-soft">
+      <app-icon name="circle-check" [size]="20" />
+      <span>{{ feedback() }}</span>
+    </div>
   }
 
   <section class="suppliers-toolbar management-surface" aria-label="Busca de fornecedores">
@@ -24,11 +27,11 @@
     </div>
 
     <div class="suppliers-filters">
-      <label class="supplier-search">
+      <label class="supplier-search input w-full">
         <app-icon name="search" [size]="18" />
         <span class="visually-hidden">Buscar fornecedor</span>
         <input
-          nz-input
+          class="grow"
           type="search"
           placeholder="Buscar fornecedor"
           [value]="searchTerm()"
@@ -39,16 +42,13 @@
   </section>
 
   @if (isLoading()) {
-    <div class="page-state management-surface">
-      <nz-spin nzSimple />
-      <p>Carregando fornecedores...</p>
-    </div>
+    <app-skeleton variant="table" [count]="6" label="Carregando fornecedores..." />
   } @else if (loadError()) {
     <div class="page-state management-surface" role="alert">
       <span class="state-icon"><app-icon name="alert-triangle" [size]="24" /></span>
       <h2>Não foi possível carregar os fornecedores</h2>
       <p>{{ loadError() }}</p>
-      <button nz-button type="button" (click)="retry()">
+      <button class="btn" type="button" (click)="retry()">
         <app-icon name="refresh" [size]="18" /> Tentar novamente
       </button>
     </div>
@@ -60,91 +60,110 @@
       <h2>{{ searchTerm() ? 'Nenhum fornecedor encontrado' : 'Nenhum fornecedor cadastrado' }}</h2>
       <p>{{ searchTerm() ? 'Revise os termos da busca.' : 'Cadastre o primeiro fornecedor para iniciar suas cotações.' }}</p>
       @if (!searchTerm()) {
-        <button nz-button nzType="primary" type="button" (click)="openCreate()">
+        <button class="btn btn-primary" type="button" (click)="openCreate()">
           Adicionar fornecedor
         </button>
       }
     </div>
   } @else {
     <section class="suppliers-surface management-surface">
-      <nz-table
-        #supplierTable
-        nzSize="middle"
-        [nzData]="filteredSuppliers()"
-        [nzFrontPagination]="filteredSuppliers().length > 10"
-        [nzPageSize]="10"
-        [nzScroll]="{ x: '920px' }"
-      >
-        <thead>
-          <tr>
-            <th>Fornecedor</th>
-            <th>CNPJ</th>
-            <th>Contato</th>
-            <th>Localização</th>
-            <th nzWidth="108px"><span class="visually-hidden">Ações</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (supplier of supplierTable.data; track supplier.id) {
+      <div class="overflow-x-auto">
+        <table class="table min-w-[920px]">
+          <thead>
             <tr>
-              <td>
-                <div class="supplier-identity">
-                  <span class="supplier-avatar">{{ supplier.name.charAt(0).toUpperCase() }}</span>
-                  <div>
-                    <strong>{{ supplier.name }}</strong>
-                    <small>Cadastrado em {{ supplier.createdAt.toLocaleDateString('pt-BR') }}</small>
-                  </div>
-                </div>
-              </td>
-              <td>
-                @if (supplier.cnpj) {
-                  <nz-tag>{{ formatCnpj(supplier.cnpj) }}</nz-tag>
-                } @else {
-                  <span class="empty-value">Não informado</span>
-                }
-              </td>
-              <td>
-                <span [class.empty-value]="supplierContact(supplier) === 'Não informado'">
-                  {{ supplierContact(supplier) }}
-                </span>
-              </td>
-              <td>
-                <span [class.empty-value]="supplierLocation(supplier) === 'Não informado'">
-                  {{ supplierLocation(supplier) }}
-                </span>
-              </td>
-              <td>
-                <div class="row-actions">
-                  <button
-                    nz-button
-                    nzType="text"
-                    type="button"
-                    nz-tooltip
-                    nzTooltipTitle="Editar fornecedor"
-                    [attr.aria-label]="'Editar ' + supplier.name"
-                    (click)="openEdit(supplier)"
-                  >
-                    <app-icon name="pencil" [size]="18" />
-                  </button>
-                  <button
-                    nz-button
-                    nzType="text"
-                    nzDanger
-                    type="button"
-                    nz-tooltip
-                    nzTooltipTitle="Excluir fornecedor"
-                    data-testid="delete-supplier"
-                    [attr.aria-label]="'Excluir ' + supplier.name"
-                    (click)="openDelete(supplier)"
-                  >
-                    <app-icon name="trash" [size]="18" />
-                  </button>
-                </div>
-              </td>
+              <th>Fornecedor</th>
+              <th>CNPJ</th>
+              <th>Contato</th>
+              <th>Localização</th>
+              <th class="w-[108px]"><span class="visually-hidden">Ações</span></th>
             </tr>
-          }
-        </tbody>
-      </nz-table>
+          </thead>
+          <tbody>
+            @for (supplier of pagedSuppliers(); track supplier.id) {
+              <tr>
+                <td>
+                  <div class="supplier-identity">
+                    <span class="supplier-avatar">{{ supplier.name.charAt(0).toUpperCase() }}</span>
+                    <div>
+                      <strong>{{ supplier.name }}</strong>
+                      <small>Cadastrado em {{ supplier.createdAt.toLocaleDateString('pt-BR') }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  @if (supplier.cnpj) {
+                    <span class="badge badge-soft">{{ formatCnpj(supplier.cnpj) }}</span>
+                  } @else {
+                    <span class="empty-value">Não informado</span>
+                  }
+                </td>
+                <td>
+                  <span [class.empty-value]="supplierContact(supplier) === 'Não informado'">
+                    {{ supplierContact(supplier) }}
+                  </span>
+                </td>
+                <td>
+                  <span [class.empty-value]="supplierLocation(supplier) === 'Não informado'">
+                    {{ supplierLocation(supplier) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="row-actions">
+                    <button
+                      class="btn btn-ghost btn-square tooltip tooltip-left"
+                      type="button"
+                      data-tip="Editar fornecedor"
+                      [attr.aria-label]="'Editar ' + supplier.name"
+                      (click)="openEdit(supplier)"
+                    >
+                      <app-icon name="pencil" [size]="18" />
+                    </button>
+                    <button
+                      class="btn btn-ghost btn-square text-error tooltip tooltip-left"
+                      type="button"
+                      data-tip="Excluir fornecedor"
+                      data-testid="delete-supplier"
+                      [attr.aria-label]="'Excluir ' + supplier.name"
+                      (click)="openDelete(supplier)"
+                    >
+                      <app-icon name="trash" [size]="18" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (totalPages() > 1) {
+        <nav class="suppliers-pagination" aria-label="Paginação dos fornecedores">
+          <button
+            class="btn btn-sm"
+            type="button"
+            data-testid="suppliers-previous-page"
+            [disabled]="currentPage() === 1"
+            (click)="goToPage(currentPage() - 1)"
+          >
+            <app-icon name="arrow-left" [size]="17" />
+            Anterior
+          </button>
+          <span>
+            Página {{ currentPage() }} de {{ totalPages() }} · {{ filteredSuppliers().length }}
+            fornecedores
+          </span>
+          <button
+            class="btn btn-sm"
+            type="button"
+            data-testid="suppliers-next-page"
+            [disabled]="currentPage() === totalPages()"
+            (click)="goToPage(currentPage() + 1)"
+          >
+            Próxima
+            <app-icon name="arrow-right" [size]="17" />
+          </button>
+        </nav>
+      }
     </section>
   }
 </section>
@@ -169,27 +188,30 @@
 }
 
 @if (deletingSupplier(); as supplier) {
-  <button class="dialog-backdrop" aria-label="Cancelar exclusão" (click)="closeDelete()"></button>
+  <button type="button" class="dialog-backdrop" aria-label="Cancelar exclusão" (click)="closeDelete()"></button>
   <section class="confirm-dialog" role="alertdialog" aria-modal="true">
     <app-icon name="trash" [size]="22" />
     <h2>Excluir fornecedor?</h2>
     <p>O cadastro de <strong>{{ supplier.name }}</strong> será excluído.</p>
     @if (deleteError()) {
-      <nz-alert nzType="error" nzShowIcon [nzMessage]="deleteError()!" />
+      <div role="alert" class="alert alert-error alert-soft">
+        <app-icon name="alert-circle" [size]="20" />
+        <span>{{ deleteError() }}</span>
+      </div>
     }
     <div>
-      <button nz-button type="button" [disabled]="isDeleting()" (click)="closeDelete()">Cancelar</button>
+      <button class="btn" type="button" [disabled]="isDeleting()" (click)="closeDelete()">Cancelar</button>
       <button
-        nz-button
-        nzDanger
-        nzType="primary"
+        class="btn btn-error"
         type="button"
-        [nzLoading]="isDeleting()"
-        [disabled]="!!deleteError()"
+        [disabled]="isDeleting() || isSupplierInUse()"
         data-testid="confirm-delete-supplier"
         (click)="confirmDelete()"
       >
-        {{ deleteError() ? 'Fornecedor em uso' : 'Excluir fornecedor' }}
+        @if (isDeleting()) {
+          <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+        }
+        {{ isSupplierInUse() ? 'Fornecedor em uso' : 'Excluir fornecedor' }}
       </button>
     </div>
   </section>

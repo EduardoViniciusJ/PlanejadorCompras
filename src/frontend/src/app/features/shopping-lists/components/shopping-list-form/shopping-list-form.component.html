@@ -1,15 +1,15 @@
-<form nz-form nzLayout="vertical" class="shopping-list-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+<form class="shopping-list-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
   <div class="form-field">
     <label for="shopping-list-name">Nome da lista</label>
     <input
-      nz-input
       id="shopping-list-name"
-      class="app-input"
+      class="input w-full app-input"
       type="text"
       formControlName="name"
       maxlength="100"
       autocomplete="off"
-      placeholder="Ex.: Compras do escritorio"
+      placeholder="Ex.: Compras do escritório"
+      [class.input-error]="form.controls.name.invalid && form.controls.name.touched"
       [attr.aria-invalid]="form.controls.name.invalid && form.controls.name.touched"
       aria-describedby="shopping-list-name-help"
     />
@@ -18,7 +18,7 @@
         @if (form.controls.name.hasError('required') && form.controls.name.touched) {
           Informe um nome para a lista.
         } @else if (form.controls.name.hasError('maxlength') && form.controls.name.touched) {
-          O nome deve ter no maximo 100 caracteres.
+          O nome deve ter no máximo 100 caracteres.
         }
       </span>
       <span>{{ form.controls.name.value.length }}/100</span>
@@ -27,24 +27,24 @@
 
   <div class="form-field">
     <label for="shopping-list-description">
-      Descricao
+      Descrição
       <span>Opcional</span>
     </label>
     <textarea
-      nz-input
       id="shopping-list-description"
-      class="app-input"
+      class="textarea w-full app-input"
       formControlName="description"
       maxlength="500"
       rows="5"
       placeholder="Adicione um contexto para esta compra"
+      [class.textarea-error]="form.controls.description.invalid && form.controls.description.touched"
       [attr.aria-invalid]="form.controls.description.invalid && form.controls.description.touched"
       aria-describedby="shopping-list-description-help"
     ></textarea>
     <div id="shopping-list-description-help" class="field-meta">
       <span>
         @if (form.controls.description.hasError('maxlength') && form.controls.description.touched) {
-          A descricao deve ter no maximo 500 caracteres.
+          A descrição deve ter no máximo 500 caracteres.
         }
       </span>
       <span>{{ form.controls.description.value.length }}/500</span>
@@ -60,23 +60,22 @@
 
   <div class="form-actions">
     <button
-      nz-button
+      class="btn"
       type="button"
-
       [disabled]="submitting()"
       (click)="cancel()"
     >
       Cancelar
     </button>
     <button
-      nz-button
-      nzType="primary"
+      class="btn btn-primary"
       type="submit"
-
-      [nzLoading]="submitting()"
+      [disabled]="submitting()"
       data-testid="shopping-list-form-submit"
     >
-      @if (!submitting()) {
+      @if (submitting()) {
+        <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+      } @else {
         <app-icon name="check" [size]="18" />
       }
       {{ submitting() ? 'Salvando...' : mode() === 'create' ? 'Criar lista' : 'Salvar alterações' }}

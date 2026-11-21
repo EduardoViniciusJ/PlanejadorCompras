@@ -1,10 +1,9 @@
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzSpinModule } from 'ng-zorro-antd/spin';
 
 import { AppIconComponent } from '../../../../shared/ui/app-icon/app-icon.component';
+import { SkeletonComponent } from '../../../../shared/ui/skeleton/skeleton.component';
 import { mapEqualization } from '../../../equalization/models/equalization.mapper';
 import { Equalization, EqualizationCell } from '../../../equalization/models/equalization.model';
 import { SavedEqualizationService } from '../../data-access/saved-equalization.service';
@@ -22,7 +21,7 @@ interface SupplierPurchaseOrderOption {
 
 @Component({
   selector: 'app-saved-equalization-detail-page',
-  imports: [RouterLink, AppIconComponent, NzButtonModule, NzSpinModule],
+  imports: [RouterLink, AppIconComponent, SkeletonComponent],
   templateUrl: './saved-equalization-detail-page.component.html',
   styleUrl: './saved-equalization-detail-page.component.scss',
 })

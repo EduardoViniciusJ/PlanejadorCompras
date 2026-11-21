@@ -1,20 +1,17 @@
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { ModalDialogComponent } from '../../../../shared/ui/modal-dialog/modal-dialog.component';
-import { NzSpinModule } from 'ng-zorro-antd/spin';
 
 import { AppIconComponent } from '../../../../shared/ui/app-icon/app-icon.component';
+import { SkeletonComponent } from '../../../../shared/ui/skeleton/skeleton.component';
 import { MascotComponent } from '../../../../shared/ui/mascot/mascot.component';
 import { QuotationRequestService } from '../../data-access/quotation-request.service';
 import { QuotationRequestSummaryDto } from '../../dtos/quotation-request.dto';
 
 @Component({
   selector: 'app-quotation-requests-page',
-  imports: [NzAlertModule, ModalDialogComponent, RouterLink, AppIconComponent, MascotComponent, NzButtonModule, NzInputModule, NzSpinModule],
+  imports: [ModalDialogComponent, RouterLink, AppIconComponent, MascotComponent, SkeletonComponent],
   templateUrl: './quotation-requests-page.component.html',
   styleUrl: './quotation-requests-page.component.scss',
 })

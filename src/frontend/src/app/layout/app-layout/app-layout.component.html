@@ -1,4 +1,4 @@
-<nz-layout class="app-layout" [class.sidebar-collapsed-layout]="isSidebarCollapsed()">
+<div class="app-layout" [class.sidebar-collapsed-layout]="isSidebarCollapsed()">
   <app-sidebar
     [class.sidebar-host-collapsed]="isSidebarCollapsed()"
     [class.sidebar-host-mobile-open]="isSidebarOpen()"
@@ -20,14 +20,14 @@
     <button
       type="button"
       class="app-layout-sidebar-backdrop"
-      aria-label="Fechar menu de navegacao"
+      aria-label="Fechar menu de navegação"
       (click)="closeMobileSidebar()"
     ></button>
   }
 
-  <nz-content class="app-layout-content">
+  <div class="app-layout-content">
     <main class="app-layout-main">
       <router-outlet />
     </main>
-  </nz-content>
-</nz-layout>
+  </div>
+</div>

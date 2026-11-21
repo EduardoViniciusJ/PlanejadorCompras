@@ -6,11 +6,6 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzDividerModule } from 'ng-zorro-antd/divider';
-import { NzFormModule } from 'ng-zorro-antd/form';
-import { NzGridModule } from 'ng-zorro-antd/grid';
-import { NzInputModule } from 'ng-zorro-antd/input';
 
 import { SupplierRequestDto } from '../../dtos/supplier.dto';
 import { Supplier } from '../../models/supplier.model';
@@ -19,14 +14,7 @@ export type SupplierFormMode = 'create' | 'edit';
 
 @Component({
   selector: 'app-supplier-form',
-  imports: [
-    ReactiveFormsModule,
-    NzButtonModule,
-    NzDividerModule,
-    NzFormModule,
-    NzGridModule,
-    NzInputModule,
-  ],
+  imports: [ReactiveFormsModule],
   templateUrl: './supplier-form.component.html',
   styleUrl: './supplier-form.component.scss',
 })

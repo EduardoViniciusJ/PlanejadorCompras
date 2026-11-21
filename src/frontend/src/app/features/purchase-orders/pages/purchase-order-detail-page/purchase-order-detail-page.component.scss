@@ -102,24 +102,6 @@
   gap: 0.5rem;
 }
 
-.management-actions .ant-btn,
-.detail-state .ant-btn,
-.status-actions-buttons .ant-btn {
-  min-height: var(--app-control-height-sm);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  border-radius: var(--app-control-radius);
-  font-weight: 750;
-}
-
-.whatsapp-button {
-  border-color: color-mix(in srgb, var(--app-success) 48%, var(--app-border-color));
-  background: var(--app-success-soft);
-  color: var(--app-success-strong);
-}
-
 .detail-state {
   min-height: 22rem;
   display: grid;
@@ -327,8 +309,8 @@ tfoot td {
     width: 100%;
   }
 
-  .management-actions .ant-btn,
-  .status-actions-buttons .ant-btn {
+  .management-actions .btn,
+  .status-actions-buttons .btn {
     flex: 1 1 10rem;
   }
 

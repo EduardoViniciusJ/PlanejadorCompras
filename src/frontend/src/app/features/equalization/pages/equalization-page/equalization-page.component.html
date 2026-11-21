@@ -1,18 +1,15 @@
 <section class="matrix-page">
   @if (isLoading()) {
-    <div class="page-state">
-      <nz-spin nzSimple />
-      <p>Preparando comparação...</p>
-    </div>
+    <app-skeleton variant="table" [count]="6" label="Preparando comparação..." />
   } @else if (loadError()) {
     <div class="page-state" role="alert">
       <app-icon name="alert-triangle" [size]="24" />
-      <h1>Nao foi possivel gerar a equalizacao</h1>
+      <h1>Não foi possível gerar a equalização</h1>
       <p>{{ loadError() }}</p>
       <div class="page-state-actions">
-        <button nz-button (click)="retry()">Tentar novamente</button>
-        <a nz-button nzType="primary" [routerLink]="['/app/price-map', listId]">
-          Voltar ao mapa de precos
+        <button class="btn" type="button" (click)="retry()">Tentar novamente</button>
+        <a class="btn btn-primary" [routerLink]="['/app/price-map', listId]">
+          Voltar ao mapa de preços
         </a>
       </div>
     </div>
@@ -32,15 +29,14 @@
               accessibleLabel="Exportar relatório da equalização"
             />
             <button
-              nz-button
-              nzType="primary"
               type="button"
-              class="save-equalization-button mascot-hover-action"
-              [nzLoading]="isSaving()"
+              class="btn btn-primary save-equalization-button mascot-hover-action"
               [disabled]="isSaving() || matrix.rows.length === 0 || matrix.suppliers.length === 0"
               (click)="saveEqualization()"
             >
-              @if (!isSaving()) {
+              @if (isSaving()) {
+                <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+              } @else {
                 <app-icon name="lock" [size]="18" />
               }
               {{ isSaving() ? 'Salvando...' : 'Concluir e salvar equalização' }}
@@ -74,7 +70,7 @@
           <app-mascot class="page-state-mascot" variant="06" size="medium" />
           <h2>Ainda não há preços para comparar</h2>
           <p>Informe preços para os itens desta lista e volte para ver a comparação.</p>
-          <a nz-button nzType="primary" [routerLink]="['/app/price-map', list.id]"
+          <a class="btn btn-primary" [routerLink]="['/app/price-map', list.id]"
             >Voltar ao mapa de preços</a
           >
         </div>
@@ -137,7 +133,7 @@
             </tbody>
           </table>
         </div>
-        <p class="legend"><span></span> Menor preco por item</p>
+        <p class="legend"><span></span> Menor preço por item</p>
 
         <section class="save-decision" aria-labelledby="save-equalization-title">
           <app-mascot variant="06" size="medium" />
@@ -150,14 +146,14 @@
             </p>
           </div>
           <button
-            nz-button
-            nzType="primary"
+            class="btn btn-primary"
             type="button"
-            [nzLoading]="isSaving()"
             [disabled]="isSaving()"
             (click)="saveEqualization()"
           >
-            @if (!isSaving()) {
+            @if (isSaving()) {
+              <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+            } @else {
               <app-icon name="lock" [size]="18" />
             }
             {{ isSaving() ? 'Salvando...' : 'Concluir e salvar equalização' }}

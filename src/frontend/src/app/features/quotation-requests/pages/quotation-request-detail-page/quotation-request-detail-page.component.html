@@ -1,12 +1,12 @@
 <section class="management-page quotation-request-detail-page">
   @if (isLoading()) {
-    <div class="detail-state"><nz-spin nzSimple /><p>Carregando solicitação...</p></div>
+    <app-skeleton variant="detail" label="Carregando solicitação..." />
   } @else if (loadError()) {
     <div class="detail-state" role="alert">
       <app-icon name="alert-triangle" [size]="26" />
       <h1>Solicitação indisponível</h1>
       <p>{{ loadError() }}</p>
-      <button nz-button type="button" (click)="retry()">Tentar novamente</button>
+      <button class="btn" type="button" (click)="retry()">Tentar novamente</button>
     </div>
   } @else if (request(); as request) {
     <header class="quotation-hero management-surface">
@@ -24,16 +24,17 @@
       </div>
 
       <div class="management-actions">
-        <button nz-button type="button" [nzLoading]="isPreparingPdf()" (click)="downloadPdf()">
-          @if (!isPreparingPdf()) {
+        <button class="btn" type="button" [disabled]="isPreparingPdf()" (click)="downloadPdf()">
+          @if (isPreparingPdf()) {
+            <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+          } @else {
             <app-icon name="download" [size]="18" />
           }
           Baixar PDF
         </button>
         <button
-          nz-button
           type="button"
-          class="whatsapp-button"
+          class="btn whatsapp-button"
           [disabled]="isPreparingPdf()"
           (click)="share()"
         >
@@ -44,10 +45,16 @@
     </header>
 
     @if (actionError()) {
-      <nz-alert nzType="error" nzShowIcon [nzMessage]="actionError()!" />
+      <div role="alert" class="alert alert-error alert-soft">
+        <app-icon name="alert-circle" [size]="20" />
+        <span>{{ actionError() }}</span>
+      </div>
     }
     @if (feedback()) {
-      <nz-alert nzType="success" nzShowIcon [nzMessage]="feedback()!" />
+      <div role="status" class="alert alert-success alert-soft">
+        <app-icon name="circle-check" [size]="20" />
+        <span>{{ feedback() }}</span>
+      </div>
     }
 
     <section class="detail-summary" aria-label="Resumo da solicitação">

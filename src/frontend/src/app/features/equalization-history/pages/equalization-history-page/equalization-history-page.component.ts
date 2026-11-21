@@ -2,12 +2,9 @@ import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzAlertModule } from 'ng-zorro-antd/alert';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzSpinModule } from 'ng-zorro-antd/spin';
 
 import { AppIconComponent } from '../../../../shared/ui/app-icon/app-icon.component';
+import { SkeletonComponent } from '../../../../shared/ui/skeleton/skeleton.component';
 import { MascotComponent } from '../../../../shared/ui/mascot/mascot.component';
 import { ModalDialogComponent } from '../../../../shared/ui/modal-dialog/modal-dialog.component';
 import { SavedEqualizationService } from '../../data-access/saved-equalization.service';
@@ -20,10 +17,7 @@ import { SavedEqualizationSummaryDto } from '../../dtos/saved-equalization.dto';
     AppIconComponent,
     MascotComponent,
     ModalDialogComponent,
-    NzAlertModule,
-    NzButtonModule,
-    NzInputModule,
-    NzSpinModule,
+    SkeletonComponent,
   ],
   templateUrl: './equalization-history-page.component.html',
   styleUrl: './equalization-history-page.component.scss',

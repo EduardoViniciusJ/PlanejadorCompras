@@ -30,28 +30,9 @@
   font-weight: 500;
 }
 
-.app-input {
-  box-sizing: border-box;
-  min-height: var(--app-control-height);
-  width: 100%;
-  min-width: 0;
-  border-color: var(--app-border-color);
-  border-radius: var(--app-control-radius);
-  background: var(--app-surface-bg);
-  color: var(--app-text-color);
-}
-
 textarea.app-input {
   min-height: 8rem;
   resize: vertical;
-}
-
-.app-input::placeholder {
-  color: var(--app-text-soft);
-}
-
-.app-input[aria-invalid='true'] {
-  border-color: #dc3545;
 }
 
 .field-meta {
@@ -64,7 +45,7 @@ textarea.app-input {
 }
 
 .field-meta span:first-child {
-  color: #dc3545;
+  color: var(--app-danger);
 }
 
 .form-error {
@@ -72,10 +53,10 @@ textarea.app-input {
   align-items: flex-start;
   gap: 0.55rem;
   padding: 0.75rem;
-  border: 1px solid color-mix(in srgb, #dc3545 38%, var(--app-border-color));
+  border: 1px solid color-mix(in srgb, var(--app-danger) 38%, var(--app-border-color));
   border-radius: var(--app-radius-sm);
-  background: color-mix(in srgb, #dc3545 9%, var(--app-surface-bg));
-  color: #dc3545;
+  background: color-mix(in srgb, var(--app-danger) 9%, var(--app-surface-bg));
+  color: var(--app-danger);
   font-size: 0.875rem;
 }
 
@@ -84,16 +65,6 @@ textarea.app-input {
   justify-content: flex-end;
   gap: 0.65rem;
   padding-top: 0.25rem;
-}
-
-.form-actions .ant-btn {
-  min-height: var(--app-control-height);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  border-radius: var(--app-control-radius);
-  font-weight: 700;
 }
 
 @media (max-width: 575.98px) {

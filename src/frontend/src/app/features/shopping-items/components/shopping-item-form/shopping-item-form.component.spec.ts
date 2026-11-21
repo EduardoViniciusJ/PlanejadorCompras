@@ -18,7 +18,7 @@ describe('ShoppingItemFormComponent', () => {
 
   it('should keep quantity and unit in the same aligned field grid', () => {
     const fields = host().querySelectorAll('.form-grid > *');
-    const unitSelect = host().querySelector('nz-select[formControlName="unit"]');
+    const unitSelect = host().querySelector('select[formControlName="unit"]');
 
     expect(fields).toHaveLength(2);
     expect(fields[0].classList).toContain('quantity-field');

@@ -333,7 +333,7 @@ describe('PriceMapPageComponent', () => {
   });
 
   it('should edit and delete a price from the price map', () => {
-    doubleClick('.price-button');
+    click('.price-button');
     setInput('.inline-price-editor', '9');
     pressKey('.inline-price-editor', 'Enter');
 

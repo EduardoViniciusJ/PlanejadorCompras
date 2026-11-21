@@ -1,5 +1,6 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 
 import { SupplierService } from '../../data-access/supplier.service';
 import { SuppliersPageComponent } from './suppliers-page.component';
@@ -18,7 +19,7 @@ describe('SuppliersPageComponent', () => {
     getAll: vi.fn(() => of([supplier])),
     create: vi.fn(() => of(supplier)),
     update: vi.fn(() => of(supplier)),
-    delete: vi.fn(() => of(undefined)),
+    delete: vi.fn((): Observable<void> => of(undefined)),
   };
 
   beforeEach(async () => {
@@ -65,6 +66,61 @@ describe('SuppliersPageComponent', () => {
     click('[data-testid="confirm-delete-supplier"]');
     expect(service.delete).toHaveBeenCalledWith('supplier-1');
   });
+
+  it('should block the confirmation only when the supplier is in use', () => {
+    service.delete.mockReturnValueOnce(throwError(() => new HttpErrorResponse({ status: 409 })));
+    click('[data-testid="delete-supplier"]');
+    click('[data-testid="confirm-delete-supplier"]');
+
+    const confirm = confirmButton();
+    expect(host().querySelector('[role="alert"]')?.textContent).toContain(
+      'Este fornecedor possui preços cadastrados',
+    );
+    expect(confirm.disabled).toBe(true);
+    expect(confirm.textContent).toContain('Fornecedor em uso');
+  });
+
+  it('should allow retrying the deletion after a non-conflict failure', () => {
+    service.delete.mockReturnValueOnce(throwError(() => new HttpErrorResponse({ status: 0 })));
+    click('[data-testid="delete-supplier"]');
+    click('[data-testid="confirm-delete-supplier"]');
+
+    expect(host().querySelector('[role="alert"]')?.textContent).toContain(
+      'Não foi possível excluir o fornecedor agora.',
+    );
+    expect(confirmButton().disabled).toBe(false);
+    expect(confirmButton().textContent).toContain('Excluir fornecedor');
+    expect(confirmButton().textContent).not.toContain('Fornecedor em uso');
+
+    click('[data-testid="confirm-delete-supplier"]');
+
+    expect(service.delete).toHaveBeenCalledTimes(2);
+    expect(host().querySelector('[data-testid="confirm-delete-supplier"]')).toBeNull();
+    expect(host().textContent).toContain('Fornecedor excluído com sucesso.');
+  });
+
+  it('should paginate the table in pages of ten suppliers', () => {
+    service.getAll.mockReturnValueOnce(
+      of(
+        Array.from({ length: 12 }, (_, index) => ({
+          ...supplier,
+          id: `supplier-${index + 1}`,
+          name: `Fornecedor ${index + 1}`,
+        })),
+      ),
+    );
+    fixture = TestBed.createComponent(SuppliersPageComponent);
+    fixture.detectChanges();
+
+    expect(host().querySelectorAll('tbody tr')).toHaveLength(10);
+    click('[data-testid="suppliers-next-page"]');
+    expect(host().querySelectorAll('tbody tr')).toHaveLength(2);
+    expect(host().textContent).toContain('Página 2 de 2');
+  });
+
+  function confirmButton(): HTMLButtonElement {
+    return host().querySelector<HTMLButtonElement>('[data-testid="confirm-delete-supplier"]')!;
+  }
 
   function host(): HTMLElement {
     return fixture.nativeElement as HTMLElement;

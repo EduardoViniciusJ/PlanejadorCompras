@@ -1,0 +1,33 @@
+# Planejador de Compras
+
+> Sistema web de cotação e pedido de compra para pequenos e médios negócios que compram com frequência: mercados, restaurantes, lojas, clínicas e outros. O comprador monta a lista, envia a cotação em PDF aos fornecedores, compara os preços lado a lado e emite o pedido de compra. Interface em português do Brasil.
+
+## O que o produto faz
+
+- Listas de compras: itens, quantidades e unidades, digitados ou colados de uma planilha.
+- Solicitação de cotação: gera um PDF padronizado para enviar aos fornecedores por WhatsApp ou e-mail.
+- Mapa de preços: fornecedores lado a lado por item, com o menor preço de cada item destacado e o total de cada fornecedor.
+- Equalização: a melhor combinação de fornecedores fica salva como foi decidida.
+- Pedido de compra: emitido a partir da comparação, em PDF.
+- Exportação do mapa de preços para PDF e Excel.
+- Cadastro de fornecedores com CNPJ, contato e endereço.
+- Dashboard e histórico de atividades.
+- Inteligência artificial como ajuda opcional: criar a lista a partir de um texto e ler a resposta do fornecedor (PDF, foto, planilha ou mensagem) para preencher o mapa de preços, sempre com revisão do comprador antes de gravar.
+
+## Para quem é
+
+- Compradores e donos de negócios que hoje cotam por planilha e WhatsApp.
+- Funciona ao lado do ERP que a empresa já usa; não exige integração.
+- O fornecedor não precisa criar conta.
+
+## Planos
+
+- Plano Inicial: gratuito, com o fluxo completo e 20 usos de IA por mês.
+- Pro: R$ 20 por mês, com 200 usos de IA por mês, dashboard e histórico completos.
+
+## Páginas
+
+- [Página inicial](/): apresentação do produto, como funciona, recursos, planos e perguntas frequentes.
+- [Política de Privacidade](/politica-de-privacidade)
+- [Termos de Uso](/termos-de-uso)
+- [Política de Cookies](/politica-de-cookies)

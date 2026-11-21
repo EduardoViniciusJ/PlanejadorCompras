@@ -66,6 +66,16 @@ import {
   IconTrendingUp,
   IconUser,
   IconUserCircle,
+  IconFileCheck,
+  IconFilterOff,
+  IconToolsKitchen2,
+  IconStethoscope,
+  IconShoppingBag,
+  IconSend,
+  IconShieldCheck,
+  IconMail,
+  IconMoodSad,
+  IconThumbUp,
   IconX,
   TablerIconComponent,
 } from '@tabler/icons-angular';
@@ -137,12 +147,25 @@ const APP_ICONS: Record<string, typeof IconPlus> = {
   'trending-up': IconTrendingUp,
   user: IconUser,
   'user-circle': IconUserCircle,
+  'file-check': IconFileCheck,
+  'filter-off': IconFilterOff,
+  'tools-kitchen-2': IconToolsKitchen2,
+  stethoscope: IconStethoscope,
+  'shopping-bag': IconShoppingBag,
+  send: IconSend,
+  'shield-check': IconShieldCheck,
+  mail: IconMail,
+  'mood-sad': IconMoodSad,
+  'thumb-up': IconThumbUp,
   x: IconX,
 };
 
 @Component({
   selector: 'app-icon',
   imports: [TablerIconComponent],
+  // A biblioteca de ícones monta o SVG direto no DOM. Sem isto, nas páginas pré-renderizadas
+  // o navegador mantém o SVG do servidor e desenha outro por cima (ícone duplicado).
+  host: { ngSkipHydration: 'true' },
   template: `
     <tabler-icon
       [icon]="icon()"

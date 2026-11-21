@@ -80,10 +80,6 @@
   background: var(--app-surface-alt-bg);
 }
 
-.supplier-order-card .ant-btn {
-  justify-content: center;
-}
-
 .supplier-order-card-best {
   border-color: color-mix(in srgb, var(--app-success) 45%, var(--app-border));
   background: color-mix(in srgb, var(--app-success) 7%, var(--app-surface-bg));

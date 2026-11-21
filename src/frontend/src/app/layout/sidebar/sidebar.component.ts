@@ -8,12 +8,11 @@ import {
   output,
 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 
 import { CurrentUser } from '../../core/auth/models/current-user.model';
 import { AppTheme } from '../../core/theme/theme.service';
 import { AppIconComponent } from '../../shared/ui/app-icon/app-icon.component';
+import { BrandMarkComponent } from '../../shared/ui/brand-mark/brand-mark.component';
 
 interface SidebarNavigationItem {
   readonly icon: string;
@@ -51,8 +50,7 @@ const PRIMARY_NAVIGATION: readonly SidebarNavigationItem[] = [
     RouterLink,
     RouterLinkActive,
     AppIconComponent,
-    NzButtonModule,
-    NzTooltipModule,
+    BrandMarkComponent,
   ],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',

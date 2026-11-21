@@ -2,68 +2,98 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 import { LoginPageComponent } from './features/auth/pages/login-page/login-page.component';
 import { AppLayoutComponent } from './layout/app-layout/app-layout.component';
+import { PublicLayoutComponent } from './layout/public-layout/public-layout.component';
 
 export const routes: Routes = [
   {
     path: 'login',
     title: 'Entrar | Planejador de Compras',
     component: LoginPageComponent,
-    data: { authMode: 'login' },
+    data: { authMode: 'login', noindex: true },
   },
   {
     path: 'cadastro',
     title: 'Criar conta | Planejador de Compras',
     component: LoginPageComponent,
-    data: { authMode: 'register' },
+    data: { authMode: 'register', noindex: true },
   },
   {
     path: 'esqueci-minha-senha',
     title: 'Recuperar senha | Planejador de Compras',
     component: LoginPageComponent,
-    data: { authMode: 'forgot-password' },
+    data: { authMode: 'forgot-password', noindex: true },
   },
   {
     path: 'reset-password',
     title: 'Redefinir senha | Planejador de Compras',
     component: LoginPageComponent,
-    data: { authMode: 'reset-password' },
+    data: { authMode: 'reset-password', noindex: true },
   },
   {
     path: 'confirmar-email',
     title: 'Confirmar e-mail | Planejador de Compras',
     component: LoginPageComponent,
-    data: { authMode: 'confirm-email' },
+    data: { authMode: 'confirm-email', noindex: true },
   },
   {
-    path: 'politica-de-privacidade',
-    title: 'Política de Privacidade | Planejador de Compras',
-    data: { legalDocument: 'privacy' },
-    loadComponent: () =>
-      import('./features/legal/pages/legal-page/legal-page.component').then(
-        ({ LegalPageComponent }) => LegalPageComponent,
-      ),
-  },
-  {
-    path: 'termos-de-uso',
-    title: 'Termos de Uso | Planejador de Compras',
-    data: { legalDocument: 'terms' },
-    loadComponent: () =>
-      import('./features/legal/pages/legal-page/legal-page.component').then(
-        ({ LegalPageComponent }) => LegalPageComponent,
-      ),
-  },
-  {
-    path: 'politica-de-cookies',
-    title: 'Política de Cookies | Planejador de Compras',
-    data: { legalDocument: 'cookies' },
-    loadComponent: () =>
-      import('./features/legal/pages/legal-page/legal-page.component').then(
-        ({ LegalPageComponent }) => LegalPageComponent,
-      ),
+    path: '',
+    component: PublicLayoutComponent,
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        title: 'Planejador de Compras | Cotação de compras com IA',
+        data: {
+          description:
+            'Planeje suas compras com IA: monte a lista, envie a cotação em PDF pelo WhatsApp, compare fornecedores no mapa de preços e emita o pedido. Para mercados, restaurantes, lojas e clínicas.',
+        },
+        loadComponent: () =>
+          import('./features/landing/pages/landing-page/landing-page.component').then(
+            ({ LandingPageComponent }) => LandingPageComponent,
+          ),
+      },
+      {
+        path: 'politica-de-privacidade',
+        title: 'Política de Privacidade | Planejador de Compras',
+        data: {
+          legalDocument: 'privacy',
+          description: 'Como o Planejador de Compras coleta, usa e protege os seus dados.',
+        },
+        loadComponent: () =>
+          import('./features/legal/pages/legal-page/legal-page.component').then(
+            ({ LegalPageComponent }) => LegalPageComponent,
+          ),
+      },
+      {
+        path: 'termos-de-uso',
+        title: 'Termos de Uso | Planejador de Compras',
+        data: {
+          legalDocument: 'terms',
+          description: 'Condições de uso do Planejador de Compras.',
+        },
+        loadComponent: () =>
+          import('./features/legal/pages/legal-page/legal-page.component').then(
+            ({ LegalPageComponent }) => LegalPageComponent,
+          ),
+      },
+      {
+        path: 'politica-de-cookies',
+        title: 'Política de Cookies | Planejador de Compras',
+        data: {
+          legalDocument: 'cookies',
+          description: 'Quais cookies o Planejador de Compras usa e para quê.',
+        },
+        loadComponent: () =>
+          import('./features/legal/pages/legal-page/legal-page.component').then(
+            ({ LegalPageComponent }) => LegalPageComponent,
+          ),
+      },
+    ],
   },
   {
     path: 'app',
     component: AppLayoutComponent,
+    data: { noindex: true },
     canActivate: [authGuard],
     children: [
       {
@@ -179,6 +209,21 @@ export const routes: Routes = [
         path: 'lists/:listId',
         redirectTo: 'price-map/:listId',
         pathMatch: 'full',
+      },
+    ],
+  },
+  {
+    path: '**',
+    component: PublicLayoutComponent,
+    children: [
+      {
+        path: '',
+        title: 'Página não encontrada | Planejador de Compras',
+        data: { noindex: true },
+        loadComponent: () =>
+          import('./features/landing/pages/not-found-page/not-found-page.component').then(
+            ({ NotFoundPageComponent }) => NotFoundPageComponent,
+          ),
       },
     ],
   },

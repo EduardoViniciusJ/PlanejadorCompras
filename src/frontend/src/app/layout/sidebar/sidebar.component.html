@@ -2,7 +2,7 @@
   id="app-sidebar"
   class="sidebar"
   [class.sidebar-collapsed]="collapsed()"
-  aria-label="Navegacao principal"
+  aria-label="Navegação principal"
 >
   <div class="sidebar-brand-row">
     <a
@@ -11,24 +11,15 @@
       aria-label="Planejador de Compras"
       (click)="notifyNavigation()"
     >
-      <img
-        class="sidebar-brand-mark"
-        src="/icons/new-brand-mascot.png"
-        alt=""
-        width="32"
-        height="32"
-        aria-hidden="true"
-      />
+      <app-brand-mark class="sidebar-brand-mark" [size]="32" />
       <span class="sidebar-brand-copy">
         <strong>Planejador</strong>
-        <small>Compras profissionais</small>
+        <small>de Compras</small>
       </span>
     </a>
     <button
-      nz-button
-      nzType="text"
       type="button"
-      class="sidebar-collapse-button"
+      class="sidebar-collapse-button btn btn-ghost btn-sm btn-square"
       aria-controls="app-sidebar"
       [attr.aria-expanded]="!collapsed()"
       [attr.aria-label]="collapsed() ? 'Expandir menu lateral' : 'Recolher menu lateral'"
@@ -48,9 +39,8 @@
             [routerLink]="item.route"
             routerLinkActive="sidebar-nav-link-active"
             [routerLinkActiveOptions]="{ exact: item.exact }"
-            nz-tooltip
-            [nzTooltipTitle]="collapsed() ? item.label : null"
-            nzTooltipPlacement="right"
+            [attr.title]="collapsed() ? item.label : null"
+            [attr.aria-label]="collapsed() ? item.label : null"
             (click)="notifyNavigation()"
           >
             <app-icon [name]="item.icon" [size]="20" />
@@ -63,10 +53,8 @@
 
   <div class="sidebar-footer">
     <button
-      nz-button
-      nzType="text"
       type="button"
-      class="sidebar-utility-button"
+      class="sidebar-utility-button btn btn-ghost"
       [attr.aria-label]="themeButtonLabel()"
       [attr.aria-pressed]="currentTheme() === 'dark'"
       [attr.title]="collapsed() ? themeButtonLabel() : null"
@@ -78,10 +66,8 @@
 
     <div class="sidebar-profile-menu">
       <button
-        nz-button
-        nzType="text"
         type="button"
-        class="sidebar-utility-button sidebar-profile-button"
+        class="sidebar-utility-button sidebar-profile-button btn btn-ghost"
         aria-controls="profile-menu"
         [attr.aria-expanded]="isProfileMenuOpen()"
         aria-label="Abrir menu do perfil"
@@ -110,10 +96,8 @@
           }
 
           <button
-            nz-button
-            nzDanger
             type="button"
-            class="profile-menu-logout"
+            class="profile-menu-logout btn btn-error btn-soft btn-sm"
             [disabled]="isLoggingOut()"
             (click)="logoutRequested.emit()"
           >
