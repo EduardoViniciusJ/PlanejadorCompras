@@ -1,5 +1,6 @@
+/* Sem caixa própria: escondida, não ocupa uma linha (nem o espaçamento) do grid da página. */
 :host {
-  display: block;
+  display: contents;
 }
 
 .onboarding-checklist {
@@ -149,6 +150,19 @@
 @media (max-width: 640px) {
   .onboarding-checklist {
     padding: 1rem 1rem 0.25rem;
+  }
+
+  .onboarding-header {
+    gap: 0.5rem;
+  }
+
+  .onboarding-dismiss {
+    width: var(--app-control-height-sm);
+    padding: 0;
+  }
+
+  .onboarding-dismiss-label {
+    display: none;
   }
 
   .onboarding-step {
