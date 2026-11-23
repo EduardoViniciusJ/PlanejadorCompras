@@ -28,6 +28,23 @@
 ## Páginas
 
 - [Página inicial](/): apresentação do produto, como funciona, recursos, planos e perguntas frequentes.
+
+### Por segmento
+
+- [Para restaurantes](/para-restaurantes): cotação de hortifrúti, proteínas, laticínios e descartáveis para restaurantes, bares e cozinhas.
+- [Para mercados](/para-mercados): lista de reposição de mercados, mercearias e empórios comparada entre distribuidores.
+- [Para lojas](/para-lojas): compra de mercadoria para revenda e de material de uso em lojas e comércio em geral.
+- [Para clínicas](/para-clinicas): cotação de descartáveis e materiais de consumo para clínicas e consultórios.
+
+### Guias de compras
+
+- [O que é mapa de cotação (mapa de preços)](/o-que-e-mapa-de-cotacao): definição, o que o mapa tem, exemplo e como montar.
+- [Como fazer equalização de propostas](/como-fazer-equalizacao-de-propostas): como colocar propostas de fornecedores na mesma base antes de comparar, com exemplo.
+- [Planilha de cotação de compras](/planilha-de-cotacao-de-compras): como montar a planilha, fórmulas, modelo em CSV para baixar e quando ela deixa de dar conta.
+- [Modelo de planilha de cotação (CSV)](/modelos/planilha-de-cotacao-de-compras.csv)
+
+### Legal
+
 - [Política de Privacidade](/politica-de-privacidade)
 - [Termos de Uso](/termos-de-uso)
 - [Política de Cookies](/politica-de-cookies)

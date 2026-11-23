@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
+import { PUBLIC_PAGE_ROUTES } from './features/public-pages/public-pages.routes';
 import { LoginPageComponent } from './features/auth/pages/login-page/login-page.component';
 import { AppLayoutComponent } from './layout/app-layout/app-layout.component';
 import { PublicLayoutComponent } from './layout/public-layout/public-layout.component';
@@ -88,6 +89,7 @@ export const routes: Routes = [
             ({ LegalPageComponent }) => LegalPageComponent,
           ),
       },
+      ...PUBLIC_PAGE_ROUTES,
     ],
   },
   {

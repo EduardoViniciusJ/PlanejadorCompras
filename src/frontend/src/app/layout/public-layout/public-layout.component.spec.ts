@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
+import { PUBLIC_CONTENT_PAGES } from '../../features/public-pages/public-pages';
 import { PublicLayoutComponent } from './public-layout.component';
 
 describe('PublicLayoutComponent', () => {
@@ -33,6 +34,20 @@ describe('PublicLayoutComponent', () => {
 
     expect(hrefs).toContain('/login');
     expect(hrefs).toContain('/cadastro');
+  });
+
+  it('should link every segment page and guide from the footer', async () => {
+    const fixture = TestBed.createComponent(PublicLayoutComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const hrefs = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('footer a')).map(
+      (link) => link.getAttribute('href'),
+    );
+
+    for (const page of PUBLIC_CONTENT_PAGES) {
+      expect(hrefs).toContain(`/${page.slug}`);
+    }
   });
 
   it('should toggle and persist the theme', async () => {

@@ -72,7 +72,9 @@
 
   <footer>
     <div class="mx-auto w-full max-w-6xl px-4 sm:px-6">
-      <div class="grid gap-10 border-t border-base-300 py-12 md:grid-cols-[1.6fr_1fr_1fr]">
+      <div
+        class="grid gap-10 border-t border-base-300 py-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.3fr_1fr]"
+      >
         <div>
           <span class="flex items-center gap-2.5 font-display text-base font-bold tracking-tight">
             <app-brand-mark [size]="28" />
@@ -94,6 +96,24 @@
             </a>
           }
           <a class="link link-hover text-base-content/70" routerLink="/login">Entrar</a>
+        </nav>
+
+        <nav class="flex flex-col gap-2 text-sm" aria-label="Para quem">
+          <h2 class="mb-1 font-semibold">Para quem</h2>
+          @for (page of segmentPages; track page.slug) {
+            <a class="link link-hover text-base-content/70" [routerLink]="'/' + page.slug">
+              {{ page.label }}
+            </a>
+          }
+        </nav>
+
+        <nav class="flex flex-col gap-2 text-sm" aria-label="Guias">
+          <h2 class="mb-1 font-semibold">Guias</h2>
+          @for (page of guidePages; track page.slug) {
+            <a class="link link-hover text-base-content/70" [routerLink]="'/' + page.slug">
+              {{ page.label }}
+            </a>
+          }
         </nav>
 
         <nav class="flex flex-col gap-2 text-sm" aria-label="Legal">
