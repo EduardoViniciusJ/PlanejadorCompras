@@ -11,6 +11,7 @@ internal static class ApiRateLimitingConfiguration
     internal const string PublicQuotationReadPolicy = "public-quotation-read";
     internal const string PublicQuotationWritePolicy = "public-quotation-write";
     internal const string QuotationDeliveryPolicy = "quotation-delivery";
+    internal const string AiPolicy = "ai";
     internal const string RefreshPolicy = "auth-refresh";
 
     internal static IServiceCollection AddApiRateLimiting(
@@ -40,6 +41,10 @@ internal static class ApiRateLimitingConfiguration
             // Issuing requests and links can send e-mail to addresses chosen by the user.
             options.AddPolicy(QuotationDeliveryPolicy, httpContext =>
                 CreateFixedWindowPartition(httpContext, 20, TimeSpan.FromMinutes(10)));
+            // Burst protection for calls that cost money; the monthly limit per user is
+            // enforced separately, in the database.
+            options.AddPolicy(AiPolicy, httpContext =>
+                CreateFixedWindowPartition(httpContext, 20, TimeSpan.FromMinutes(1)));
             options.AddPolicy(RefreshPolicy, httpContext =>
                 CreateFixedWindowPartition(httpContext, 120, TimeSpan.FromMinutes(1)));
         });

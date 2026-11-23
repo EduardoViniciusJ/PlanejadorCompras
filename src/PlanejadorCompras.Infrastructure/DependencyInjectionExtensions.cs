@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using PlanejadorCompras.Application.Features.Ai;
 using PlanejadorCompras.Application.Services;
 using PlanejadorCompras.Application.Services.Interfaces;
 using PlanejadorCompras.Domain.Repositories;
@@ -20,6 +22,7 @@ using PlanejadorCompras.Infrastructure.Reports.Excel;
 using PlanejadorCompras.Infrastructure.Reports.Pdf;
 using PlanejadorCompras.Infrastructure.Repositories;
 using PlanejadorCompras.Infrastructure.Services;
+using PlanejadorCompras.Infrastructure.Services.Ai;
 
 namespace PlanejadorCompras.Infrastructure;
 
@@ -33,6 +36,7 @@ public static class DependencyInjectionExtensions
         AddApplicationServices(services);
         AddReportExporters(services);
         AddExternalServices(services);
+        AddAi(services, configuration);
         AddSessionSettings(services, configuration);
 
         return services;
@@ -78,6 +82,22 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IQuotationRequestRepository, QuotationRequestRepository>();
         services.AddScoped<IUserTokenRepository, UserTokenRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+    }
+
+    private static void AddAi(IServiceCollection services, IConfiguration configuration)
+    {
+        // The key comes from user secrets or the Ai__ApiKey environment variable, never from a
+        // versioned file. Without it the API starts normally and AI endpoints answer 503.
+        var apiKey = configuration["Ai:ApiKey"];
+        var settings = AiSettingsFactory.Create(configuration);
+
+        services.AddSingleton(settings);
+        services.AddSingleton<IAiClient>(provider => new AnthropicAiClient(
+            apiKey,
+            settings,
+            provider.GetRequiredService<ILogger<AnthropicAiClient>>()));
+        services.AddScoped<IAiUsageStore, AiUsageStore>();
+        services.AddSingleton<IAiDocumentReader, AiDocumentReader>();
     }
 
     private static void AddUnitOfWork(IServiceCollection services)

@@ -1,0 +1,66 @@
+<div class="ai-source">
+  <div class="ai-source-field">
+    <label for="ai-source-text">{{ textLabel() }}</label>
+    <textarea
+      id="ai-source-text"
+      class="textarea w-full"
+      rows="7"
+      [placeholder]="textPlaceholder()"
+      [disabled]="disabled()"
+      [value]="text()"
+      [class.textarea-error]="textTooLong()"
+      [attr.aria-invalid]="textTooLong()"
+      aria-describedby="ai-source-text-help"
+      (input)="updateText($event)"
+    ></textarea>
+    <div id="ai-source-text-help" class="ai-source-meta">
+      <span class="ai-source-error">
+        @if (textTooLong()) {
+          O texto passa do limite. Envie só a parte que interessa.
+        }
+      </span>
+      <span>{{ text().length }}/{{ maxCharacters() }}</span>
+    </div>
+  </div>
+
+  <div class="ai-source-field">
+    <label for="ai-source-file">{{ fileLabel() }}</label>
+    <input
+      #fileInput
+      id="ai-source-file"
+      class="file-input w-full"
+      type="file"
+      [accept]="accept()"
+      [disabled]="disabled()"
+      aria-describedby="ai-source-file-help"
+      (change)="selectFile($event)"
+    />
+    <div id="ai-source-file-help" class="ai-source-meta">
+      @if (fileError()) {
+        <span class="ai-source-error" role="alert">{{ fileError() }}</span>
+      } @else if (file(); as selected) {
+        <span class="ai-source-file">
+          <app-icon name="circle-check" [size]="16" />
+          {{ describeFile(selected) }}
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs"
+            [disabled]="disabled()"
+            (click)="removeFile(fileInput)"
+          >
+            Remover
+          </button>
+        </span>
+      } @else {
+        <span>Até {{ fileSizeLimit() }}. O arquivo é usado só para a leitura e não fica guardado.</span>
+      }
+    </div>
+  </div>
+
+  @if (usage()) {
+    <p class="ai-source-usage" data-testid="ai-usage">
+      <app-icon name="sparkles" [size]="16" />
+      {{ usage() }} Cada leitura conta como um uso.
+    </p>
+  }
+</div>

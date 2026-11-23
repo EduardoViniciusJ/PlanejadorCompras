@@ -49,6 +49,14 @@
         <button class="btn" type="button" (click)="openSupplierPicker()">
           <app-icon name="building-plus" [size]="18" /> Adicionar fornecedor
         </button>
+        <app-ai-quote-reader
+          [listId]="listId()"
+          [items]="activeList.items"
+          [suppliers]="suppliers()"
+          [existingPrices]="quoteIndex()"
+          [disabled]="isLoading() || isSaving()"
+          (applied)="onAiQuotesApplied($event)"
+        />
       }
     </div>
   </header>

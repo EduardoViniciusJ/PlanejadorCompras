@@ -1,0 +1,42 @@
+:host {
+  display: contents;
+}
+
+.ai-action {
+  display: inline-flex;
+}
+
+.ai-dialog {
+  display: grid;
+  min-width: 0;
+  gap: 1rem;
+}
+
+.ai-intro {
+  margin: 0;
+  color: var(--app-text-soft);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.ai-name {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.ai-name label {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.ai-name-error {
+  color: var(--app-danger);
+  font-size: 0.78rem;
+}
+
+.ai-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}

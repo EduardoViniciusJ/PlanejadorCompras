@@ -26,4 +26,4 @@
 </fieldset>
 @if (attempted()) { <p class="hint">Preencha ao menos um item. Cada linha precisa de nome (até 100 caracteres), quantidade maior que zero com até 3 casas decimais e unidade (até 20 caracteres). Linhas vazias são ignoradas.</p> }
 @if (pasteError() || serverError()) { <p class="error" role="alert">{{ pasteError() || serverError() }}</p> }
-<div class="actions"><button class="btn" type="button" [disabled]="submitting()" (click)="cancelRequested.emit()">Cancelar</button><button class="btn btn-primary" type="button" [disabled]="submitting()" (click)="submit()">@if (submitting()) { <span class="loading loading-spinner loading-sm" aria-hidden="true"></span> }Adicionar itens à lista</button></div>
+<div class="actions"><button class="btn" type="button" [disabled]="submitting()" (click)="cancelRequested.emit()">Cancelar</button><button class="btn btn-primary" type="button" [disabled]="submitting()" (click)="submit()">@if (submitting()) { <span class="loading loading-spinner loading-sm" aria-hidden="true"></span> }{{ submitLabel() }}</button></div>

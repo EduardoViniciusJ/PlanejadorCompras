@@ -1,0 +1,266 @@
+<span class="ai-action" [attr.title]="unavailableReason()">
+  <button
+    type="button"
+    class="btn btn-accent"
+    data-testid="ai-read-quote"
+    [disabled]="!!unavailableReason() || disabled()"
+    [attr.aria-describedby]="unavailableReason() ? 'ai-read-quote-reason' : null"
+    (click)="open()"
+  >
+    <app-icon name="sparkles" [size]="18" /> Ler cotação com IA
+  </button>
+  @if (unavailableReason()) {
+    <span id="ai-read-quote-reason" class="sr-only">{{ unavailableReason() }}</span>
+  }
+</span>
+
+@if (step() === 'input') {
+  <app-modal-dialog
+    title="Ler cotação com IA"
+    eyebrow="Resposta do fornecedor"
+    width="large"
+    [closeDisabled]="isReading()"
+    (closeRequested)="close()"
+  >
+    <div class="ai-dialog">
+      <p class="ai-intro">
+        Cole o que o fornecedor mandou ou envie o arquivo. A IA encontra os preços e casa cada um
+        com os itens da lista. Você revisa tudo antes de gravar.
+      </p>
+
+      @if (missingData()) {
+        <div role="alert" class="alert alert-warning alert-soft">
+          <app-icon name="alert-triangle" [size]="20" />
+          <span>{{ missingData() }}</span>
+        </div>
+      }
+
+      <app-ai-source-input
+        #source
+        [status]="status()"
+        [disabled]="isReading()"
+        [(text)]="text"
+        [(file)]="file"
+        textLabel="Texto da cotação"
+        textPlaceholder="Ex.: Arroz T1 5kg R$ 24,90 / Leite integral cx c/ 12 R$ 59,88. Pagamento em 28 dias."
+        fileLabel="Ou envie PDF, foto (JPG ou PNG) ou planilha (XLSX ou CSV)"
+        accept=".pdf,.jpg,.jpeg,.png,.xlsx,.csv,application/pdf,image/jpeg,image/png"
+      />
+
+      @if (error()) {
+        <div role="alert" class="alert alert-error alert-soft" data-testid="ai-error">
+          <app-icon name="alert-circle" [size]="20" />
+          <span>{{ error() }}</span>
+        </div>
+      }
+
+      <div class="ai-actions">
+        <button type="button" class="btn" [disabled]="isReading()" (click)="close()">
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-testid="ai-read-submit"
+          [disabled]="isReading() || !source.ready() || !!missingData()"
+          (click)="read()"
+        >
+          @if (isReading()) {
+            <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+            Lendo a cotação...
+          } @else {
+            <app-icon name="sparkles" [size]="18" /> Ler cotação
+          }
+        </button>
+      </div>
+    </div>
+  </app-modal-dialog>
+}
+
+@if (step() === 'review') {
+  <app-modal-dialog
+    title="Revise antes de gravar"
+    eyebrow="Leitura por IA"
+    width="large"
+    [closeDisabled]="isSaving()"
+    (closeRequested)="close()"
+  >
+    <div class="ai-dialog">
+      @if (rows().length === 0) {
+        <div role="status" class="alert alert-warning alert-soft" data-testid="ai-empty">
+          <app-icon name="info-circle" [size]="20" />
+          <span>
+            A IA não encontrou preços neste conteúdo. Confira se enviou a resposta certa ou lance
+            os preços direto no mapa.
+          </span>
+        </div>
+      } @else {
+        <p class="ai-intro">
+          Nenhum preço foi gravado ainda. Confira cada linha, corrija o que precisar e desmarque o
+          que não quiser usar. A IA pode errar, principalmente em embalagens e unidades.
+        </p>
+
+        <div class="ai-supplier">
+          <label for="ai-review-supplier">Fornecedor desta cotação</label>
+          <select
+            id="ai-review-supplier"
+            class="select w-full"
+            data-testid="ai-supplier"
+            [disabled]="isSaving()"
+            (change)="setSupplier($event)"
+          >
+            <option value="" disabled [selected]="supplierId() === ''">Escolha o fornecedor</option>
+            @for (supplier of suppliers(); track supplier.id) {
+              <option [value]="supplier.id" [selected]="supplier.id === supplierId()">
+                {{ supplier.name }}
+              </option>
+            }
+          </select>
+        </div>
+
+        @if (generalConditions()) {
+          <p class="ai-conditions">
+            <strong>Condições informadas:</strong> {{ generalConditions() }}
+            <span>Elas ficam só aqui para consulta; não são gravadas no mapa.</span>
+          </p>
+        }
+
+        <div class="ai-review-scroll">
+          <table class="ai-review-table">
+            <thead>
+              <tr>
+                <th scope="col">Usar</th>
+                <th scope="col">O que o fornecedor escreveu</th>
+                <th scope="col">Item da lista</th>
+                <th scope="col">Confiança</th>
+                <th scope="col">Preço por unidade da lista</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of rows(); track row.lineNumber) {
+                <tr
+                  [class.ai-row-off]="!row.include"
+                  [class.ai-row-invalid]="rowError(row)"
+                  [attr.data-testid]="'ai-row-' + row.lineNumber"
+                >
+                  <td>
+                    <input
+                      type="checkbox"
+                      class="checkbox checkbox-sm"
+                      [checked]="row.include"
+                      [disabled]="isSaving()"
+                      [attr.aria-label]="'Usar a linha ' + row.lineNumber + ': ' + row.description"
+                      (change)="setInclude(row, $event)"
+                    />
+                  </td>
+                  <td>
+                    <span class="ai-source-text">{{ row.description }}</span>
+                    @if (row.supplierUnitPrice !== null) {
+                      <span class="ai-row-meta">
+                        {{ formatCurrency(row.supplierUnitPrice) }}
+                        @if (row.supplierUnit) {
+                          por {{ row.supplierUnit }}
+                        }
+                      </span>
+                    }
+                    @if (row.note) {
+                      <span class="ai-row-note">{{ row.note }}</span>
+                    }
+                  </td>
+                  <td>
+                    <select
+                      class="select select-sm w-full"
+                      [disabled]="isSaving()"
+                      [attr.aria-label]="'Item da lista para a linha ' + row.lineNumber"
+                      (change)="setItem(row, $event)"
+                    >
+                      <option value="" [selected]="row.itemId === ''">Sem correspondência</option>
+                      @for (item of items(); track item.id) {
+                        <option [value]="item.id" [selected]="item.id === row.itemId">
+                          {{ describeItem(item) }}
+                        </option>
+                      }
+                    </select>
+                  </td>
+                  <td>
+                    <span
+                      class="badge badge-sm"
+                      [class.badge-success]="row.confidence === 'high'"
+                      [class.badge-warning]="row.confidence === 'medium'"
+                      [class.badge-error]="row.confidence === 'low'"
+                      [class.badge-ghost]="row.confidence === 'none'"
+                    >
+                      {{ confidenceLabels[row.confidence] }}
+                    </span>
+                  </td>
+                  <td>
+                    <label class="input input-sm ai-price">
+                      <span>R$</span>
+                      <input
+                        type="text"
+                        inputmode="decimal"
+                        [value]="row.price"
+                        [disabled]="isSaving()"
+                        [attr.aria-label]="'Preço da linha ' + row.lineNumber"
+                        [attr.aria-invalid]="!!rowError(row)"
+                        (input)="setPrice(row, $event)"
+                      />
+                    </label>
+                    @if (rowError(row); as message) {
+                      <span class="ai-row-error" role="alert">{{ message }}</span>
+                    } @else if (row.include && currentPrice(row); as current) {
+                      <span class="ai-row-meta">Substitui o preço atual de {{ current }}.</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (discardedLines() > 0) {
+          <p class="ai-footnote">
+            {{ discardedLines() }}
+            {{ discardedLines() === 1 ? 'linha foi ignorada' : 'linhas foram ignoradas' }} por não
+            ter um preço válido.
+          </p>
+        }
+      }
+
+      @if (error()) {
+        <div role="alert" class="alert alert-error alert-soft" data-testid="ai-error">
+          <app-icon name="alert-circle" [size]="20" />
+          <span>{{ error() }}</span>
+        </div>
+      }
+
+      <div class="ai-actions">
+        <button type="button" class="btn" [disabled]="isSaving()" (click)="backToInput()">
+          Voltar
+        </button>
+        @if (rows().length > 0) {
+          <button
+            type="button"
+            class="btn btn-primary"
+            data-testid="ai-confirm"
+            [disabled]="!canConfirm()"
+            (click)="confirm()"
+          >
+            @if (isSaving()) {
+              <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+            } @else {
+              <app-icon name="check" [size]="18" />
+            }
+            {{
+              includedRows().length === 1
+                ? 'Gravar 1 preço'
+                : 'Gravar ' + includedRows().length + ' preços'
+            }}
+          </button>
+        } @else {
+          <button type="button" class="btn btn-primary" (click)="close()">Fechar</button>
+        }
+      </div>
+    </div>
+  </app-modal-dialog>
+}
