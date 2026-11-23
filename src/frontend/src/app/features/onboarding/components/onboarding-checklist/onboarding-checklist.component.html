@@ -1,0 +1,106 @@
+@if (view() === 'loading') {
+  <div class="onboarding-checklist management-surface" role="status" aria-busy="true">
+    <span class="visually-hidden">Carregando primeiros passos...</span>
+    <div class="onboarding-skeleton" aria-hidden="true">
+      <div class="skeleton h-4 w-28"></div>
+      <div class="skeleton mt-2 h-5 w-2/3"></div>
+      <div class="skeleton mt-5 h-2 w-full"></div>
+      @for (line of [1, 2, 3]; track line) {
+        <div class="mt-4 flex items-center gap-3">
+          <div class="skeleton h-7 w-7 shrink-0 rounded-full"></div>
+          <div class="skeleton h-4 w-1/2"></div>
+        </div>
+      }
+    </div>
+  </div>
+} @else if (view() === 'ready') {
+  <section
+    class="onboarding-checklist management-surface"
+    aria-labelledby="onboarding-checklist-title"
+    data-testid="onboarding-checklist"
+  >
+    <header class="onboarding-header">
+      <div class="onboarding-heading">
+        <span class="management-eyebrow">Primeiros passos</span>
+        <h2 id="onboarding-checklist-title">Faça sua primeira compra pelo sistema</h2>
+        <p>Da lista ao pedido de compra, cada passo fica marcado quando você o conclui.</p>
+      </div>
+
+      <button
+        type="button"
+        class="btn btn-ghost btn-sm onboarding-dismiss"
+        aria-label="Dispensar primeiros passos"
+        data-testid="onboarding-dismiss"
+        (click)="dismiss()"
+      >
+        <app-icon name="x" [size]="16" />
+        Dispensar
+      </button>
+    </header>
+
+    <div class="onboarding-progress">
+      <span data-testid="onboarding-progress">
+        {{ completedCount() }} de {{ steps().length }} concluídos
+      </span>
+      <progress
+        class="onboarding-progress-bar"
+        [value]="completedCount()"
+        [max]="steps().length"
+        [attr.aria-label]="'Progresso: ' + completedCount() + ' de ' + steps().length + ' passos concluídos'"
+      ></progress>
+    </div>
+
+    <ol class="onboarding-steps">
+      @for (step of steps(); track step.id; let index = $index) {
+        <li
+          class="onboarding-step"
+          [class.onboarding-step-done]="step.done"
+          [class.onboarding-step-next]="step.id === nextStepId()"
+          [attr.data-testid]="'onboarding-step-' + step.id"
+          [attr.data-done]="step.done"
+        >
+          <span class="onboarding-step-marker" aria-hidden="true">
+            @if (step.done) {
+              <app-icon name="check" [size]="16" [stroke]="2.4" />
+            } @else {
+              {{ index + 1 }}
+            }
+          </span>
+
+          <div class="onboarding-step-copy">
+            <h3>
+              {{ step.title }}
+              <span class="visually-hidden">{{ step.done ? '(concluído)' : '(pendente)' }}</span>
+            </h3>
+            <p>{{ step.description }}</p>
+          </div>
+
+          <div class="onboarding-step-action">
+            @if (step.done) {
+              <span class="onboarding-step-status">Concluído</span>
+            } @else if (step.action.kind === 'link') {
+              <a
+                class="btn btn-sm"
+                [class.btn-primary]="step.id === nextStepId()"
+                [routerLink]="step.action.commands"
+              >
+                {{ step.actionLabel }}
+                <app-icon name="arrow-right" [size]="16" />
+              </a>
+            } @else {
+              <button
+                type="button"
+                class="btn btn-sm"
+                [class.btn-primary]="step.id === nextStepId()"
+                (click)="runAction(step)"
+              >
+                {{ step.actionLabel }}
+                <app-icon name="arrow-right" [size]="16" />
+              </button>
+            }
+          </div>
+        </li>
+      }
+    </ol>
+  </section>
+}

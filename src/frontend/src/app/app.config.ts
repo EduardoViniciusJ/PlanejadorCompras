@@ -5,13 +5,20 @@ import { provideRouter, withInMemoryScrolling } from '@angular/router';
 
 import { apiCredentialsInterceptor } from './core/api/api-credentials.interceptor';
 import { apiAuthenticationInterceptor } from './core/api/api-authentication.interceptor';
+import { onboardingInvalidationInterceptor } from './features/onboarding/data-access/onboarding-invalidation.interceptor';
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideClientHydration(withEventReplay()),
-    provideHttpClient(withInterceptors([apiCredentialsInterceptor, apiAuthenticationInterceptor])),
+    provideHttpClient(
+      withInterceptors([
+        apiCredentialsInterceptor,
+        apiAuthenticationInterceptor,
+        onboardingInvalidationInterceptor,
+      ]),
+    ),
     provideRouter(
       routes,
       withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }),
