@@ -1,5 +1,7 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using PlanejadorCompras.API.ErrorHandling;
 using PlanejadorCompras.Application.Exceptions;
 
@@ -25,7 +27,25 @@ public static class ExceptionHandlingExtensions
                     .GetRequiredService<ILoggerFactory>()
                     .CreateLogger("ApiExceptionHandler");
 
-                if (exception is not null && exception is not AppException)
+                if (exception is DbUpdateException && statusCode == StatusCodes.Status409Conflict)
+                {
+                    // Expected under concurrency (two requests inserting the same thing): the
+                    // database constraint did its job. Logged without the exception so that
+                    // parameter values never reach the logs.
+                    logger.LogWarning(
+                        "Database conflict mapped to 409 ({ErrorCode}). TraceId: {TraceId}",
+                        errorCode,
+                        context.TraceIdentifier);
+                }
+                else if (exception is ServiceUnavailableException)
+                {
+                    // An optional integration (Google login, e-mail) is not configured.
+                    logger.LogWarning(
+                        "Feature unavailable ({ErrorCode}). TraceId: {TraceId}",
+                        errorCode,
+                        context.TraceIdentifier);
+                }
+                else if (exception is not null && exception is not AppException)
                 {
                     logger.LogError(
                         exception,
@@ -51,7 +71,7 @@ public static class ExceptionHandlingExtensions
         return app;
     }
 
-    private static (int StatusCode, string Title, string ErrorCode) MapException(Exception? exception)
+    public static (int StatusCode, string Title, string ErrorCode) MapException(Exception? exception)
     {
         return exception switch
         {
@@ -59,6 +79,17 @@ public static class ExceptionHandlingExtensions
                 (int)appException.StatusCode,
                 appException.Message,
                 appException.ErrorCode),
+            // "Check, then insert" races: the use case saw no duplicate, but another request
+            // inserted first and the unique index rejected this one. That is a conflict the
+            // client can understand, not a server failure.
+            DbUpdateException { InnerException: PostgresException { SqlState: PostgresErrorCodes.UniqueViolation } } => (
+                StatusCodes.Status409Conflict,
+                "Já existe um registro com esses dados.",
+                "duplicate_record"),
+            DbUpdateConcurrencyException => (
+                StatusCodes.Status409Conflict,
+                "O registro foi alterado por outra operação. Atualize a página e tente novamente.",
+                "concurrency_conflict"),
             ArgumentNullException => (
                 StatusCodes.Status400BadRequest,
                 "Invalid request.",
