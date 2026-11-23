@@ -1,4 +1,5 @@
 using PlanejadorCompras.Application.Features.PurchaseOrders.Contracts;
+using PlanejadorCompras.Application.Features.Reports.Contracts;
 using PlanejadorCompras.Domain.Entities;
 using PurchaseOrderEntity = PlanejadorCompras.Domain.Entities.PurchaseOrder;
 
@@ -43,6 +44,29 @@ internal static class PurchaseOrderResponseMapper
                 .Select(ToItem)
                 .ToList(),
             order.SourceEqualizationId);
+
+    public static PurchaseOrderReportDataDto ToReport(PurchaseOrderEntity order) =>
+        new(
+            order.Code,
+            order.ShoppingListName,
+            order.SupplierName,
+            order.BuyerName,
+            order.BuyerEmail,
+            order.ExpectedDeliveryDate,
+            order.DeliveryAddress,
+            order.PaymentTerms,
+            order.Notes,
+            ToDisplayStatus(order.Status),
+            order.CreatedAtUtc,
+            order.TotalPrice,
+            order.Items
+                .Select(item => new PurchaseOrderReportItemDto(
+                    item.Name,
+                    item.Quantity,
+                    item.Unit,
+                    item.UnitPrice,
+                    item.TotalPrice))
+                .ToList());
 
     public static PurchaseOrderItemResponseDto ToItem(PurchaseOrderItem item) =>
         new(

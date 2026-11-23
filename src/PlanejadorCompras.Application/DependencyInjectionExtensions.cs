@@ -87,6 +87,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<UpdatePurchaseOrderStatusUseCase>();
         services.AddScoped<DeletePurchaseOrderUseCase>();
         services.AddScoped<ExportPurchaseOrderPdfUseCase>();
+        services.AddScoped<ExportPurchaseOrderExcelUseCase>();
 
         // Equalization history
         services.AddScoped<CreateSavedEqualizationUseCase>();

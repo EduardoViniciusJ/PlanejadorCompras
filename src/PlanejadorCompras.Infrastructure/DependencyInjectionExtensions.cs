@@ -89,6 +89,7 @@ public static class DependencyInjectionExtensions
         services.AddSingleton<QuotationRequestPdfDocumentBuilder>();
         services.AddSingleton<IQuotationRequestPdfExporter, PdfSharpQuotationRequestExporter>();
         services.AddSingleton<IPurchaseOrderPdfExporter, PdfSharpPurchaseOrderExporter>();
+        services.AddSingleton<IPurchaseOrderExcelExporter, ClosedXmlPurchaseOrderExporter>();
     }
 
     private static void AddExternalServices(IServiceCollection services)
