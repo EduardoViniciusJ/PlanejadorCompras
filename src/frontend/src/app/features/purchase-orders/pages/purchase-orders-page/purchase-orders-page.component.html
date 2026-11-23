@@ -21,44 +21,46 @@
     </div>
   }
 
-  <section class="orders-toolbar management-surface" aria-label="Filtros de pedidos">
-    <div>
-      <span class="management-eyebrow">Acompanhamento</span>
-      <h2>Pedidos emitidos</h2>
-      <p>Pesquise pelo pedido, fornecedor, lista ou responsável e filtre por situação.</p>
-    </div>
+  @if (isLoading() || loadError() || orders().length > 0) {
+    <section class="orders-toolbar management-surface" aria-label="Filtros de pedidos">
+      <div>
+        <span class="management-eyebrow">Acompanhamento</span>
+        <h2>Pedidos emitidos</h2>
+        <p>Pesquise pelo pedido, fornecedor, lista ou responsável e filtre por situação.</p>
+      </div>
 
-    <div class="orders-filters">
-      <label class="order-search input w-full">
-        <app-icon name="search" [size]="18" />
-        <span class="visually-hidden">Buscar pedido</span>
-        <input
-          class="grow"
-          type="search"
-          placeholder="Buscar pedido"
-          autocomplete="off"
-          data-testid="purchase-order-search"
-          [value]="searchTerm()"
-          (input)="updateSearchTerm($event)"
-        />
-      </label>
+      <div class="orders-filters">
+        <label class="order-search input w-full">
+          <app-icon name="search" [size]="18" />
+          <span class="visually-hidden">Buscar pedido</span>
+          <input
+            class="grow"
+            type="search"
+            placeholder="Buscar pedido"
+            autocomplete="off"
+            data-testid="purchase-order-search"
+            [value]="searchTerm()"
+            (input)="updateSearchTerm($event)"
+          />
+        </label>
 
-      <label class="status-filter select w-full">
-        <app-icon name="filter" [size]="18" />
-        <span class="visually-hidden">Filtrar pedidos por situação</span>
-        <select
-          data-testid="purchase-order-status-filter"
-          [value]="statusFilter()"
-          (change)="updateStatusFilter($event)"
-        >
-          <option value="all">Todas as situações</option>
-          <option value="issued">Emitidos</option>
-          <option value="completed">Concluídos</option>
-          <option value="cancelled">Cancelados</option>
-        </select>
-      </label>
-    </div>
-  </section>
+        <label class="status-filter select w-full">
+          <app-icon name="filter" [size]="18" />
+          <span class="visually-hidden">Filtrar pedidos por situação</span>
+          <select
+            data-testid="purchase-order-status-filter"
+            [value]="statusFilter()"
+            (change)="updateStatusFilter($event)"
+          >
+            <option value="all">Todas as situações</option>
+            <option value="issued">Emitidos</option>
+            <option value="completed">Concluídos</option>
+            <option value="cancelled">Cancelados</option>
+          </select>
+        </label>
+      </div>
+    </section>
+  }
 
   @if (isLoading()) {
     <app-skeleton variant="cards" [count]="6" label="Carregando pedidos..." />
@@ -75,8 +77,8 @@
   } @else if (orders().length === 0) {
     <div class="orders-state">
       <app-mascot class="orders-state-mascot" variant="06" size="medium" />
-      <h2>Nenhum pedido emitido</h2>
-      <p>Faça a equalização de uma lista e formalize a compra com o fornecedor escolhido.</p>
+      <h2>Nenhum pedido de compra ainda</h2>
+      <p>Compare os preços na equalização de uma lista e emita o pedido para o fornecedor escolhido.</p>
       <a class="btn btn-primary" routerLink="/app/equalizations">
         <app-icon name="scale" [size]="18" />
         Ver equalizações

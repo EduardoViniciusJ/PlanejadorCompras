@@ -19,27 +19,29 @@
     </div>
   }
 
-  <section class="suppliers-toolbar management-surface" aria-label="Busca de fornecedores">
-    <div>
-      <span class="management-eyebrow">Cadastro comercial</span>
-      <h2>{{ suppliers().length }} fornecedor{{ suppliers().length === 1 ? '' : 'es' }}</h2>
-      <p>Busque por nome, CNPJ, cidade, telefone ou e-mail.</p>
-    </div>
+  @if (isLoading() || loadError() || suppliers().length > 0 || searchTerm()) {
+    <section class="suppliers-toolbar management-surface" aria-label="Busca de fornecedores">
+      <div>
+        <span class="management-eyebrow">Cadastro comercial</span>
+        <h2>{{ suppliers().length }} fornecedor{{ suppliers().length === 1 ? '' : 'es' }}</h2>
+        <p>Busque por nome, CNPJ, cidade, telefone ou e-mail.</p>
+      </div>
 
-    <div class="suppliers-filters">
-      <label class="supplier-search input w-full">
-        <app-icon name="search" [size]="18" />
-        <span class="visually-hidden">Buscar fornecedor</span>
-        <input
-          class="grow"
-          type="search"
-          placeholder="Buscar fornecedor"
-          [value]="searchTerm()"
-          (input)="updateSearch($event)"
-        />
-      </label>
-    </div>
-  </section>
+      <div class="suppliers-filters">
+        <label class="supplier-search input w-full">
+          <app-icon name="search" [size]="18" />
+          <span class="visually-hidden">Buscar fornecedor</span>
+          <input
+            class="grow"
+            type="search"
+            placeholder="Buscar fornecedor"
+            [value]="searchTerm()"
+            (input)="updateSearch($event)"
+          />
+        </label>
+      </div>
+    </section>
+  }
 
   @if (isLoading()) {
     <app-skeleton variant="table" [count]="6" label="Carregando fornecedores..." />
@@ -57,11 +59,12 @@
       @if (!searchTerm()) {
         <app-mascot class="page-state-mascot" variant="07" size="medium" />
       }
-      <h2>{{ searchTerm() ? 'Nenhum fornecedor encontrado' : 'Nenhum fornecedor cadastrado' }}</h2>
-      <p>{{ searchTerm() ? 'Revise os termos da busca.' : 'Cadastre o primeiro fornecedor para iniciar suas cotações.' }}</p>
+      <h2>{{ searchTerm() ? 'Nenhum fornecedor encontrado' : 'Nenhum fornecedor cadastrado ainda' }}</h2>
+      <p>{{ searchTerm() ? 'Revise os termos da busca.' : 'Cadastre quem vende para você para comparar preços e emitir pedidos.' }}</p>
       @if (!searchTerm()) {
         <button class="btn btn-primary" type="button" (click)="openCreate()">
-          Adicionar fornecedor
+          <app-icon name="plus" [size]="18" />
+          Cadastrar fornecedor
         </button>
       }
     </div>
