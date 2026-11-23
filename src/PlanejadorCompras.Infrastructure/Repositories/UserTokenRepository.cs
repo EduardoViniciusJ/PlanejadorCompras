@@ -38,6 +38,15 @@ public sealed class UserTokenRepository : IUserTokenRepository
         _context.UserTokens.RemoveRange(tokens);
     }
 
+    public async Task RemoveAllByUserAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var tokens = await _context.UserTokens
+            .Where(token => token.UserId == userId)
+            .ToListAsync(cancellationToken);
+
+        _context.UserTokens.RemoveRange(tokens);
+    }
+
     public void Remove(UserToken userToken)
     {
         _context.UserTokens.Remove(userToken);

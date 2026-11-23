@@ -69,6 +69,7 @@ public sealed class GoogleAuthorizationCodeLoginUseCaseTests
             _googleTokenValidatorMock.Object,
             _jwtTokenServiceMock.Object,
             _userRepositoryMock.Object,
+            Mock.Of<PlanejadorCompras.Domain.Repositories.User.IUserTokenRepository>(),
             _unitOfWorkMock.Object);
 
         return new GoogleAuthorizationCodeLoginUseCase(

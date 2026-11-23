@@ -13,6 +13,7 @@ public sealed class GoogleLoginUseCaseTests
     private readonly Mock<IGoogleTokenValidator> _googleTokenValidatorMock = new();
     private readonly Mock<IJwtTokenService> _jwtTokenServiceMock = new();
     private readonly Mock<IUserRepository> _userRepositoryMock = new();
+    private readonly Mock<IUserTokenRepository> _userTokenRepositoryMock = new();
     private readonly Mock<IUnitOfWork> _unitOfWorkMock = new();
 
     [Fact]
@@ -141,6 +142,7 @@ public sealed class GoogleLoginUseCaseTests
             _googleTokenValidatorMock.Object,
             _jwtTokenServiceMock.Object,
             _userRepositoryMock.Object,
+            _userTokenRepositoryMock.Object,
             _unitOfWorkMock.Object);
     }
 }

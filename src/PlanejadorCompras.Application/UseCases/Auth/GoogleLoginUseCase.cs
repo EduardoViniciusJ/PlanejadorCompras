@@ -11,17 +11,20 @@ public sealed class GoogleLoginUseCase
     private readonly IGoogleTokenValidator _googleTokenValidator;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IUserRepository _userRepository;
+    private readonly IUserTokenRepository _userTokenRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public GoogleLoginUseCase(
         IGoogleTokenValidator googleTokenValidator,
         IJwtTokenService jwtTokenService,
         IUserRepository userRepository,
+        IUserTokenRepository userTokenRepository,
         IUnitOfWork unitOfWork)
     {
         _googleTokenValidator = googleTokenValidator;
         _jwtTokenService = jwtTokenService;
         _userRepository = userRepository;
+        _userTokenRepository = userTokenRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -43,8 +46,16 @@ public sealed class GoogleLoginUseCase
 
             if (user is not null)
             {
-                // User exists but with password or another method, link the Google Account
-                user.LinkGoogleAccount(googleUser.GoogleId);
+                // The account exists with a password. If its e-mail was never confirmed, the
+                // password may belong to someone else who pre-registered the victim's address:
+                // linking discards it, and every pending confirmation/reset token goes with it.
+                var discardedUnverifiedCredentials = user.LinkGoogleAccount(googleUser.GoogleId);
+
+                if (discardedUnverifiedCredentials)
+                {
+                    await _userTokenRepository.RemoveAllByUserAsync(user.Id, cancellationToken);
+                }
+
                 _userRepository.Update(user);
             }
             else
