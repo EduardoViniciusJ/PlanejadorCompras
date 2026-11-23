@@ -1,9 +1,11 @@
-import { DOCUMENT } from '@angular/common';
-import { DestroyRef, Injectable, inject } from '@angular/core';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { DestroyRef, Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Meta, Title } from '@angular/platform-browser';
-import { ActivatedRouteSnapshot, NavigationEnd, Router } from '@angular/router';
+import { ActivatedRouteSnapshot, NavigationEnd, Router, TitleStrategy } from '@angular/router';
 import { filter } from 'rxjs';
+
+import { SITE_URL } from './site-url';
 
 /** Dados de SEO que uma rota pode declarar em `data`. */
 export interface SeoRouteData {
@@ -27,7 +29,9 @@ export class SeoService {
   private readonly meta = inject(Meta);
   private readonly title = inject(Title);
   private readonly router = inject(Router);
+  private readonly titleStrategy = inject(TitleStrategy);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   /** Começa a acompanhar a navegação. Chamado uma vez, pelo componente raiz. */
   start(): void {
@@ -52,10 +56,22 @@ export class SeoService {
     return () => script.remove();
   }
 
+  /**
+   * Endereço absoluto de um caminho do site. No pré-render usa `SITE_URL`; no navegador,
+   * a origem da página aberta (o domínio real em produção).
+   */
+  absoluteUrl(path: string): string {
+    const origin = this.isBrowser ? this.document.location.origin : SITE_URL;
+    const cleanPath = path.split(/[?#]/)[0];
+    return `${origin.replace(/\/$/, '')}${cleanPath.startsWith('/') ? '' : '/'}${cleanPath}`;
+  }
+
   private apply(route: ActivatedRouteSnapshot): void {
     const data = route.data as SeoRouteData;
     const description = data.description ?? DEFAULT_DESCRIPTION;
-    const pageTitle = this.title.getTitle();
+    // O título da rota sai da própria rota: no NavigationEnd o <title> ainda pode ser o anterior.
+    const pageTitle =
+      this.titleStrategy.buildTitle(this.router.routerState.snapshot) ?? this.title.getTitle();
 
     this.meta.updateTag({ name: 'description', content: description });
     this.meta.updateTag({ property: 'og:title', content: pageTitle });
@@ -67,6 +83,26 @@ export class SeoService {
       name: 'robots',
       content: data.noindex ? 'noindex, nofollow' : 'index, follow',
     });
+    this.applyCanonical(data.noindex ? null : this.absoluteUrl(this.router.url));
+  }
+
+  /** Página indexável ganha canonical e `og:url`; página com `noindex` fica sem os dois. */
+  private applyCanonical(url: string | null): void {
+    let link = this.document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+
+    if (!url) {
+      link?.remove();
+      this.meta.removeTag('property="og:url"');
+      return;
+    }
+
+    if (!link) {
+      link = this.document.createElement('link');
+      link.rel = 'canonical';
+      this.document.head.appendChild(link);
+    }
+    link.href = url;
+    this.meta.updateTag({ property: 'og:url', content: url });
   }
 
   private deepestRoute(route: ActivatedRouteSnapshot): ActivatedRouteSnapshot {

@@ -1,0 +1,170 @@
+<article>
+  <!-- Abertura -->
+  <header class="grid-backdrop">
+    <div class="mx-auto w-full max-w-6xl px-4 pb-16 pt-10 sm:px-6 sm:pt-14 lg:pb-20">
+      <app-page-breadcrumb [label]="entry.label" />
+
+      <p class="mt-8 text-sm font-semibold text-accent">{{ page.eyebrow }}</p>
+      <h1
+        class="mt-3 max-w-4xl font-display text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl"
+      >
+        {{ page.headline }}
+      </h1>
+      <p class="segment-lead mt-6 max-w-3xl text-lg leading-relaxed text-base-content/70">
+        {{ page.lead }}
+      </p>
+
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <a class="btn btn-primary btn-lg w-full sm:w-auto" routerLink="/cadastro">
+          Criar conta grátis
+          <app-icon name="arrow-right" [size]="20" />
+        </a>
+        <a class="btn btn-ghost btn-lg w-full sm:w-auto" [routerLink]="[]" fragment="fluxo">
+          Ver o fluxo
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Dores do segmento -->
+  <section aria-labelledby="dores">
+    <div
+      class="mx-auto grid w-full max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_2fr] lg:gap-16 lg:py-20"
+    >
+      <h2 id="dores" class="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+        {{ page.painsTitle }}
+      </h2>
+      <ul class="segment-pains border-b border-base-300">
+        @for (pain of page.pains; track pain.title) {
+          <li class="border-t border-base-300 py-6">
+            <h3 class="font-semibold">{{ pain.title }}</h3>
+            <p class="mt-1 leading-relaxed text-base-content/70">{{ pain.text }}</p>
+          </li>
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Exemplo de mapa de preços -->
+  <section aria-labelledby="exemplo">
+    <div class="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lg:py-20">
+      <div class="max-w-3xl">
+        <h2 id="exemplo" class="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+          {{ page.exampleTitle }}
+        </h2>
+        <p class="mt-4 text-lg text-base-content/70">{{ page.exampleText }}</p>
+      </div>
+
+      <figure class="segment-example mt-10 rounded-box border border-base-300 bg-base-100">
+        <figcaption
+          class="flex flex-wrap items-baseline justify-between gap-2 border-b border-base-300 px-4 py-3 sm:px-6"
+        >
+          <span class="font-semibold">{{ example.listName }}</span>
+          <span class="text-xs text-base-content/60">Valores ilustrativos</span>
+        </figcaption>
+        <div class="overflow-x-auto">
+          <table class="table font-mono text-sm">
+            <thead>
+              <tr>
+                <th scope="col" class="font-sans">Item</th>
+                <th scope="col" class="font-sans">Qtd.</th>
+                @for (supplier of example.suppliers; track supplier) {
+                  <th scope="col" class="text-right font-sans">{{ supplier }}</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of example.rows; track row.item) {
+                <tr>
+                  <th scope="row" class="font-sans font-medium">{{ row.item }}</th>
+                  <td class="whitespace-nowrap text-base-content/70">{{ row.quantity }}</td>
+                  @for (cell of row.cells; track $index) {
+                    <td class="whitespace-nowrap text-right">
+                      @if (cell.best) {
+                        <span class="badge badge-success font-semibold">
+                          R$ {{ cell.value }}<span class="sr-only"> (menor preço)</span>
+                        </span>
+                      } @else {
+                        <span class="text-base-content/70">R$ {{ cell.value }}</span>
+                      }
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <th scope="row" colspan="2" class="font-sans text-base-content">
+                  Total por fornecedor
+                </th>
+                @for (total of example.totals; track $index) {
+                  <td class="whitespace-nowrap text-right text-base-content">R$ {{ total }}</td>
+                }
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <p class="border-t border-base-300 px-4 py-3 text-sm text-base-content/70 sm:px-6">
+          Comprando cada item de quem cobrou menos:
+          <strong class="font-mono text-base-content">R$ {{ example.bestCombination }}</strong>
+        </p>
+      </figure>
+    </div>
+  </section>
+
+  <!-- Fluxo: lista, cotação, mapa de preços e pedido -->
+  <section id="fluxo" class="scroll-mt-20" aria-labelledby="fluxo-titulo">
+    <div class="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lg:py-20">
+      <h2
+        id="fluxo-titulo"
+        class="max-w-3xl font-display text-3xl font-semibold tracking-tight sm:text-4xl"
+      >
+        {{ page.flowTitle }}
+      </h2>
+
+      <ol class="segment-flow mt-10 grid gap-x-10 border-b border-base-300 sm:grid-cols-2">
+        @for (step of page.flow; track step.title; let index = $index) {
+          <li class="flex items-start gap-4 border-t border-base-300 py-6">
+            <span
+              class="grid size-8 flex-none place-items-center rounded-full bg-primary font-display text-sm font-bold text-primary-content"
+            >
+              {{ index + 1 }}
+            </span>
+            <div>
+              <h3 class="flex items-center gap-2 font-semibold">
+                <app-icon class="text-base-content/50" [name]="flowIcons[index]" [size]="18" />
+                {{ step.title }}
+              </h3>
+              <p class="mt-1 text-sm leading-relaxed text-base-content/70">{{ step.text }}</p>
+            </div>
+          </li>
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- Perguntas do segmento -->
+  <section aria-labelledby="perguntas">
+    <div
+      class="mx-auto grid w-full max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1.4fr] lg:gap-16 lg:py-20"
+    >
+      <h2 id="perguntas" class="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+        Perguntas de quem compra para {{ entry.label.toLowerCase() }}
+      </h2>
+      <dl class="border-b border-base-300">
+        @for (item of page.questions; track item.question) {
+          <div class="border-t border-base-300 py-5">
+            <dt class="text-lg font-medium">{{ item.question }}</dt>
+            <dd class="mt-2 leading-relaxed text-base-content/70">{{ item.answer }}</dd>
+          </div>
+        }
+      </dl>
+    </div>
+  </section>
+
+  <app-page-closing
+    [title]="page.closingTitle"
+    [text]="page.closingText"
+    [currentSlug]="entry.slug"
+  />
+</article>

@@ -483,7 +483,11 @@
         >
           <h3 class="flex items-center gap-4 font-display text-3xl font-semibold tracking-tight sm:text-5xl">
             <app-icon class="text-base-content/40" [name]="segment.icon" [size]="34" [stroke]="1.5" />
-            {{ segment.title }}
+            @if (segment.link) {
+              <a class="link-hover" [routerLink]="segment.link">{{ segment.title }}</a>
+            } @else {
+              {{ segment.title }}
+            }
           </h3>
           <p class="text-lg text-base-content/70">{{ segment.text }}</p>
         </li>
