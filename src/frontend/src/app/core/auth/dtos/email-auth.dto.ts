@@ -3,6 +3,11 @@ export interface EmailPasswordRequestDto {
   readonly password: string;
 }
 
+export interface RegisterRequestDto extends EmailPasswordRequestDto {
+  readonly name?: string;
+  readonly acceptedTerms: boolean;
+}
+
 export interface ForgotPasswordRequestDto {
   readonly email: string;
 }

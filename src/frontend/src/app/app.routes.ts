@@ -36,6 +36,15 @@ export const routes: Routes = [
     data: { authMode: 'confirm-email', noindex: true },
   },
   {
+    path: 'convite',
+    title: 'Convite | Planejador de Compras',
+    data: { noindex: true },
+    loadComponent: () =>
+      import('./features/auth/pages/accept-invitation-page/accept-invitation-page.component').then(
+        ({ AcceptInvitationPageComponent }) => AcceptInvitationPageComponent,
+      ),
+  },
+  {
     path: '',
     component: PublicLayoutComponent,
     children: [
@@ -191,6 +200,31 @@ export const routes: Routes = [
           import('./features/equalization-history/pages/equalization-history-page/equalization-history-page.component').then(
             ({ EqualizationHistoryPageComponent }) => EqualizationHistoryPageComponent,
           ),
+      },
+      {
+        path: 'configuracoes',
+        loadComponent: () =>
+          import('./features/settings/pages/settings-page/settings-page.component').then(
+            ({ SettingsPageComponent }) => SettingsPageComponent,
+          ),
+        children: [
+          {
+            path: '',
+            title: 'Configurações | Planejador de Compras',
+            loadComponent: () =>
+              import('./features/settings/pages/settings-profile-page/settings-profile-page.component').then(
+                ({ SettingsProfilePageComponent }) => SettingsProfilePageComponent,
+              ),
+          },
+          {
+            path: 'equipe',
+            title: 'Equipe | Planejador de Compras',
+            loadComponent: () =>
+              import('./features/settings/pages/settings-team-page/settings-team-page.component').then(
+                ({ SettingsTeamPageComponent }) => SettingsTeamPageComponent,
+              ),
+          },
+        ],
       },
       { path: 'equalization', redirectTo: 'equalizations', pathMatch: 'full' },
       {

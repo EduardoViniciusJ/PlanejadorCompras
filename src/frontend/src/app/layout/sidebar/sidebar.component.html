@@ -95,6 +95,15 @@
             <p class="profile-menu-error" role="alert">{{ logoutErrorMessage() }}</p>
           }
 
+          <a
+            class="btn btn-ghost btn-sm"
+            routerLink="/app/configuracoes"
+            (click)="notifyNavigation()"
+          >
+            <app-icon name="settings" [size]="19" />
+            Configurações
+          </a>
+
           <button
             type="button"
             class="profile-menu-logout btn btn-error btn-soft btn-sm"
