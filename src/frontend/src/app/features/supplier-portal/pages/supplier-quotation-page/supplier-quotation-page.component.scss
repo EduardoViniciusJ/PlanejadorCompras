@@ -1,0 +1,374 @@
+:host {
+  display: block;
+}
+
+.portal {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--app-page-alt-bg);
+  color: var(--app-text-color);
+}
+
+.portal-header {
+  border-bottom: 1px solid var(--app-border-color);
+  background: var(--app-surface-bg);
+}
+
+.portal-header-inner,
+.portal-main,
+.portal-footer {
+  width: 100%;
+  max-width: 46rem;
+  margin: 0 auto;
+  padding-inline: 1rem;
+}
+
+.portal-header-inner {
+  min-height: 3.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.portal-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.portal-header-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--app-text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.portal-main {
+  flex: 1 1 auto;
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  padding-block: 1.1rem 1.5rem;
+}
+
+.portal-state {
+  min-height: 55vh;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.75rem;
+  padding: 1.5rem 0.5rem;
+  color: var(--app-text-muted);
+  text-align: center;
+}
+
+.portal-state h1 {
+  margin: 0;
+  color: var(--app-text-color);
+  font-size: 1.3rem;
+}
+
+.portal-state p {
+  max-width: 28rem;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.portal-state-icon {
+  width: 3.25rem;
+  height: 3.25rem;
+  display: grid;
+  border-radius: var(--app-radius-md);
+  background: var(--app-warning-soft);
+  color: var(--app-warning-strong);
+  place-items: center;
+}
+
+.portal-intro,
+.portal-section,
+.portal-summary {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--app-border-color);
+  border-radius: var(--app-radius-md);
+  background: var(--app-surface-bg);
+}
+
+.portal-eyebrow {
+  margin: 0 0 0.35rem;
+  color: var(--app-text-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.portal-intro h1 {
+  margin: 0;
+  font-size: clamp(1.25rem, 5vw, 1.6rem);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.portal-subject {
+  margin: 0.4rem 0 0;
+  color: var(--app-text-muted);
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+}
+
+.portal-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+  margin: 1rem 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--app-border-color);
+}
+
+.portal-fact-wide {
+  grid-column: 1 / -1;
+}
+
+.portal-facts dt,
+.portal-summary dt {
+  color: var(--app-text-muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.portal-facts dd {
+  margin: 0.15rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 650;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.portal-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.portal-section-header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.portal-section-header p {
+  margin: 0.2rem 0 0;
+  color: var(--app-text-muted);
+  font-size: 0.85rem;
+}
+
+.portal-items {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.portal-item {
+  min-width: 0;
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.8rem;
+  border: 1px solid var(--app-border-color);
+  border-radius: var(--app-control-radius);
+  background: var(--app-surface-bg);
+}
+
+.portal-item-invalid {
+  border-color: var(--app-danger);
+}
+
+.portal-item-copy {
+  min-width: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.portal-item-name {
+  font-size: 1rem;
+  font-weight: 750;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.portal-item-quantity {
+  color: var(--app-text-muted);
+  font-size: 0.86rem;
+}
+
+.portal-item-quantity strong {
+  color: var(--app-text-color);
+}
+
+.portal-label {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: var(--app-text-color);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+/* 16px evita o zoom automático do iOS ao focar o campo; 3rem dá uma área de toque folgada. */
+.portal-money,
+.portal-field .input,
+.portal-field .textarea {
+  font-size: 1rem;
+}
+
+.portal-money,
+.portal-field .input {
+  min-height: 3rem;
+}
+
+.portal-money {
+  width: 100%;
+}
+
+.portal-money > span {
+  color: var(--app-text-muted);
+  font-weight: 700;
+}
+
+.portal-money input {
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.portal-line-total,
+.portal-help,
+.portal-error {
+  margin: 0.3rem 0 0;
+  font-size: 0.82rem;
+}
+
+.portal-line-total,
+.portal-help {
+  color: var(--app-text-muted);
+}
+
+.portal-line-total strong {
+  color: var(--app-text-color);
+}
+
+.portal-error {
+  color: var(--app-danger-strong);
+  font-weight: 650;
+}
+
+.portal-help .portal-error {
+  margin: 0;
+}
+
+.portal-terms {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 0.9rem;
+}
+
+.portal-field {
+  min-width: 0;
+}
+
+.portal-summary {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: grid;
+  gap: 0.75rem;
+  box-shadow: var(--app-shadow-md);
+}
+
+.portal-summary dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.portal-summary dd {
+  margin: 0.1rem 0 0;
+  font-size: 0.92rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.portal-summary-total dd {
+  font-size: 1.05rem;
+  font-weight: 850;
+}
+
+.portal-submit {
+  width: 100%;
+}
+
+.portal-footer {
+  padding-block: 0 1.5rem;
+}
+
+.portal-footer p {
+  margin: 0;
+  color: var(--app-text-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .portal-main {
+    padding-block: 1.75rem 2rem;
+  }
+
+  .portal-intro,
+  .portal-section,
+  .portal-summary {
+    padding: 1.25rem;
+  }
+
+  .portal-item {
+    grid-template-columns: minmax(0, 1fr) 13rem;
+    align-items: start;
+    gap: 1rem;
+  }
+
+  .portal-terms {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .portal-field-wide {
+    grid-column: 1 / -1;
+  }
+
+  .portal-summary {
+    position: static;
+    box-shadow: none;
+  }
+
+  .portal-submit {
+    width: auto;
+    justify-self: end;
+    min-width: 14rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portal * {
+    scroll-behavior: auto;
+  }
+}

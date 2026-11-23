@@ -1,0 +1,338 @@
+<div class="portal">
+  <header class="portal-header">
+    <div class="portal-header-inner">
+      <span class="portal-brand">
+        <app-brand-mark [size]="26" />
+        <span>Planejador de Compras</span>
+      </span>
+      <span class="portal-header-note">
+        <app-icon name="lock" [size]="14" /> Link exclusivo
+      </span>
+    </div>
+  </header>
+
+  <main class="portal-main" id="conteudo">
+    @if (isLoading()) {
+      <div class="portal-state" role="status" aria-live="polite">
+        <span class="loading loading-spinner loading-lg" aria-hidden="true"></span>
+        <p>Abrindo a cotação...</p>
+      </div>
+    } @else if (loadFailure(); as failure) {
+      <div class="portal-state" role="alert">
+        <span class="portal-state-icon"><app-icon name="alert-triangle" [size]="26" /></span>
+        <h1>{{ failure.title }}</h1>
+        <p>{{ failure.message }}</p>
+        @if (failure.canRetry) {
+          <button class="btn btn-primary" type="button" (click)="retry()">
+            <app-icon name="refresh" [size]="18" /> Tentar de novo
+          </button>
+        }
+      </div>
+    } @else if (quotation(); as quotation) {
+      <section class="portal-intro" aria-labelledby="portal-title">
+        <p class="portal-eyebrow">Solicitação de cotação {{ quotation.code }}</p>
+        <h1 id="portal-title">{{ quotation.buyerName }} pediu uma cotação para {{ quotation.supplierName }}</h1>
+        <p class="portal-subject">{{ quotation.subject }}</p>
+
+        <dl class="portal-facts">
+          <div>
+            <dt>Responder até</dt>
+            <dd>
+              {{ quotation.responseDeadline ? formatDate(quotation.responseDeadline) : 'Sem data limite' }}
+            </dd>
+          </div>
+          <div>
+            <dt>Itens</dt>
+            <dd>{{ quotation.items.length }}</dd>
+          </div>
+          @if (quotation.deliveryAddress) {
+            <div class="portal-fact-wide">
+              <dt>Local de entrega</dt>
+              <dd>{{ quotation.deliveryAddress }}</dd>
+            </div>
+          }
+          @if (quotation.instructions) {
+            <div class="portal-fact-wide">
+              <dt>Orientações do comprador</dt>
+              <dd>{{ quotation.instructions }}</dd>
+            </div>
+          }
+        </dl>
+      </section>
+
+      @if (justSent()) {
+        <div class="alert alert-success alert-soft" role="status" data-testid="portal-sent">
+          <app-icon name="circle-check" [size]="22" />
+          <div>
+            <strong class="block">Cotação enviada. Obrigado!</strong>
+            <span>
+              O comprador já recebeu seus preços.
+              @if (quotation.responseDeadline) {
+                Você pode alterar a resposta por este mesmo link até
+                {{ formatDate(quotation.responseDeadline) }}.
+              } @else {
+                Você pode alterar a resposta por este mesmo link enquanto ele estiver ativo.
+              }
+            </span>
+          </div>
+        </div>
+      } @else if (!quotation.canRespond) {
+        <div class="alert alert-warning alert-soft" role="status" data-testid="portal-closed">
+          <app-icon name="lock" [size]="22" />
+          <div>
+            <strong class="block">Prazo encerrado</strong>
+            <span>
+              @if (quotation.respondedAtUtc) {
+                Sua resposta de {{ formatDateTime(quotation.respondedAtUtc) }} está registrada e
+                não pode mais ser alterada.
+              } @else {
+                O prazo para responder terminou e esta cotação não aceita mais respostas.
+              }
+            </span>
+          </div>
+        </div>
+      } @else if (quotation.respondedAtUtc) {
+        <div class="alert alert-info alert-soft" role="status">
+          <app-icon name="info-circle" [size]="22" />
+          <span>
+            Você respondeu em {{ formatDateTime(quotation.respondedAtUtc) }}. Altere o que precisar
+            e envie de novo.
+          </span>
+        </div>
+      }
+
+      <form class="portal-form" novalidate (submit)="$event.preventDefault(); submit()">
+        <section class="portal-section" aria-labelledby="items-title">
+          <header class="portal-section-header">
+            <h2 id="items-title">Preços por item</h2>
+            <p>Informe o preço unitário. Deixe em branco o item que você não fornece.</p>
+          </header>
+
+          <ol class="portal-items">
+            @for (item of quotation.items; track item.id; let index = $index) {
+              <li class="portal-item" [class.portal-item-invalid]="priceError(item.id)">
+                <div class="portal-item-copy">
+                  <span class="portal-item-name">{{ item.name }}</span>
+                  <span class="portal-item-quantity">
+                    Quantidade: <strong>{{ item.quantity }} {{ item.unit }}</strong>
+                  </span>
+                </div>
+                <div class="portal-item-price">
+                  <label class="portal-label" [for]="'price-' + index">
+                    Preço unitário <span class="visually-hidden">de {{ item.name }}</span>
+                  </label>
+                  <label class="input portal-money" [class.input-error]="priceError(item.id)">
+                    <span aria-hidden="true">R$</span>
+                    <input
+                      class="grow"
+                      type="text"
+                      inputmode="decimal"
+                      autocomplete="off"
+                      placeholder="0,00"
+                      maxlength="16"
+                      [id]="'price-' + index"
+                      [value]="priceTexts()[item.id]"
+                      [disabled]="!quotation.canRespond || isSubmitting()"
+                      [attr.aria-invalid]="priceError(item.id) ? 'true' : null"
+                      [attr.aria-describedby]="priceError(item.id) ? 'price-error-' + index : null"
+                      [attr.data-testid]="'portal-price-' + index"
+                      (input)="updatePrice(item.id, $event)"
+                      (blur)="normalizePrice(item.id)"
+                    />
+                  </label>
+                  @if (priceError(item.id); as error) {
+                    <p class="portal-error" role="alert" [id]="'price-error-' + index">{{ error }}</p>
+                  } @else if (lineTotal(item); as total) {
+                    <p class="portal-line-total">Total do item: <strong>{{ total }}</strong></p>
+                  }
+                </div>
+              </li>
+            }
+          </ol>
+        </section>
+
+        <section class="portal-section" aria-labelledby="terms-title">
+          <header class="portal-section-header">
+            <h2 id="terms-title">Condições comerciais</h2>
+            <p>Opcional, mas ajuda o comprador a decidir.</p>
+          </header>
+
+          <div class="portal-terms">
+            <div class="portal-field">
+              <label class="portal-label" for="delivery-days">Prazo de entrega (dias)</label>
+              <input
+                class="input w-full"
+                id="delivery-days"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                maxlength="3"
+                placeholder="Ex.: 3"
+                [class.input-error]="deliveryDaysError()"
+                [value]="deliveryDays()"
+                [disabled]="!quotation.canRespond || isSubmitting()"
+                [attr.aria-invalid]="deliveryDaysError() ? 'true' : null"
+                [attr.aria-describedby]="deliveryDaysError() ? 'delivery-days-error' : null"
+                (input)="updateText('deliveryDays', $event)"
+              />
+              @if (deliveryDaysError(); as error) {
+                <p class="portal-error" role="alert" id="delivery-days-error">{{ error }}</p>
+              }
+            </div>
+
+            <div class="portal-field">
+              <label class="portal-label" for="freight-cost">Frete</label>
+              <label class="input portal-money w-full" [class.input-error]="freightError()">
+                <span aria-hidden="true">R$</span>
+                <input
+                  class="grow"
+                  id="freight-cost"
+                  type="text"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  maxlength="16"
+                  placeholder="0,00 se for grátis"
+                  [value]="freightCost()"
+                  [disabled]="!quotation.canRespond || isSubmitting()"
+                  [attr.aria-invalid]="freightError() ? 'true' : null"
+                  aria-describedby="freight-cost-help"
+                  data-testid="portal-freight"
+                  (input)="updateText('freightCost', $event)"
+                  (blur)="normalizeAmount('freight')"
+                />
+              </label>
+              <p class="portal-help" id="freight-cost-help">
+                @if (freightError(); as error) {
+                  <span class="portal-error" role="alert">{{ error }}</span>
+                } @else {
+                  Valor total do frete. Use 0 para frete grátis.
+                }
+              </p>
+            </div>
+
+            <div class="portal-field">
+              <label class="portal-label" for="minimum-order">Pedido mínimo</label>
+              <label class="input portal-money w-full" [class.input-error]="minimumOrderError()">
+                <span aria-hidden="true">R$</span>
+                <input
+                  class="grow"
+                  id="minimum-order"
+                  type="text"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  maxlength="16"
+                  placeholder="0,00"
+                  [value]="minimumOrderValue()"
+                  [disabled]="!quotation.canRespond || isSubmitting()"
+                  [attr.aria-invalid]="minimumOrderError() ? 'true' : null"
+                  [attr.aria-describedby]="minimumOrderError() ? 'minimum-order-error' : null"
+                  (input)="updateText('minimumOrderValue', $event)"
+                  (blur)="normalizeAmount('minimumOrder')"
+                />
+              </label>
+              @if (minimumOrderError(); as error) {
+                <p class="portal-error" role="alert" id="minimum-order-error">{{ error }}</p>
+              }
+            </div>
+
+            <div class="portal-field">
+              <label class="portal-label" for="valid-until">Proposta válida até</label>
+              <input
+                class="input w-full"
+                id="valid-until"
+                type="date"
+                [min]="today"
+                [class.input-error]="validUntilError()"
+                [value]="proposalValidUntil()"
+                [disabled]="!quotation.canRespond || isSubmitting()"
+                [attr.aria-invalid]="validUntilError() ? 'true' : null"
+                [attr.aria-describedby]="validUntilError() ? 'valid-until-error' : null"
+                (input)="updateText('proposalValidUntil', $event)"
+              />
+              @if (validUntilError(); as error) {
+                <p class="portal-error" role="alert" id="valid-until-error">{{ error }}</p>
+              }
+            </div>
+
+            <div class="portal-field portal-field-wide">
+              <label class="portal-label" for="payment-terms">Forma de pagamento</label>
+              <input
+                class="input w-full"
+                id="payment-terms"
+                type="text"
+                autocomplete="off"
+                maxlength="200"
+                placeholder="Ex.: boleto 28 dias, PIX à vista"
+                [value]="paymentTerms()"
+                [disabled]="!quotation.canRespond || isSubmitting()"
+                (input)="updateText('paymentTerms', $event)"
+              />
+            </div>
+
+            <div class="portal-field portal-field-wide">
+              <label class="portal-label" for="notes">Observações</label>
+              <textarea
+                class="textarea w-full"
+                id="notes"
+                rows="3"
+                maxlength="1000"
+                placeholder="Marca, embalagem, condições de entrega..."
+                [value]="notes()"
+                [disabled]="!quotation.canRespond || isSubmitting()"
+                (input)="updateText('notes', $event)"
+              ></textarea>
+            </div>
+          </div>
+        </section>
+
+        <section class="portal-summary" aria-label="Resumo da cotação">
+          <dl>
+            <div>
+              <dt>Itens com preço</dt>
+              <dd>{{ pricedCount() }} de {{ quotation.items.length }}</dd>
+            </div>
+            <div>
+              <dt>Total dos itens</dt>
+              <dd>{{ formatCurrency(itemsTotal()) }}</dd>
+            </div>
+            <div class="portal-summary-total">
+              <dt>Total com frete</dt>
+              <dd data-testid="portal-total">{{ formatCurrency(grandTotal()) }}</dd>
+            </div>
+          </dl>
+
+          @if (submitError()) {
+            <div class="alert alert-error alert-soft" role="alert" data-testid="portal-submit-error">
+              <app-icon name="alert-circle" [size]="20" />
+              <span>{{ submitError() }}</span>
+            </div>
+          }
+
+          @if (quotation.canRespond) {
+            <button
+              class="btn btn-primary btn-lg portal-submit"
+              type="submit"
+              data-testid="portal-submit"
+              [disabled]="isSubmitting()"
+            >
+              @if (isSubmitting()) {
+                <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+                Enviando...
+              } @else {
+                <app-icon name="send" [size]="18" />
+                {{ quotation.respondedAtUtc ? 'Enviar alteração' : 'Enviar cotação' }}
+              }
+            </button>
+          }
+        </section>
+      </form>
+    }
+  </main>
+
+  <footer class="portal-footer">
+    <p>
+      Você recebeu este link de um comprador que usa o Planejador de Compras. Não é preciso criar
+      conta. Não encaminhe o link: ele dá acesso à sua cotação.
+    </p>
+  </footer>
+</div>
