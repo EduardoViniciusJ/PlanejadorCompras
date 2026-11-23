@@ -26,7 +26,7 @@ public sealed class JwtTokenService : IJwtTokenService
         _secretKey = Encoding.UTF8.GetBytes(secretKey);
         _expiresInMinutes = int.TryParse(configuration["Authentication:Jwt:ExpiresInMinutes"], out var minutes) && minutes > 0
             ? minutes
-            : 60;
+            : 15;
     }
 
     public GenerateAccessTokenResponseDto GenerateAccessToken(GenerateAccessTokenRequestDto request)
@@ -35,6 +35,7 @@ public sealed class JwtTokenService : IJwtTokenService
         ArgumentException.ThrowIfNullOrWhiteSpace(request.Email);
         ArgumentException.ThrowIfNullOrWhiteSpace(request.Name);
         ArgumentOutOfRangeException.ThrowIfEqual(request.UserId, Guid.Empty);
+        ArgumentOutOfRangeException.ThrowIfEqual(request.SessionId, Guid.Empty);
 
         var now = DateTime.UtcNow;
         var expiresAt = now.AddMinutes(_expiresInMinutes);
@@ -44,6 +45,8 @@ public sealed class JwtTokenService : IJwtTokenService
             new(JwtRegisteredClaimNames.Sub, request.UserId.ToString()),
             new(JwtRegisteredClaimNames.Email, request.Email.Trim().ToLowerInvariant()),
             new(JwtRegisteredClaimNames.Name, request.Name.Trim()),
+            // Ties the token to a login session so it stops working when the session is revoked.
+            new(JwtRegisteredClaimNames.Sid, request.SessionId.ToString()),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(JwtRegisteredClaimNames.Iat, new DateTimeOffset(now).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
         };

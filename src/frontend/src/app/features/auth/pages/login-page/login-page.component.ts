@@ -224,7 +224,13 @@ export class LoginPageComponent implements OnInit {
       )
       .subscribe({
         next: () => void this.router.navigateByUrl(this.safeReturnUrl()),
-        error: () => this.errorMessage.set(GOOGLE_LOGIN_ERROR_MESSAGE),
+        error: (error: HttpErrorResponse) => {
+          // 503: o servidor está sem o login com Google configurado e explica isso na resposta.
+          const problem = error.error as ApiProblemDetails | null;
+          this.errorMessage.set(
+            error.status === 503 && problem?.title ? problem.title : GOOGLE_LOGIN_ERROR_MESSAGE,
+          );
+        },
       });
   }
 

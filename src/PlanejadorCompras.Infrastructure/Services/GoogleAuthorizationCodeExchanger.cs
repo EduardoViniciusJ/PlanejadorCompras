@@ -10,24 +10,33 @@ public sealed class GoogleAuthorizationCodeExchanger : IGoogleAuthorizationCodeE
     private const string GoogleTokenEndpoint = "https://oauth2.googleapis.com/token";
 
     private readonly HttpClient _httpClient;
-    private readonly string _clientId;
-    private readonly string _clientSecret;
-    private readonly string _redirectUri;
+    private readonly string? _clientId;
+    private readonly string? _clientSecret;
+    private readonly string? _redirectUri;
 
     public GoogleAuthorizationCodeExchanger(
         HttpClient httpClient,
         IConfiguration configuration)
     {
         _httpClient = httpClient;
-        _clientId = GetRequiredConfigurationValue(configuration, "Authentication:Google:ClientId");
-        _clientSecret = GetRequiredConfigurationValue(configuration, "Authentication:Google:ClientSecret");
-        _redirectUri = GetRequiredConfigurationValue(configuration, "Authentication:Google:RedirectUri");
+        // Google login is optional. Missing settings are reported when someone actually tries to
+        // log in with Google, so the rest of the API (e-mail and password login) is unaffected.
+        _clientId = configuration["Authentication:Google:ClientId"];
+        _clientSecret = configuration["Authentication:Google:ClientSecret"];
+        _redirectUri = configuration["Authentication:Google:RedirectUri"];
     }
 
     public async Task<string> ExchangeForIdTokenAsync(
         string code,
         CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrWhiteSpace(_clientId)
+            || string.IsNullOrWhiteSpace(_clientSecret)
+            || string.IsNullOrWhiteSpace(_redirectUri))
+        {
+            throw GoogleLoginConfiguration.NotConfigured();
+        }
+
         using var content = new FormUrlEncodedContent(new Dictionary<string, string>
         {
             ["code"] = code,
@@ -56,18 +65,6 @@ public sealed class GoogleAuthorizationCodeExchanger : IGoogleAuthorizationCodeE
         }
 
         return tokenResponse.IdToken;
-    }
-
-    private static string GetRequiredConfigurationValue(IConfiguration configuration, string key)
-    {
-        var value = configuration[key];
-
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            throw new InvalidOperationException($"Missing configuration '{key}'.");
-        }
-
-        return value;
     }
 
     private static GoogleTokenResponsePayload? DeserializeTokenResponse(string responseBody)

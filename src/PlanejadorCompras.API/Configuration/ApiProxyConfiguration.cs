@@ -26,6 +26,19 @@ internal static class ApiProxyConfiguration
 
                 options.KnownProxies.Add(address);
             }
+
+            // Cloud load balancers rarely have a fixed address: a CIDR range can be trusted instead.
+            foreach (var value in configuration.GetSection("Proxy:KnownNetworks").Get<string[]>()
+                         ?? Array.Empty<string>())
+            {
+                if (!System.Net.IPNetwork.TryParse(value, out var network))
+                {
+                    throw new InvalidOperationException(
+                        $"Invalid CIDR range in 'Proxy:KnownNetworks': '{value}'.");
+                }
+
+                options.KnownIPNetworks.Add(network);
+            }
         });
 
         return services;

@@ -24,6 +24,7 @@ public sealed class JwtTokenServiceTests
         Assert.Contains(token.Claims, claim => claim.Type == JwtRegisteredClaimNames.Sub && claim.Value == request.UserId.ToString());
         Assert.Contains(token.Claims, claim => claim.Type == JwtRegisteredClaimNames.Email && claim.Value == request.Email.Trim().ToLowerInvariant());
         Assert.Contains(token.Claims, claim => claim.Type == JwtRegisteredClaimNames.Name && claim.Value == request.Name.Trim());
+        Assert.Contains(token.Claims, claim => claim.Type == "sid" && claim.Value == request.SessionId.ToString());
         Assert.Contains(token.Claims, claim => claim.Type == JwtRegisteredClaimNames.Jti && !string.IsNullOrWhiteSpace(claim.Value));
         Assert.Contains(token.Claims, claim => claim.Type == JwtRegisteredClaimNames.Iat && long.TryParse(claim.Value, out _));
         Assert.Equal(response.ExpiresAtUtc, token.ValidTo, TimeSpan.FromSeconds(1));

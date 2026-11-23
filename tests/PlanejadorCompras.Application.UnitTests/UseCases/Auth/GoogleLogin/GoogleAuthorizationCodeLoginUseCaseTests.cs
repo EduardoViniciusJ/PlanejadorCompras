@@ -1,6 +1,7 @@
 using PlanejadorCompras.Application.Features.Authentication.Contracts;
 using Moq;
 using PlanejadorCompras.Application.Services.Interfaces;
+using PlanejadorCompras.Application.UnitTests.UseCases.Auth.Sessions;
 using PlanejadorCompras.Application.UseCases.Auth;
 using PlanejadorCompras.Domain.Entities;
 using PlanejadorCompras.Domain.Repositories;
@@ -15,6 +16,7 @@ public sealed class GoogleAuthorizationCodeLoginUseCaseTests
     private readonly Mock<IJwtTokenService> _jwtTokenServiceMock = new();
     private readonly Mock<IUserRepository> _userRepositoryMock = new();
     private readonly Mock<IUnitOfWork> _unitOfWorkMock = new();
+    private readonly InMemoryRefreshTokenRepository _refreshTokens = new();
 
     [Fact]
     public async Task ExecuteAsync_ShouldExchangeCodeAndLoginWithReturnedIdToken()
@@ -67,8 +69,11 @@ public sealed class GoogleAuthorizationCodeLoginUseCaseTests
     {
         var googleLoginUseCase = new GoogleLoginUseCase(
             _googleTokenValidatorMock.Object,
-            _jwtTokenServiceMock.Object,
+            SessionTestSupport.CreateSessionService(_refreshTokens, TimeProvider.System, _jwtTokenServiceMock.Object),
             _userRepositoryMock.Object,
+            Mock.Of<IUserTokenRepository>(),
+            _refreshTokens,
+            TimeProvider.System,
             _unitOfWorkMock.Object);
 
         return new GoogleAuthorizationCodeLoginUseCase(

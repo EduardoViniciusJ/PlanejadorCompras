@@ -26,7 +26,11 @@ public sealed class UserRepository : IUserRepository
 
     public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
-        return await _context.Users.FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
+        // Stored e-mails are trimmed (and the column is case-insensitive). The lookup must apply
+        // the same rule, or " a@b.com" would be "not found" and then collide on insert.
+        var normalizedEmail = email.Trim();
+
+        return await _context.Users.FirstOrDefaultAsync(x => x.Email == normalizedEmail, cancellationToken);
     }
 
     public void Update(User user)
