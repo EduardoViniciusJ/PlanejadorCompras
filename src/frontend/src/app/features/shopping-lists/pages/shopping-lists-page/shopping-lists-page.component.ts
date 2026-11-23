@@ -10,6 +10,10 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 
+import {
+  AiListCreated,
+  AiListCreatorComponent,
+} from '../../../ai/components/ai-list-creator/ai-list-creator.component';
 import { ModalDialogComponent } from '../../../../shared/ui/modal-dialog/modal-dialog.component';
 import { AppIconComponent } from '../../../../shared/ui/app-icon/app-icon.component';
 import { SkeletonComponent } from '../../../../shared/ui/skeleton/skeleton.component';
@@ -73,6 +77,7 @@ const dateFormatter = new Intl.DateTimeFormat('pt-BR', {
     AppIconComponent,
     SkeletonComponent,
     MascotComponent,
+    AiListCreatorComponent,
   ],
   templateUrl: './shopping-lists-page.component.html',
   styleUrl: './shopping-lists-page.component.scss',
@@ -247,6 +252,16 @@ export class ShoppingListsPageComponent implements OnInit {
         this.formError.set('Não foi possível salvar a lista agora. Tente novamente.');
       },
     });
+  }
+
+  /** A list proposed by the AI was reviewed and created by the user. */
+  protected onAiListCreated(result: AiListCreated): void {
+    this.feedbackMessage.set(
+      result.itemCount === 1
+        ? `Lista "${result.name}" criada com 1 item.`
+        : `Lista "${result.name}" criada com ${result.itemCount} itens.`,
+    );
+    this.loadOverview(false);
   }
 
   protected openPriceMap(list: ShoppingList): void {

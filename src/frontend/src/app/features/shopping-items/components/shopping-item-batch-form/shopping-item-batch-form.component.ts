@@ -1,9 +1,10 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, OnInit, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ShoppingItemRequestDto } from '../../dtos/shopping-item.dto';
 import { SHOPPING_ITEM_UNIT_OPTIONS } from '../../models/shopping-item-unit-option';
 
-interface Row { name: string; quantity: string; unit: string; }
+export interface ShoppingItemBatchRow { name: string; quantity: string; unit: string; }
+type Row = ShoppingItemBatchRow;
 
 export function parseQuantity(value: string): number {
   const text = value.trim();
@@ -26,16 +27,24 @@ export function parsePastedRows(text: string): Row[] {
   templateUrl: './shopping-item-batch-form.component.html',
   styleUrl: './shopping-item-batch-form.component.scss',
 })
-export class ShoppingItemBatchFormComponent {
+export class ShoppingItemBatchFormComponent implements OnInit {
   readonly shoppingListId = input.required<string>();
   readonly submitting = input(false);
   readonly serverError = input<string | null>(null);
+  /** Rows to start with (for example a list proposed by the AI), still fully editable. */
+  readonly initialRows = input<readonly ShoppingItemBatchRow[] | null>(null);
+  readonly submitLabel = input('Adicionar itens à lista');
   readonly saveRequested = output<readonly ShoppingItemRequestDto[]>();
   readonly cancelRequested = output<void>();
   readonly rows = signal<Row[]>([this.blank(), this.blank(), this.blank()]);
   readonly unitOptions = SHOPPING_ITEM_UNIT_OPTIONS;
   readonly attempted = signal(false);
   readonly pasteError = signal<string | null>(null);
+
+  ngOnInit(): void {
+    const initialRows = this.initialRows();
+    if (initialRows?.length) this.rows.set(initialRows.slice(0, 200).map(row => ({ ...row })));
+  }
 
   blank(): Row { return { name: '', quantity: '1', unit: 'un' }; }
   unitOptionsFor(unit: string) {

@@ -1,0 +1,130 @@
+:host {
+  display: contents;
+}
+
+.ai-action {
+  display: inline-flex;
+}
+
+.ai-dialog {
+  display: grid;
+  min-width: 0;
+  gap: 1rem;
+}
+
+.ai-intro,
+.ai-conditions,
+.ai-footnote {
+  margin: 0;
+  color: var(--app-text-soft);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.ai-conditions {
+  padding: 0.75rem;
+  border: 1px solid var(--app-border-color);
+  border-radius: var(--app-radius-sm);
+  color: var(--app-text-color);
+}
+
+.ai-conditions span {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--app-text-soft);
+  font-size: 0.8rem;
+}
+
+.ai-supplier {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.ai-supplier label {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.ai-review-scroll {
+  min-width: 0;
+  overflow-x: auto;
+  border: 1px solid var(--app-border-color);
+  border-radius: var(--app-radius-sm);
+}
+
+.ai-review-table {
+  width: 100%;
+  min-width: 44rem;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.ai-review-table th,
+.ai-review-table td {
+  padding: 0.6rem 0.65rem;
+  border-bottom: 1px solid var(--app-border-color);
+  text-align: left;
+  vertical-align: top;
+}
+
+.ai-review-table th {
+  color: var(--app-text-soft);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ai-review-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.ai-review-table td:nth-child(3) {
+  min-width: 13rem;
+}
+
+.ai-row-off .ai-source-text,
+.ai-row-off .ai-row-meta,
+.ai-row-off .ai-row-note {
+  opacity: 0.6;
+}
+
+.ai-row-invalid {
+  background: color-mix(in srgb, var(--app-danger) 6%, transparent);
+}
+
+.ai-source-text {
+  display: block;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.ai-row-meta,
+.ai-row-note,
+.ai-row-error {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--app-text-soft);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.ai-row-error {
+  color: var(--app-danger);
+}
+
+.ai-price {
+  width: 8.5rem;
+}
+
+.ai-price input {
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.ai-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}

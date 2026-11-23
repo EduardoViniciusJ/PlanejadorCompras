@@ -5,6 +5,10 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize, forkJoin, map, of, switchMap } from 'rxjs';
 
+import {
+  AiQuoteReaderComponent,
+  AiQuotesApplied,
+} from '../../../ai/components/ai-quote-reader/ai-quote-reader.component';
 import { ItemQuoteFormComponent } from '../../../quotes/components/item-quote-form/item-quote-form.component';
 import { ItemQuoteService } from '../../../quotes/data-access/item-quote.service';
 import { ItemQuoteRequestDto } from '../../../quotes/dtos/item-quote.dto';
@@ -78,6 +82,7 @@ const resultColumnWidth = 144;
     SkeletonComponent,
     MascotComponent,
     FormsModule,
+    AiQuoteReaderComponent,
   ],
   templateUrl: './price-map-page.component.html',
   styleUrl: './price-map-page.component.scss',
@@ -248,6 +253,18 @@ export class PriceMapPageComponent implements OnInit {
 
   protected retry(): void {
     this.loadPage();
+  }
+
+  /** Prices read by the AI were reviewed and saved by the buyer; show them in the map. */
+  protected onAiQuotesApplied(result: AiQuotesApplied): void {
+    const total = result.created + result.updated;
+    this.actionError.set(null);
+    this.feedback.set(
+      total === 1
+        ? `1 preço de ${result.supplierName} foi gravado no mapa.`
+        : `${total} preços de ${result.supplierName} foram gravados no mapa.`,
+    );
+    this.loadPage(false);
   }
 
   protected openCreateList(): void {

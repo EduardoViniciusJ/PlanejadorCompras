@@ -1,0 +1,58 @@
+:host {
+  display: block;
+}
+
+.ai-source {
+  display: grid;
+  min-width: 0;
+  gap: 1rem;
+}
+
+.ai-source-field {
+  display: grid;
+  min-width: 0;
+  gap: 0.4rem;
+}
+
+.ai-source-field label {
+  color: var(--app-text-color);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.ai-source-field textarea {
+  min-height: 9rem;
+  resize: vertical;
+}
+
+.ai-source-meta {
+  display: flex;
+  min-height: 1.15rem;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--app-text-soft);
+  font-size: 0.75rem;
+}
+
+.ai-source-error {
+  color: var(--app-danger);
+}
+
+.ai-source-file {
+  display: inline-flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--app-text-color);
+  overflow-wrap: anywhere;
+}
+
+.ai-source-usage {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  color: var(--app-text-soft);
+  font-size: 0.8rem;
+}

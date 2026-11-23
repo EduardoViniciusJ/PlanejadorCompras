@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { of } from 'rxjs';
 
+import { AiService } from '../../../ai/data-access/ai.service';
 import { SavedEqualizationService } from '../../../equalization-history/data-access/saved-equalization.service';
 import { ItemQuoteService } from '../../../quotes/data-access/item-quote.service';
 import { ShoppingListReportService } from '../../../reports/data-access/shopping-list-report.service';
@@ -110,6 +111,22 @@ describe('PriceMapPageComponent', () => {
       imports: [PriceMapPageComponent],
       providers: [
         provideRouter([]),
+        {
+          provide: AiService,
+          useValue: {
+            getStatus: vi.fn(() =>
+              of({
+                enabled: false,
+                used: 0,
+                limit: 20,
+                remaining: 20,
+                renewsOn: '2026-12-01',
+                maxFileBytes: 5242880,
+                maxInputCharacters: 20000,
+              }),
+            ),
+          },
+        },
         {
           provide: ActivatedRoute,
           useValue: {

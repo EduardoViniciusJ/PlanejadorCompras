@@ -1,0 +1,126 @@
+<span class="ai-action" [attr.title]="unavailableReason()">
+  <button
+    type="button"
+    class="btn btn-accent"
+    data-testid="ai-create-list"
+    [disabled]="!!unavailableReason() || disabled()"
+    [attr.aria-describedby]="unavailableReason() ? 'ai-create-list-reason' : null"
+    (click)="open()"
+  >
+    <app-icon name="sparkles" [size]="18" /> Criar lista com IA
+  </button>
+  @if (unavailableReason()) {
+    <span id="ai-create-list-reason" class="sr-only">{{ unavailableReason() }}</span>
+  }
+</span>
+
+@if (step() === 'input') {
+  <app-modal-dialog
+    title="Criar lista com IA"
+    eyebrow="Nova lista"
+    width="large"
+    [closeDisabled]="isReading()"
+    (closeRequested)="close()"
+  >
+    <div class="ai-dialog">
+      <p class="ai-intro">
+        Escreva o que você precisa comprar, do seu jeito, ou envie a foto de uma lista. A IA
+        organiza os itens com quantidade e unidade para você revisar antes de criar.
+      </p>
+
+      <app-ai-source-input
+        #source
+        [status]="status()"
+        [disabled]="isReading()"
+        [(text)]="text"
+        [(file)]="file"
+        textLabel="O que você precisa comprar"
+        textPlaceholder="Ex.: preciso de 20 kg de arroz, 10 caixas de leite e 5 pacotes de café"
+        fileLabel="Ou envie a foto de uma lista (JPG ou PNG) ou um PDF"
+        accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+      />
+
+      @if (error()) {
+        <div role="alert" class="alert alert-error alert-soft" data-testid="ai-error">
+          <app-icon name="alert-circle" [size]="20" />
+          <span>{{ error() }}</span>
+        </div>
+      }
+
+      <div class="ai-actions">
+        <button type="button" class="btn" [disabled]="isReading()" (click)="close()">
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-testid="ai-propose-submit"
+          [disabled]="isReading() || !source.ready()"
+          (click)="propose()"
+        >
+          @if (isReading()) {
+            <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+            Montando a lista...
+          } @else {
+            <app-icon name="sparkles" [size]="18" /> Montar lista
+          }
+        </button>
+      </div>
+    </div>
+  </app-modal-dialog>
+}
+
+@if (step() === 'review') {
+  <app-modal-dialog
+    title="Revise a lista antes de criar"
+    eyebrow="Proposta da IA"
+    width="large"
+    [closeDisabled]="isSaving()"
+    (closeRequested)="close()"
+  >
+    <div class="ai-dialog">
+      <p class="ai-intro">
+        Nada foi criado ainda. Confira os itens, corrija o que precisar e remova o que não for
+        comprar.
+      </p>
+
+      <div class="ai-name">
+        <label for="ai-list-name">Nome da lista</label>
+        <input
+          id="ai-list-name"
+          class="input w-full"
+          type="text"
+          autocomplete="off"
+          data-testid="ai-list-name"
+          [attr.maxlength]="nameMaxLength"
+          [value]="listName()"
+          [disabled]="isSaving()"
+          [class.input-error]="!!nameError()"
+          [attr.aria-invalid]="!!nameError()"
+          (input)="updateName($event)"
+        />
+        @if (nameError()) {
+          <span class="ai-name-error" role="alert">{{ nameError() }}</span>
+        }
+      </div>
+
+      @if (discardedItems() > 0) {
+        <p class="ai-intro">
+          {{ discardedItems() }}
+          {{ discardedItems() === 1 ? 'item foi ignorado' : 'itens foram ignorados' }} por não ter
+          um nome válido ou por passar de 200 itens.
+        </p>
+      }
+
+      <app-shopping-item-batch-form
+        shoppingListId=""
+        submitLabel="Criar lista com estes itens"
+        [initialRows]="proposedRows()"
+        [submitting]="isSaving()"
+        [serverError]="error()"
+        (saveRequested)="createList($event)"
+        (cancelRequested)="close()"
+      />
+    </div>
+  </app-modal-dialog>
+}
