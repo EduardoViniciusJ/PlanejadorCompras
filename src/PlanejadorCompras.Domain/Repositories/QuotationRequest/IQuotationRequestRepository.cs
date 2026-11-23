@@ -2,16 +2,16 @@ namespace PlanejadorCompras.Domain.Repositories.QuotationRequest;
 
 public interface IQuotationRequestRepository
 {
-    Task<Entities.QuotationRequest?> GetByIdForUserAsync(
+    Task<Entities.QuotationRequest?> GetByIdForOrganizationAsync(
         Guid id,
-        Guid userId,
+        Guid organizationId,
         CancellationToken cancellationToken = default);
 
-    Task<List<Entities.QuotationRequest>> GetByUserIdAsync(
-        Guid userId,
+    Task<List<Entities.QuotationRequest>> GetByOrganizationIdAsync(
+        Guid organizationId,
         CancellationToken cancellationToken = default);
 
-    Task<bool> DeleteForUserAsync(Guid id, Guid userId, CancellationToken cancellationToken = default);
+    Task<bool> DeleteForOrganizationAsync(Guid id, Guid organizationId, CancellationToken cancellationToken = default);
 
     Task AddAsync(
         Entities.QuotationRequest request,

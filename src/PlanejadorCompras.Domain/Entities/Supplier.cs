@@ -3,7 +3,7 @@ using PlanejadorCompras.Domain.Validation;
 
 namespace PlanejadorCompras.Domain.Entities;
 
-public sealed class Supplier
+public sealed class Supplier : IOrganizationOwned
 {
     private Supplier()
     {
@@ -28,6 +28,8 @@ public sealed class Supplier
     }
 
     public Guid Id { get; private set; }
+
+    public Guid OrganizationId { get; private set; }
 
     public Guid UserId { get; private set; }
 

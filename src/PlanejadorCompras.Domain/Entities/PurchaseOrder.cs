@@ -3,7 +3,7 @@ using PlanejadorCompras.Domain.Validation;
 
 namespace PlanejadorCompras.Domain.Entities;
 
-public sealed class PurchaseOrder
+public sealed class PurchaseOrder : IOrganizationOwned
 {
     private readonly List<PurchaseOrderItem> _items = [];
 
@@ -48,6 +48,8 @@ public sealed class PurchaseOrder
     }
 
     public Guid Id { get; private set; }
+
+    public Guid OrganizationId { get; private set; }
 
     public Guid UserId { get; private set; }
 
