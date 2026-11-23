@@ -26,8 +26,6 @@ public sealed record LoginRequestDto
     public string Password { get; init; }
 }
 
-public record LoginResultDto(string AccessToken, DateTime ExpiresAtUtc);
-
 public sealed record ForgotPasswordRequestDto
 {
     public ForgotPasswordRequestDto(string email) => Email = email;

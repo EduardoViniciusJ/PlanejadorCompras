@@ -11,6 +11,7 @@ internal static class ApiRateLimitingConfiguration
     internal const string PublicQuotationReadPolicy = "public-quotation-read";
     internal const string PublicQuotationWritePolicy = "public-quotation-write";
     internal const string QuotationDeliveryPolicy = "quotation-delivery";
+    internal const string RefreshPolicy = "auth-refresh";
 
     internal static IServiceCollection AddApiRateLimiting(
         this IServiceCollection services)
@@ -22,7 +23,7 @@ internal static class ApiRateLimitingConfiguration
                 new ValueTask(ApiProblemDetailsWriter.WriteAsync(
                     context.HttpContext,
                     StatusCodes.Status429TooManyRequests,
-                    "Too many requests.",
+                    "Muitas tentativas em pouco tempo. Aguarde um instante e tente novamente.",
                     "rate_limited",
                     cancellationToken));
 
@@ -39,6 +40,8 @@ internal static class ApiRateLimitingConfiguration
             // Issuing requests and links can send e-mail to addresses chosen by the user.
             options.AddPolicy(QuotationDeliveryPolicy, httpContext =>
                 CreateFixedWindowPartition(httpContext, 20, TimeSpan.FromMinutes(10)));
+            options.AddPolicy(RefreshPolicy, httpContext =>
+                CreateFixedWindowPartition(httpContext, 120, TimeSpan.FromMinutes(1)));
         });
 
         return services;

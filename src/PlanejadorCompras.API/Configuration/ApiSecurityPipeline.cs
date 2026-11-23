@@ -37,10 +37,11 @@ internal static class ApiSecurityPipeline
         this IApplicationBuilder app) =>
         app.Use(async (context, next) =>
         {
-            var hasAccessTokenCookie = context.Request.Cookies.ContainsKey(
-                AuthenticationConstants.AccessTokenCookieName);
+            var hasSessionCookie =
+                context.Request.Cookies.ContainsKey(AuthenticationConstants.AccessTokenCookieName)
+                || context.Request.Cookies.ContainsKey(AuthenticationConstants.RefreshTokenCookieName);
 
-            if (hasAccessTokenCookie
+            if (hasSessionCookie
                 && IsUnsafeHttpMethod(context.Request.Method)
                 && !HasXmlHttpRequestHeader(context))
             {

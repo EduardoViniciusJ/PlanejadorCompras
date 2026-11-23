@@ -19,11 +19,11 @@ public sealed class UserTokenRepository : IUserTokenRepository
         await _context.UserTokens.AddAsync(userToken, cancellationToken);
     }
 
-    public async Task<UserToken?> GetByTokenAsync(string token, string type, CancellationToken cancellationToken = default)
+    public async Task<UserToken?> GetByTokenHashAsync(string tokenHash, string type, CancellationToken cancellationToken = default)
     {
         return await _context.UserTokens
             .Include(x => x.User)
-            .FirstOrDefaultAsync(x => x.Token == token && x.Type == type, cancellationToken);
+            .FirstOrDefaultAsync(x => x.TokenHash == tokenHash && x.Type == type, cancellationToken);
     }
 
     public async Task RemoveByUserAndTypeAsync(
@@ -33,6 +33,15 @@ public sealed class UserTokenRepository : IUserTokenRepository
     {
         var tokens = await _context.UserTokens
             .Where(token => token.UserId == userId && token.Type == type)
+            .ToListAsync(cancellationToken);
+
+        _context.UserTokens.RemoveRange(tokens);
+    }
+
+    public async Task RemoveAllByUserAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var tokens = await _context.UserTokens
+            .Where(token => token.UserId == userId)
             .ToListAsync(cancellationToken);
 
         _context.UserTokens.RemoveRange(tokens);

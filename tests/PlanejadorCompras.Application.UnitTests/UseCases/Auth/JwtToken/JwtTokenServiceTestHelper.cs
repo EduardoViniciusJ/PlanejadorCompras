@@ -7,6 +7,7 @@ namespace PlanejadorCompras.Application.UnitTests.UseCases.Auth.JwtToken;
 public sealed class JwtTokenServiceTestHelper
 {
     public static readonly Guid DefaultUserId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+    public static readonly Guid DefaultSessionId = Guid.Parse("22222222-2222-2222-2222-222222222222");
     public const string DefaultEmail = "user@test.com";
     public const string DefaultName = "Test User";
     public const string DefaultIssuer = "PlanejadorCompras";
@@ -59,11 +60,13 @@ public sealed class JwtTokenServiceTestHelper
     public static GenerateAccessTokenRequestDto CreateRequestDto(
         Guid? userId = null,
         string? email = DefaultEmail,
-        string? name = DefaultName)
+        string? name = DefaultName,
+        Guid? sessionId = null)
     {
         return new GenerateAccessTokenRequestDto(
             userId ?? DefaultUserId,
             email ?? DefaultEmail,
-            name ?? DefaultName);
+            name ?? DefaultName,
+            sessionId ?? DefaultSessionId);
     }
 }

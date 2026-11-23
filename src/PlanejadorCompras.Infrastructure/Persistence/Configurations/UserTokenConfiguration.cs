@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PlanejadorCompras.Domain.Entities;
+using PlanejadorCompras.Domain.Security;
 
 namespace PlanejadorCompras.Infrastructure.Persistence.Configurations;
 
@@ -12,9 +13,9 @@ public sealed class UserTokenConfiguration : IEntityTypeConfiguration<UserToken>
 
         builder.HasKey(t => t.Id);
 
-        builder.Property(t => t.Token)
+        builder.Property(t => t.TokenHash)
             .IsRequired()
-            .HasMaxLength(255);
+            .HasMaxLength(SecretToken.HashLength);
 
         builder.Property(t => t.Type)
             .IsRequired()
@@ -28,7 +29,7 @@ public sealed class UserTokenConfiguration : IEntityTypeConfiguration<UserToken>
             .HasForeignKey(t => t.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasIndex(t => t.Token)
+        builder.HasIndex(t => t.TokenHash)
             .IsUnique();
     }
 }

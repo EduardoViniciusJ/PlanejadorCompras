@@ -7,6 +7,7 @@ public sealed class PlanejadorComprasDbContext(DbContextOptions<PlanejadorCompra
 {
     public DbSet<User> Users => Set<User>();
     public DbSet<UserToken> UserTokens => Set<UserToken>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     public DbSet<ShoppingList> ShoppingLists => Set<ShoppingList>();
 

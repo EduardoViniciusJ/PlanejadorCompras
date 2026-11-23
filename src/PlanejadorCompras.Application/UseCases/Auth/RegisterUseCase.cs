@@ -46,12 +46,12 @@ public sealed class RegisterUseCase
         
         await _userRepository.AddAsync(user, cancellationToken);
 
-        var token = UserToken.Create(user.Id, "EmailConfirmation", TimeSpan.FromHours(24));
+        var (token, rawToken) = UserToken.Create(user.Id, "EmailConfirmation", TimeSpan.FromHours(24));
         await _userTokenRepository.AddAsync(token, cancellationToken);
 
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        var confirmLink = _frontendUrlService.BuildEmailConfirmationUrl(token.Token);
+        var confirmLink = _frontendUrlService.BuildEmailConfirmationUrl(rawToken);
         var emailBody = $"<p>Por favor, confirme seu e-mail clicando no link: <a href='{confirmLink}'>Confirmar E-mail</a></p>";
         
         await _emailService.SendEmailAsync(user.Email, "Confirmação de E-mail", emailBody, cancellationToken);
