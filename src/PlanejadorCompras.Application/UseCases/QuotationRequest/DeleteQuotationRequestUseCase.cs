@@ -7,13 +7,13 @@ namespace PlanejadorCompras.Application.UseCases.QuotationRequest;
 
 public sealed class DeleteQuotationRequestUseCase(
     IQuotationRequestRepository repository,
-    ICurrentUser currentUser,
+    ICurrentOrganization currentOrganization,
     IUnitOfWork unitOfWork)
 {
     public async Task ExecuteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         ArgumentOutOfRangeException.ThrowIfEqual(id, Guid.Empty);
-        if (!await repository.DeleteForUserAsync(id, currentUser.UserId, cancellationToken))
+        if (!await repository.DeleteForOrganizationAsync(id, currentOrganization.OrganizationId, cancellationToken))
             throw new NotFoundException("Quotation request not found.", "quotation_request_not_found");
         await unitOfWork.CommitAsync(cancellationToken);
     }

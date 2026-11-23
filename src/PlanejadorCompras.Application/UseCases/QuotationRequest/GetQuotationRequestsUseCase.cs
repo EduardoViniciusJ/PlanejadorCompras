@@ -6,11 +6,11 @@ namespace PlanejadorCompras.Application.UseCases.QuotationRequest;
 
 public sealed class GetQuotationRequestsUseCase(
     IQuotationRequestRepository repository,
-    ICurrentUser currentUser)
+    ICurrentOrganization currentOrganization)
 {
     public async Task<IReadOnlyCollection<QuotationRequestSummaryResponseDto>> ExecuteAsync(
         CancellationToken cancellationToken = default) =>
-        (await repository.GetByUserIdAsync(currentUser.UserId, cancellationToken))
+        (await repository.GetByOrganizationIdAsync(currentOrganization.OrganizationId, cancellationToken))
             .Select(QuotationRequestResponseMapper.ToSummary)
             .ToList();
 }

@@ -19,6 +19,11 @@ public sealed class UserRepository : IUserRepository
         await _context.Users.AddAsync(user, cancellationToken);
     }
 
+    public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _context.Users.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    }
+
     public async Task<User?> GetByGoogleIdAsync(string googleId, CancellationToken cancellationToken = default)
     {
         return await _context.Users.FirstOrDefaultAsync(x => x.GoogleId == googleId, cancellationToken);
@@ -32,5 +37,10 @@ public sealed class UserRepository : IUserRepository
     public void Update(User user)
     {
         _context.Users.Update(user);
+    }
+
+    public void Remove(User user)
+    {
+        _context.Users.Remove(user);
     }
 }

@@ -40,24 +40,24 @@ public sealed class SavedEqualizationConfiguration
 
         builder.Ignore(equalization => equalization.SupplierCount);
 
-        builder.HasIndex(equalization => equalization.Code)
+        builder.HasIndex(equalization => new { equalization.OrganizationId, equalization.Code })
             .IsUnique();
         builder.HasIndex(equalization => new
             {
-                equalization.UserId,
+                equalization.OrganizationId,
                 equalization.RequestId
             })
             .IsUnique();
         builder.HasIndex(equalization => new
             {
-                equalization.UserId,
+                equalization.OrganizationId,
                 equalization.CreatedAtUtc
             });
 
         builder.HasOne<User>()
             .WithMany()
             .HasForeignKey(equalization => equalization.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         // SourceShoppingListId is an audit reference. The immutable snapshot
         // must remain readable even if the source list is removed later.

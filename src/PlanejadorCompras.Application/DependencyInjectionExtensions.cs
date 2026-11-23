@@ -13,6 +13,8 @@ using PlanejadorCompras.Application.UseCases.Supplier;
 using PlanejadorCompras.Application.UseCases.PurchaseOrder;
 using PlanejadorCompras.Application.UseCases.Equalization;
 using PlanejadorCompras.Application.UseCases.QuotationRequest;
+using PlanejadorCompras.Application.UseCases.Account;
+using PlanejadorCompras.Application.UseCases.Organization;
 
 namespace PlanejadorCompras.Application;
 
@@ -38,6 +40,28 @@ public static class DependencyInjectionExtensions
         services.AddScoped<LoginUseCase>();
         services.AddScoped<ForgotPasswordUseCase>();
         services.AddScoped<ResetPasswordUseCase>();
+        // Organization, team and invitations
+        services.AddScoped<GetOrganizationUseCase>();
+        services.AddScoped<UpdateOrganizationUseCase>();
+        services.AddScoped<GetOrganizationMembersUseCase>();
+        services.AddScoped<ChangeMemberRoleUseCase>();
+        services.AddScoped<RemoveMemberUseCase>();
+        services.AddScoped<GetInvitationsUseCase>();
+        services.AddScoped<CreateInvitationUseCase>();
+        services.AddScoped<RevokeInvitationUseCase>();
+        services.AddScoped<GetInvitationPreviewUseCase>();
+        services.AddScoped<AcceptInvitationUseCase>();
+        services.AddScoped<AcceptInvitationWithRegistrationUseCase>();
+
+        // Account
+        services.AddScoped<GetAccountUseCase>();
+        services.AddScoped<UpdateProfileUseCase>();
+        services.AddScoped<ChangePasswordUseCase>();
+        services.AddScoped<SwitchOrganizationUseCase>();
+        services.AddScoped<GetAccountDeletionPreviewUseCase>();
+        services.AddScoped<DeleteAccountUseCase>();
+        services.AddScoped<ExportAccountDataUseCase>();
+
         // ShoppingList
         services.AddScoped<CreateShoppingListUseCase>();
         services.AddScoped<GetShoppingListByIdUseCase>();

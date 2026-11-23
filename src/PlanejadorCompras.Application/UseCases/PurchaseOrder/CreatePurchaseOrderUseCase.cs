@@ -12,13 +12,12 @@ namespace PlanejadorCompras.Application.UseCases.PurchaseOrder;
 public sealed class CreatePurchaseOrderUseCase(
     PurchaseOrderDraftService draftService,
     IPurchaseOrderRepository purchaseOrderRepository,
-    IPurchaseOrderCodeGenerator codeGenerator,
+    IDocumentNumberGenerator documentNumberGenerator,
     ICurrentUser currentUser,
+    ICurrentOrganization currentOrganization,
     IUnitOfWork unitOfWork,
     TimeProvider timeProvider)
 {
-    private const int MaximumCodeGenerationAttempts = 10;
-
     public async Task<PurchaseOrderDetailResponseDto> ExecuteAsync(
         CreatePurchaseOrderRequestDto request,
         CancellationToken cancellationToken = default)
@@ -27,7 +26,7 @@ public sealed class CreatePurchaseOrderUseCase(
         ValidateRequest(request);
 
         if (await purchaseOrderRepository.ExistsForSourceAsync(
-                currentUser.UserId,
+                currentOrganization.OrganizationId,
                 request.ShoppingListId,
                 request.SupplierId,
                 cancellationToken))
@@ -43,7 +42,10 @@ public sealed class CreatePurchaseOrderUseCase(
             request.EqualizationId,
             cancellationToken);
         var nowUtc = timeProvider.GetUtcNow().UtcDateTime;
-        var code = await GenerateUniqueCodeAsync(nowUtc, cancellationToken);
+        var code = await documentNumberGenerator.NextAsync(
+            DocumentKind.PurchaseOrder,
+            nowUtc,
+            cancellationToken);
 
         var order = PurchaseOrderEntity.Create(
             currentUser.UserId,
@@ -66,25 +68,6 @@ public sealed class CreatePurchaseOrderUseCase(
         await unitOfWork.CommitAsync(cancellationToken);
 
         return PurchaseOrderResponseMapper.ToDetail(order);
-    }
-
-    private async Task<string> GenerateUniqueCodeAsync(
-        DateTime nowUtc,
-        CancellationToken cancellationToken)
-    {
-        for (var attempt = 0; attempt < MaximumCodeGenerationAttempts; attempt++)
-        {
-            var code = codeGenerator.Generate(nowUtc);
-
-            if (!await purchaseOrderRepository.CodeExistsAsync(code, cancellationToken))
-            {
-                return code;
-            }
-        }
-
-        throw new ConflictException(
-            "Nao foi possivel gerar um numero unico para o pedido.",
-            "purchase_order_code_generation_failed");
     }
 
     private static void ValidateRequest(CreatePurchaseOrderRequestDto request)

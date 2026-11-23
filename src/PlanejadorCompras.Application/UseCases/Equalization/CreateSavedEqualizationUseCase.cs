@@ -18,13 +18,12 @@ public sealed class CreateSavedEqualizationUseCase(
     ISupplierRepository supplierRepository,
     ShoppingListComparisonCalculator comparisonCalculator,
     ISavedEqualizationRepository savedEqualizationRepository,
-    ISavedEqualizationCodeGenerator codeGenerator,
+    IDocumentNumberGenerator documentNumberGenerator,
     ICurrentUser currentUser,
+    ICurrentOrganization currentOrganization,
     IUnitOfWork unitOfWork,
     TimeProvider timeProvider)
 {
-    private const int MaximumCodeGenerationAttempts = 10;
-
     public async Task<SavedEqualizationDetailResponseDto> ExecuteAsync(
         Guid shoppingListId,
         CreateSavedEqualizationRequestDto request,
@@ -35,7 +34,7 @@ public sealed class CreateSavedEqualizationUseCase(
         ArgumentOutOfRangeException.ThrowIfEqual(request.RequestId, Guid.Empty);
 
         var existing = await savedEqualizationRepository.GetByRequestIdAsync(
-            currentUser.UserId,
+            currentOrganization.OrganizationId,
             request.RequestId,
             cancellationToken);
 
@@ -108,7 +107,10 @@ public sealed class CreateSavedEqualizationUseCase(
             })
             .ToList();
         var nowUtc = timeProvider.GetUtcNow().UtcDateTime;
-        var code = await GenerateUniqueCodeAsync(nowUtc, cancellationToken);
+        var code = await documentNumberGenerator.NextAsync(
+            DocumentKind.Equalization,
+            nowUtc,
+            cancellationToken);
         var creatorName = string.IsNullOrWhiteSpace(currentUser.Name)
             ? currentUser.Email
             : currentUser.Name;
@@ -131,26 +133,5 @@ public sealed class CreateSavedEqualizationUseCase(
         await unitOfWork.CommitAsync(cancellationToken);
 
         return SavedEqualizationResponseMapper.ToDetail(equalization);
-    }
-
-    private async Task<string> GenerateUniqueCodeAsync(
-        DateTime nowUtc,
-        CancellationToken cancellationToken)
-    {
-        for (var attempt = 0; attempt < MaximumCodeGenerationAttempts; attempt++)
-        {
-            var code = codeGenerator.Generate(nowUtc);
-
-            if (!await savedEqualizationRepository.CodeExistsAsync(
-                    code,
-                    cancellationToken))
-            {
-                return code;
-            }
-        }
-
-        throw new ConflictException(
-            "Nao foi possivel gerar um numero unico para a equalizacao.",
-            "equalization_code_generation_failed");
     }
 }

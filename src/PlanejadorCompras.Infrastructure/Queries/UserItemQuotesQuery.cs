@@ -14,11 +14,11 @@ public sealed class UserItemQuotesQuery : IUserItemQuotesQuery
         _context = context;
     }
 
-    public async Task<IReadOnlyCollection<UserItemQuoteDto>> GetByUserIdAsync(
-        Guid userId,
+    public async Task<IReadOnlyCollection<UserItemQuoteDto>> GetByOrganizationIdAsync(
+        Guid organizationId,
         CancellationToken cancellationToken = default)
     {
-        ArgumentOutOfRangeException.ThrowIfEqual(userId, Guid.Empty);
+        ArgumentOutOfRangeException.ThrowIfEqual(organizationId, Guid.Empty);
 
         return await (
                 from quote in _context.ItemQuotes.AsNoTracking()
@@ -28,7 +28,7 @@ public sealed class UserItemQuotesQuery : IUserItemQuotesQuery
                     on item.ShoppingListId equals list.Id
                 join supplier in _context.Suppliers.AsNoTracking()
                     on quote.SupplierId equals supplier.Id
-                where list.UserId == userId
+                where list.OrganizationId == organizationId
                 orderby quote.CreatedAt descending
                 select new UserItemQuoteDto(
                     quote.Id,

@@ -19,6 +19,9 @@ using PlanejadorCompras.Infrastructure.Reports.Pdf;
 using PlanejadorCompras.Infrastructure.Repositories;
 using PlanejadorCompras.Infrastructure.Services;
 
+using PlanejadorCompras.Domain.Repositories.Organization;
+using PlanejadorCompras.Infrastructure.Organizations;
+
 namespace PlanejadorCompras.Infrastructure;
 
 public static class DependencyInjectionExtensions
@@ -61,6 +64,8 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ISavedEqualizationRepository, SavedEqualizationRepository>();
         services.AddScoped<IQuotationRequestRepository, QuotationRequestRepository>();
         services.AddScoped<IUserTokenRepository, UserTokenRepository>();
+        services.AddScoped<IOrganizationRepository, OrganizationRepository>();
+        services.AddScoped<IOrganizationInvitationRepository, OrganizationInvitationRepository>();
     }
 
     private static void AddUnitOfWork(IServiceCollection services)
@@ -70,6 +75,16 @@ public static class DependencyInjectionExtensions
 
     private static void AddApplicationServices(IServiceCollection services)
     {
+        // One organization context per request, exposed both to the DbContext
+        // (tenant filter) and to the use cases (current organization and role).
+        services.AddScoped<OrganizationContext>();
+        services.AddScoped<IOrganizationScope>(
+            provider => provider.GetRequiredService<OrganizationContext>());
+        services.AddScoped<ICurrentOrganization>(
+            provider => provider.GetRequiredService<OrganizationContext>());
+        services.AddScoped<IOrganizationContextResolver, OrganizationContextResolver>();
+        services.AddScoped<IAccountEraser, AccountEraser>();
+        services.AddScoped<IAccountDataExportQuery, AccountDataExportQuery>();
         services.AddScoped<IShoppingListOverviewQuery, ShoppingListOverviewQuery>();
         services.AddScoped<IShoppingListDetailQuery, ShoppingListDetailQuery>();
         services.AddScoped<IUserItemQuotesQuery, UserItemQuotesQuery>();
@@ -101,8 +116,8 @@ public static class DependencyInjectionExtensions
             client.Timeout = TimeSpan.FromSeconds(10);
         });
         services.AddScoped<IJwtTokenService, JwtTokenService>();
-        services.AddSingleton<IPurchaseOrderCodeGenerator, PurchaseOrderCodeGenerator>();
-        services.AddSingleton<ISavedEqualizationCodeGenerator, SavedEqualizationCodeGenerator>();
+        services.AddScoped<IDocumentNumberGenerator, DocumentNumberGenerator>();
+        services.AddScoped<IInvitationEmailSender, InvitationEmailSender>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IEmailService, ResendEmailService>();
         services.AddSingleton<IFrontendUrlService, FrontendUrlService>();

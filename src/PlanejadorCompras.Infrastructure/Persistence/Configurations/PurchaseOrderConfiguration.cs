@@ -43,24 +43,24 @@ public sealed class PurchaseOrderConfiguration : IEntityTypeConfiguration<Purcha
 
         builder.Ignore(order => order.TotalPrice);
 
-        builder.HasIndex(order => order.Code)
+        builder.HasIndex(order => new { order.OrganizationId, order.Code })
             .IsUnique();
         builder.HasIndex(order => new
             {
-                order.UserId,
+                order.OrganizationId,
                 order.SourceShoppingListId,
                 order.SupplierId
             })
             .IsUnique()
             .HasFilter(
                 "\"Status\" <> 3 AND \"SourceShoppingListId\" IS NOT NULL AND \"SupplierId\" IS NOT NULL");
-        builder.HasIndex(order => new { order.UserId, order.CreatedAtUtc });
+        builder.HasIndex(order => new { order.OrganizationId, order.CreatedAtUtc });
         builder.HasIndex(order => order.SourceEqualizationId);
 
         builder.HasOne<User>()
             .WithMany()
             .HasForeignKey(order => order.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Source IDs are audit references rather than aggregate relationships.
         // The validated snapshots keep an issued order readable after its list or

@@ -16,34 +16,27 @@ public sealed class PurchaseOrderRepository(PlanejadorComprasDbContext context)
             .Include(order => order.Items)
             .FirstOrDefaultAsync(order => order.Id == id, cancellationToken);
 
-    public Task<List<PurchaseOrderEntity>> GetByUserIdAsync(
-        Guid userId,
+    public Task<List<PurchaseOrderEntity>> GetByOrganizationIdAsync(
+        Guid organizationId,
         CancellationToken cancellationToken = default) =>
         context.PurchaseOrders
             .AsNoTracking()
             .Include(order => order.Items)
-            .Where(order => order.UserId == userId)
+            .Where(order => order.OrganizationId == organizationId)
             .OrderByDescending(order => order.CreatedAtUtc)
             .ToListAsync(cancellationToken);
 
     public Task<bool> ExistsForSourceAsync(
-        Guid userId,
+        Guid organizationId,
         Guid shoppingListId,
         Guid supplierId,
         CancellationToken cancellationToken = default) =>
         context.PurchaseOrders.AnyAsync(
             order =>
-                order.UserId == userId
+                order.OrganizationId == organizationId
                 && order.SourceShoppingListId == shoppingListId
                 && order.SupplierId == supplierId
                 && order.Status != PurchaseOrderStatus.Cancelled,
-            cancellationToken);
-
-    public Task<bool> CodeExistsAsync(
-        string code,
-        CancellationToken cancellationToken = default) =>
-        context.PurchaseOrders.AnyAsync(
-            order => order.Code == code,
             cancellationToken);
 
     public async Task AddAsync(

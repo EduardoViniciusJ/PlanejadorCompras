@@ -6,21 +6,21 @@ namespace PlanejadorCompras.Application.UseCases.ShoppingList;
 public sealed class GetShoppingListsByUserIdUseCase
 {
     private readonly IShoppingListOverviewQuery _shoppingListOverviewQuery;
-    private readonly ICurrentUser _currentUser;
+    private readonly ICurrentOrganization _currentOrganization;
 
     public GetShoppingListsByUserIdUseCase(
         IShoppingListOverviewQuery shoppingListOverviewQuery,
-        ICurrentUser currentUser)
+        ICurrentOrganization currentOrganization)
     {
         _shoppingListOverviewQuery = shoppingListOverviewQuery;
-        _currentUser = currentUser;
+        _currentOrganization = currentOrganization;
     }
 
     public async Task<ShoppingListsOverviewResponseDto> ExecuteAsync(
         CancellationToken cancellationToken = default)
     {
-        var lists = await _shoppingListOverviewQuery.GetByUserIdAsync(
-            _currentUser.UserId,
+        var lists = await _shoppingListOverviewQuery.GetByOrganizationIdAsync(
+            _currentOrganization.OrganizationId,
             cancellationToken);
 
         var summary = new ShoppingListsSummaryDto(

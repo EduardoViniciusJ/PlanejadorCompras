@@ -6,13 +6,13 @@ namespace PlanejadorCompras.Application.UseCases.PurchaseOrder;
 
 public sealed class GetPurchaseOrdersUseCase(
     IPurchaseOrderRepository purchaseOrderRepository,
-    ICurrentUser currentUser)
+    ICurrentOrganization currentOrganization)
 {
     public async Task<IReadOnlyCollection<PurchaseOrderSummaryResponseDto>> ExecuteAsync(
         CancellationToken cancellationToken = default)
     {
-        var orders = await purchaseOrderRepository.GetByUserIdAsync(
-            currentUser.UserId,
+        var orders = await purchaseOrderRepository.GetByOrganizationIdAsync(
+            currentOrganization.OrganizationId,
             cancellationToken);
 
         return orders

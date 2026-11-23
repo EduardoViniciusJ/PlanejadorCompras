@@ -13,6 +13,7 @@ public sealed class CreateQuotationRequestUseCase(
     GetShoppingListDetailUseCase getShoppingListDetailUseCase,
     IQuotationRequestRepository repository,
     ICurrentUser currentUser,
+    IDocumentNumberGenerator documentNumberGenerator,
     IUnitOfWork unitOfWork,
     TimeProvider timeProvider)
 {
@@ -47,9 +48,15 @@ public sealed class CreateQuotationRequestUseCase(
         var buyerName = string.IsNullOrWhiteSpace(currentUser.Name)
             ? currentUser.Email
             : currentUser.Name;
+        var code = await documentNumberGenerator.NextAsync(
+            DocumentKind.QuotationRequest,
+            nowUtc,
+            cancellationToken);
+
         var entity = QuotationRequestEntity.Create(
             currentUser.UserId,
             shoppingListId,
+            code,
             detail.Name,
             detail.Description,
             buyerName,

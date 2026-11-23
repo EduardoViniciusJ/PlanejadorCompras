@@ -6,14 +6,14 @@ namespace PlanejadorCompras.Application.UseCases.ShoppingList;
 
 public sealed class GetShoppingListDetailUseCase
 {
-    private readonly ICurrentUser _currentUser;
+    private readonly ICurrentOrganization _currentOrganization;
     private readonly IShoppingListDetailQuery _shoppingListDetailQuery;
 
     public GetShoppingListDetailUseCase(
-        ICurrentUser currentUser,
+        ICurrentOrganization currentOrganization,
         IShoppingListDetailQuery shoppingListDetailQuery)
     {
-        _currentUser = currentUser;
+        _currentOrganization = currentOrganization;
         _shoppingListDetailQuery = shoppingListDetailQuery;
     }
 
@@ -24,7 +24,7 @@ public sealed class GetShoppingListDetailUseCase
         ArgumentOutOfRangeException.ThrowIfEqual(shoppingListId, Guid.Empty);
 
         var detail = await _shoppingListDetailQuery.GetByIdAsync(
-            _currentUser.UserId,
+            _currentOrganization.OrganizationId,
             shoppingListId,
             cancellationToken);
 

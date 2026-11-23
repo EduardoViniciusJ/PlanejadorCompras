@@ -21,7 +21,7 @@ public sealed class UpdateSupplierUseCase(
         var supplier = await supplierAccessService.GetForCurrentUserAsync(id, cancellationToken);
 
         if (await supplierRepository.ExistsByNameAsync(
-                supplier.UserId,
+                supplier.OrganizationId,
                 input.Name,
                 supplier.Id,
                 cancellationToken))
@@ -31,7 +31,7 @@ public sealed class UpdateSupplierUseCase(
 
         if (input.Cnpj is not null
             && await supplierRepository.ExistsByCnpjAsync(
-                supplier.UserId,
+                supplier.OrganizationId,
                 input.Cnpj,
                 supplier.Id,
                 cancellationToken))

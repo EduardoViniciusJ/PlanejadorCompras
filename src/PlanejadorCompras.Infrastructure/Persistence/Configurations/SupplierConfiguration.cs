@@ -23,10 +23,10 @@ public sealed class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
         builder.Property(supplier => supplier.CreatedAt)
             .IsRequired();
 
-        builder.HasIndex(supplier => new { supplier.UserId, supplier.Name })
+        builder.HasIndex(supplier => new { supplier.OrganizationId, supplier.Name })
             .IsUnique();
 
-        builder.HasIndex(supplier => new { supplier.UserId, supplier.Cnpj })
+        builder.HasIndex(supplier => new { supplier.OrganizationId, supplier.Cnpj })
             .IsUnique()
             .HasFilter("\"Cnpj\" IS NOT NULL");
 
@@ -56,6 +56,6 @@ public sealed class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
         builder.HasOne<User>()
             .WithMany()
             .HasForeignKey(supplier => supplier.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

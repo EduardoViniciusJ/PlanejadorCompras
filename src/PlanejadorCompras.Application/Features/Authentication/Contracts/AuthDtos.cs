@@ -4,14 +4,24 @@ namespace PlanejadorCompras.Application.Features.Authentication.Contracts;
 
 public sealed record RegisterRequestDto
 {
-    public RegisterRequestDto(string email, string password) =>
-        (Email, Password) = (email, password);
+    public RegisterRequestDto(
+        string email,
+        string password,
+        bool acceptedTerms = false,
+        string? name = null) =>
+        (Email, Password, AcceptedTerms, Name) = (email, password, acceptedTerms, name);
 
     [Required, EmailAddress, StringLength(320)]
     public string Email { get; init; }
 
     [Required, StringLength(128, MinimumLength = 8)]
     public string Password { get; init; }
+
+    /// <summary>The person agreed to the terms of use and the privacy policy.</summary>
+    public bool AcceptedTerms { get; init; }
+
+    [StringLength(150)]
+    public string? Name { get; init; }
 }
 
 public sealed record LoginRequestDto

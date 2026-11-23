@@ -6,12 +6,12 @@ namespace PlanejadorCompras.Application.UseCases.Supplier;
 
 public sealed class GetSuppliersUseCase(
     ISupplierRepository supplierRepository,
-    ICurrentUser currentUser)
+    ICurrentOrganization currentOrganization)
 {
     public async Task<IReadOnlyCollection<SupplierResponseDto>> ExecuteAsync(
         CancellationToken cancellationToken = default)
     {
-        var suppliers = await supplierRepository.GetByUserIdAsync(currentUser.UserId, cancellationToken);
+        var suppliers = await supplierRepository.GetByOrganizationIdAsync(currentOrganization.OrganizationId, cancellationToken);
         return suppliers
             .Select(SupplierResponseMapper.Map)
             .ToList();

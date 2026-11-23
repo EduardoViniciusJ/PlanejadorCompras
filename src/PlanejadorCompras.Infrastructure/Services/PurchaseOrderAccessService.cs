@@ -7,7 +7,7 @@ namespace PlanejadorCompras.Infrastructure.Services;
 
 public sealed class PurchaseOrderAccessService(
     IPurchaseOrderRepository purchaseOrderRepository,
-    ICurrentUser currentUser)
+    ICurrentOrganization currentOrganization)
     : IPurchaseOrderAccessService
 {
     public async Task<PurchaseOrderEntity> GetForCurrentUserAsync(
@@ -20,7 +20,7 @@ public sealed class PurchaseOrderAccessService(
             purchaseOrderId,
             cancellationToken);
 
-        if (order is null || order.UserId != currentUser.UserId)
+        if (order is null || order.OrganizationId != currentOrganization.OrganizationId)
         {
             throw new NotFoundException(
                 "Purchase order not found.",

@@ -21,31 +21,31 @@ public sealed class SupplierRepository(PlanejadorComprasDbContext context) : ISu
             .ToListAsync(cancellationToken);
     }
 
-    public Task<List<Supplier>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default) =>
+    public Task<List<Supplier>> GetByOrganizationIdAsync(Guid organizationId, CancellationToken cancellationToken = default) =>
         context.Suppliers
             .AsNoTracking()
-            .Where(supplier => supplier.UserId == userId)
+            .Where(supplier => supplier.OrganizationId == organizationId)
             .OrderBy(supplier => supplier.Name)
             .ToListAsync(cancellationToken);
 
     public Task<bool> ExistsByNameAsync(
-        Guid userId,
+        Guid organizationId,
         string name,
         Guid? excludingId = null,
         CancellationToken cancellationToken = default) =>
         context.Suppliers.AnyAsync(
-            supplier => supplier.UserId == userId &&
+            supplier => supplier.OrganizationId == organizationId &&
                         supplier.Name == name.Trim() &&
                         (!excludingId.HasValue || supplier.Id != excludingId.Value),
             cancellationToken);
 
     public Task<bool> ExistsByCnpjAsync(
-        Guid userId,
+        Guid organizationId,
         string cnpj,
         Guid? excludingId = null,
         CancellationToken cancellationToken = default) =>
         context.Suppliers.AnyAsync(
-            supplier => supplier.UserId == userId
+            supplier => supplier.OrganizationId == organizationId
                         && supplier.Cnpj == cnpj
                         && (!excludingId.HasValue || supplier.Id != excludingId.Value),
             cancellationToken);

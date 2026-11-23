@@ -15,18 +15,18 @@ public sealed class SavedEqualizationRepository(PlanejadorComprasDbContext conte
             .FirstOrDefaultAsync(equalization => equalization.Id == id, cancellationToken);
 
     public Task<SavedEqualization?> GetByRequestIdAsync(
-        Guid userId,
+        Guid organizationId,
         Guid requestId,
         CancellationToken cancellationToken = default) =>
         IncludeSnapshot(context.SavedEqualizations)
             .FirstOrDefaultAsync(
                 equalization =>
-                    equalization.UserId == userId
+                    equalization.OrganizationId == organizationId
                     && equalization.RequestId == requestId,
                 cancellationToken);
 
-    public async Task<(List<SavedEqualization> Items, int TotalCount)> SearchByUserIdAsync(
-        Guid userId,
+    public async Task<(List<SavedEqualization> Items, int TotalCount)> SearchByOrganizationIdAsync(
+        Guid organizationId,
         string? searchTerm,
         int page,
         int pageSize,
@@ -34,7 +34,7 @@ public sealed class SavedEqualizationRepository(PlanejadorComprasDbContext conte
     {
         var query = context.SavedEqualizations
             .AsNoTracking()
-            .Where(equalization => equalization.UserId == userId);
+            .Where(equalization => equalization.OrganizationId == organizationId);
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -57,13 +57,6 @@ public sealed class SavedEqualizationRepository(PlanejadorComprasDbContext conte
 
         return (items, totalCount);
     }
-
-    public Task<bool> CodeExistsAsync(
-        string code,
-        CancellationToken cancellationToken = default) =>
-        context.SavedEqualizations.AnyAsync(
-            equalization => equalization.Code == code,
-            cancellationToken);
 
     public async Task AddAsync(
         SavedEqualization equalization,
