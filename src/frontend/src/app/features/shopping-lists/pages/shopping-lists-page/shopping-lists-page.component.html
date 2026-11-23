@@ -51,81 +51,89 @@
       </button>
     </div>
   } @else {
-    <section class="lists-toolbar management-surface" aria-label="Acompanhamento e filtros">
-      <div class="lists-toolbar-copy">
-        <span class="management-eyebrow">Acompanhamento</span>
-        <h2>Listas em andamento</h2>
-        <p>Encontre uma lista e abra o mapa para gerenciar itens, fornecedores e preços.</p>
-      </div>
+    <app-onboarding-checklist
+      [lists]="lists()"
+      (createListRequested)="openCreateForm()"
+      (quotationRequested)="openQuotationRequest($event)"
+    />
 
-      <div class="lists-filters" aria-label="Filtros de listas">
-        <div class="search-control">
-          <app-icon name="search" [size]="18" />
-          <label class="visually-hidden" for="shopping-list-search">Buscar por nome da lista</label>
-          <input
-            id="shopping-list-search"
-            type="search"
-            [value]="searchTerm()"
-            placeholder="Buscar lista"
-            autocomplete="off"
-            data-testid="list-search"
-            (input)="updateSearchTerm($event)"
-          />
+    @if (lists().length > 0) {
+      <section class="lists-toolbar management-surface" aria-label="Acompanhamento e filtros">
+        <div class="lists-toolbar-copy">
+          <span class="management-eyebrow">Acompanhamento</span>
+          <h2>Listas em andamento</h2>
+          <p>Encontre uma lista e abra o mapa para gerenciar itens, fornecedores e preços.</p>
         </div>
 
-        <div class="select-control">
-          <app-icon name="filter" [size]="18" />
-          <label class="visually-hidden" for="shopping-list-status-filter">
-            Filtrar por situação
-          </label>
-          <select
-            id="shopping-list-status-filter"
-            [value]="statusFilter()"
-            data-testid="status-filter"
-            (change)="updateStatusFilter($event)"
+        <div class="lists-filters" aria-label="Filtros de listas">
+          <div class="search-control">
+            <app-icon name="search" [size]="18" />
+            <label class="visually-hidden" for="shopping-list-search">Buscar por nome da lista</label>
+            <input
+              id="shopping-list-search"
+              type="search"
+              [value]="searchTerm()"
+              placeholder="Buscar lista"
+              autocomplete="off"
+              data-testid="list-search"
+              (input)="updateSearchTerm($event)"
+            />
+          </div>
+
+          <div class="select-control">
+            <app-icon name="filter" [size]="18" />
+            <label class="visually-hidden" for="shopping-list-status-filter">
+              Filtrar por situação
+            </label>
+            <select
+              id="shopping-list-status-filter"
+              [value]="statusFilter()"
+              data-testid="status-filter"
+              (change)="updateStatusFilter($event)"
+            >
+              <option value="all">Todas as situações</option>
+              <option value="draft">Adicionando itens</option>
+              <option value="awaiting-quotes">Aguardando preços</option>
+              <option value="ready-for-equalization">Pronta para comparar</option>
+            </select>
+          </div>
+
+          <div class="select-control">
+            <app-icon name="calendar" [size]="18" />
+            <label class="visually-hidden" for="shopping-list-period-filter">
+              Filtrar por período
+            </label>
+            <select
+              id="shopping-list-period-filter"
+              [value]="periodFilter()"
+              data-testid="period-filter"
+              (change)="updatePeriodFilter($event)"
+            >
+              <option value="all">Todo o período</option>
+              <option value="last-7-days">Últimos 7 dias</option>
+              <option value="last-30-days">Últimos 30 dias</option>
+              <option value="this-year">Este ano</option>
+            </select>
+          </div>
+
+          <button
+            type="button"
+            class="clear-filters-button"
+            [disabled]="!hasActiveFilters()"
+            (click)="clearFilters()"
           >
-            <option value="all">Todas as situações</option>
-            <option value="draft">Adicionando itens</option>
-            <option value="awaiting-quotes">Aguardando preços</option>
-            <option value="ready-for-equalization">Pronta para comparar</option>
-          </select>
+            <app-icon name="circle-x" [size]="18" />
+            Limpar
+          </button>
         </div>
-
-        <div class="select-control">
-          <app-icon name="calendar" [size]="18" />
-          <label class="visually-hidden" for="shopping-list-period-filter">
-            Filtrar por período
-          </label>
-          <select
-            id="shopping-list-period-filter"
-            [value]="periodFilter()"
-            data-testid="period-filter"
-            (change)="updatePeriodFilter($event)"
-          >
-            <option value="all">Todo o período</option>
-            <option value="last-7-days">Últimos 7 dias</option>
-            <option value="last-30-days">Últimos 30 dias</option>
-            <option value="this-year">Este ano</option>
-          </select>
-        </div>
-
-        <button
-          type="button"
-          class="clear-filters-button"
-          [disabled]="!hasActiveFilters()"
-          (click)="clearFilters()"
-        >
-          <app-icon name="circle-x" [size]="18" />
-          Limpar
-        </button>
-      </div>
-    </section>
+      </section>
+    }
 
     @if (lists().length === 0) {
       <div class="page-state">
         <app-mascot class="page-state-mascot" variant="01" size="medium" />
-        <h2>Nenhuma lista criada</h2>
-        <p>Crie uma lista de compras para começar a organizar seus itens.</p>
+        <h2>Nenhuma lista de compras ainda</h2>
+        <p>Monte uma lista com o que você precisa comprar para pedir preço aos fornecedores.</p>
         <button class="btn btn-primary" type="button" (click)="openCreateForm()">
           <app-icon name="plus" [size]="18" />
           Criar lista de compras
