@@ -15,7 +15,6 @@ const NAV_LINKS: readonly PublicNavLink[] = [
   { label: 'IA', fragment: 'ia' },
   { label: 'Recursos', fragment: 'recursos' },
   { label: 'Como funciona', fragment: 'como-funciona' },
-  { label: 'Preços', fragment: 'precos' },
   { label: 'Dúvidas', fragment: 'duvidas' },
 ];
 

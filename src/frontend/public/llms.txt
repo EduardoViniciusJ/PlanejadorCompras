@@ -20,14 +20,15 @@
 - Funciona ao lado do ERP que a empresa já usa; não exige integração.
 - O fornecedor não precisa criar conta.
 
-## Planos
+## Preço e licença
 
-- Plano Inicial: gratuito, com o fluxo completo e 20 usos de IA por mês.
-- Pro: R$ 20 por mês, com 200 usos de IA por mês, dashboard e histórico completos.
+- Gratuito e de código aberto. Não há planos pagos.
+- A IA está incluída, com o mesmo limite de uso para todos.
+- Código-fonte: https://github.com/EduardoViniciusJ/PlanejadorCompras
 
 ## Páginas
 
-- [Página inicial](/): apresentação do produto, como funciona, recursos, planos e perguntas frequentes.
+- [Página inicial](/): apresentação do produto, como funciona, recursos, código aberto e perguntas frequentes.
 
 ### Por segmento
 
