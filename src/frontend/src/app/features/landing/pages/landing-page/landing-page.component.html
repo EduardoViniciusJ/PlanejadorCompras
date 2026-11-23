@@ -30,10 +30,10 @@
 
       <ul class="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-base-content/70">
         <li class="flex items-center gap-1.5">
-          <app-icon class="text-success" name="check" [size]="16" /> Grátis para começar
+          <app-icon class="text-success" name="check" [size]="16" /> Gratuito e de código aberto
         </li>
         <li class="flex items-center gap-1.5">
-          <app-icon class="text-success" name="check" [size]="16" /> IA incluída no plano grátis
+          <app-icon class="text-success" name="check" [size]="16" /> IA incluída
         </li>
         <li class="flex items-center gap-1.5">
           <app-icon class="text-success" name="check" [size]="16" /> Funciona ao lado do seu ERP
@@ -557,47 +557,26 @@
   </div>
 </section>
 
-<!-- Preços -->
-<section appReveal id="precos" class="scroll-mt-20">
+<!-- Código aberto -->
+<section appReveal id="codigo-aberto" class="scroll-mt-20">
   <div class="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lg:py-24">
     <div class="mx-auto max-w-2xl text-center">
       <h2 class="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-        Comece sem pagar
+        Gratuito e de código aberto
       </h2>
       <p class="mt-4 text-lg text-base-content/70">
-        O fluxo completo é gratuito. Assine o Pro quando precisar de mais IA e de visão do todo.
+        Todo o sistema é gratuito, sem planos pagos. A IA está incluída, com o mesmo limite de uso
+        para todos. O código-fonte é aberto e está no GitHub.
       </p>
-    </div>
-
-    <div class="mx-auto mt-12 grid max-w-4xl gap-6 md:grid-cols-2">
-      @for (plan of plans; track plan.name) {
-        <article
-          class="flex flex-col rounded-box bg-base-100 p-8"
-          [class]="plan.featured ? 'border-2 border-primary shadow-xl' : 'border border-base-300'"
-        >
-          <h3 class="font-display text-xl font-bold">{{ plan.name }}</h3>
-          <p class="mt-6 flex items-baseline gap-2">
-            <span class="font-display text-5xl font-semibold tracking-tight">{{ plan.price }}</span>
-            <span class="text-base-content/70">{{ plan.period }}</span>
-          </p>
-          <ul class="mb-8 mt-6 grid gap-3 text-sm">
-            @for (item of plan.items; track item) {
-              <li class="flex items-start gap-3">
-                <app-icon class="mt-0.5 flex-none text-success" name="check" [size]="18" />
-                {{ item }}
-              </li>
-            }
-          </ul>
-          <a
-            class="btn btn-block mt-auto"
-            [class.btn-primary]="plan.featured"
-            routerLink="/cadastro"
-          >
-            {{ plan.action }}
-            <app-icon name="arrow-right" [size]="18" />
-          </a>
-        </article>
-      }
+      <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+        <a class="btn btn-primary" routerLink="/cadastro">
+          Criar minha conta
+          <app-icon name="arrow-right" [size]="18" />
+        </a>
+        <a class="btn btn-outline" [href]="repositoryUrl" target="_blank" rel="noopener noreferrer">
+          Ver o código no GitHub
+        </a>
+      </div>
     </div>
   </div>
 </section>

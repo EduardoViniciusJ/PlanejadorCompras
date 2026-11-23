@@ -513,44 +513,7 @@ const SEGMENTS: readonly Segment[] = [
   },
 ];
 
-interface Plan {
-  readonly name: string;
-  readonly price: string;
-  readonly period: string;
-  readonly items: readonly string[];
-  readonly action: string;
-  readonly featured: boolean;
-}
-
-const PLANS: readonly Plan[] = [
-  {
-    name: 'Plano Inicial',
-    price: 'R$ 0',
-    period: 'para começar',
-    items: [
-      'Listas, fornecedores e cotações',
-      'Mapa de preços e equalização',
-      'Cotação e pedido de compra em PDF',
-      'Exportação do mapa para Excel',
-      '20x uso de IA por mês',
-    ],
-    action: 'Criar minha conta',
-    featured: false,
-  },
-  {
-    name: 'Pro',
-    price: 'R$ 20',
-    period: 'por mês',
-    items: [
-      'Tudo do Plano Inicial',
-      '200x uso de IA por mês',
-      'Dashboard com filtros e exportação',
-      'Histórico completo de atividades',
-    ],
-    action: 'Assinar o Pro',
-    featured: true,
-  },
-];
+const REPOSITORY_URL = 'https://github.com/EduardoViniciusJ/PlanejadorCompras';
 
 const QUESTIONS: readonly Question[] = [
   {
@@ -570,7 +533,7 @@ const QUESTIONS: readonly Question[] = [
   {
     question: 'Quanto custa?',
     answer:
-      'O Plano Inicial é gratuito e inclui 20x uso de IA por mês. O Pro custa R$ 20 por mês, com 200x uso de IA, dashboard e histórico completos.',
+      'Nada. O Planejador de Compras é gratuito e de código aberto, sem planos pagos. A IA está incluída, com o mesmo limite de uso para todos.',
   },
   {
     question: 'Quem vê os meus preços e fornecedores?',
@@ -599,7 +562,7 @@ export class LandingPageComponent {
   protected readonly activeView = signal<DemoViewId>('price-map');
 
   constructor() {
-    // Mesmos planos e perguntas da página, em formato que buscadores e assistentes de IA leem.
+    // Mesma oferta gratuita e perguntas da página, em formato que buscadores e assistentes de IA leem.
     const removeStructuredData = inject(SeoService).setStructuredData('ld-landing', {
       '@context': 'https://schema.org',
       '@graph': [
@@ -612,12 +575,8 @@ export class LandingPageComponent {
           description:
             'Sistema de cotação e pedido de compra para mercados, restaurantes, lojas e clínicas, com ajuda de IA para criar listas e ler as respostas dos fornecedores.',
           featureList: FEATURES.map((feature) => feature.title),
-          offers: PLANS.map((plan) => ({
-            '@type': 'Offer',
-            name: plan.name,
-            price: plan.price.replace(/[^0-9]/g, ''),
-            priceCurrency: 'BRL',
-          })),
+          isAccessibleForFree: true,
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'BRL' },
         },
         {
           '@type': 'FAQPage',
@@ -681,7 +640,7 @@ export class LandingPageComponent {
   protected readonly segments = SEGMENTS;
   protected readonly aiSteps = AI_STEPS;
   protected readonly questions = QUESTIONS;
-  protected readonly plans = PLANS;
+  protected readonly repositoryUrl = REPOSITORY_URL;
 
   protected selectView(view: DemoViewId): void {
     this.activeView.set(view);

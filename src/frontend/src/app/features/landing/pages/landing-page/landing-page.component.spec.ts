@@ -26,9 +26,33 @@ describe('LandingPageComponent', () => {
   });
 
   it('should expose the sections the header links to', () => {
-    for (const id of ['como-funciona', 'ia', 'recursos', 'precos', 'duvidas']) {
+    for (const id of ['como-funciona', 'ia', 'recursos', 'codigo-aberto', 'duvidas']) {
       expect(element.querySelector(`#${id}`)).not.toBeNull();
     }
+  });
+
+  it('should present the product as free and open source, without paid plans', () => {
+    const repositoryLink = element.querySelector(
+      '#codigo-aberto a[href="https://github.com/EduardoViniciusJ/PlanejadorCompras"]',
+    );
+    const text = element.textContent ?? '';
+
+    expect(repositoryLink).not.toBeNull();
+    expect(element.querySelector('#precos')).toBeNull();
+    expect(text).not.toContain('Plano Inicial');
+    expect(text).not.toContain('R$ 20');
+    expect(text).not.toMatch(/\bPro\b/);
+    expect(text).not.toMatch(/assin/i);
+  });
+
+  it('should describe a free offer in the structured data', () => {
+    const script = document.getElementById('ld-landing');
+    const data = JSON.parse(script?.textContent ?? '{}') as {
+      '@graph': { '@type': string; offers?: unknown }[];
+    };
+    const app = data['@graph'].find((node) => node['@type'] === 'SoftwareApplication');
+
+    expect(app?.offers).toEqual({ '@type': 'Offer', price: '0', priceCurrency: 'BRL' });
   });
 
   it('should send every call to action to registration', () => {
