@@ -3,7 +3,7 @@ using PlanejadorCompras.Domain.Validation;
 
 namespace PlanejadorCompras.Domain.Entities;
 
-public sealed class ShoppingItem
+public sealed class ShoppingItem : IOrganizationOwned
 {
     private ShoppingItem(
         Guid id,
@@ -22,6 +22,8 @@ public sealed class ShoppingItem
     }
 
     public Guid Id { get; private set; }
+
+    public Guid OrganizationId { get; private set; }
 
     public Guid ShoppingListId { get; private set; }
 

@@ -31,9 +31,9 @@ public sealed class QuotationRequestConfiguration : IEntityTypeConfiguration<Quo
         builder.Property(request => request.Instructions)
             .HasMaxLength(QuotationRequestRules.InstructionsMaxLength);
         builder.Property(request => request.CreatedAtUtc).IsRequired();
-        builder.HasIndex(request => request.Code).IsUnique();
-        builder.HasIndex(request => new { request.UserId, request.CreatedAtUtc });
-        builder.HasOne<User>().WithMany().HasForeignKey(request => request.UserId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasIndex(request => new { request.OrganizationId, request.Code }).IsUnique();
+        builder.HasIndex(request => new { request.OrganizationId, request.CreatedAtUtc });
+        builder.HasOne<User>().WithMany().HasForeignKey(request => request.UserId).OnDelete(DeleteBehavior.Restrict);
         builder.HasMany(request => request.Items)
             .WithOne()
             .HasForeignKey(item => item.QuotationRequestId)

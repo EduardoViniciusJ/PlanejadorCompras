@@ -19,10 +19,10 @@ public sealed class ShoppingListRepository : IShoppingListRepository
         return await _context.ShoppingLists.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
-    public async Task<List<ShoppingList>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<List<ShoppingList>> GetByOrganizationIdAsync(Guid organizationId, CancellationToken cancellationToken = default)
     {
         return await _context.ShoppingLists
-            .Where(x => x.UserId == userId)
+            .Where(x => x.OrganizationId == organizationId)
             .ToListAsync(cancellationToken);
     }
 

@@ -3,10 +3,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlanejadorCompras.Application.UseCases.ItemQuote;
 using PlanejadorCompras.Application.UseCases.ItemQuote.Create;
+using PlanejadorCompras.API.Security;
+using PlanejadorCompras.Domain.Authorization;
 
 namespace PlanejadorCompras.API.Controllers;
 
 [Authorize]
+[RequirePermission(OrganizationPermission.ViewData)]
 [ApiController]
 [Route("api/item-quotes")]
 public sealed class ItemQuotesController : ControllerBase
@@ -45,6 +48,7 @@ public sealed class ItemQuotesController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(ItemQuoteResponseDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [RequirePermission(OrganizationPermission.ManageQuotes)]
     public async Task<IActionResult> Create(
         [FromBody] ItemQuoteRequestDto request,
         CancellationToken cancellationToken)
@@ -78,6 +82,7 @@ public sealed class ItemQuotesController : ControllerBase
     [ProducesResponseType(typeof(ItemQuoteResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [RequirePermission(OrganizationPermission.ManageQuotes)]
     public async Task<IActionResult> Update(
         Guid id,
         [FromBody] ItemQuoteRequestDto request,
@@ -90,6 +95,7 @@ public sealed class ItemQuotesController : ControllerBase
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [RequirePermission(OrganizationPermission.ManageQuotes)]
     public async Task<IActionResult> Delete(
         Guid id,
         CancellationToken cancellationToken)

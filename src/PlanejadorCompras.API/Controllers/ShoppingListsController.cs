@@ -6,10 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 using PlanejadorCompras.Application.UseCases.Interfaces;
 using PlanejadorCompras.Application.UseCases.ShoppingList;
 using PlanejadorCompras.Application.UseCases.ShoppingList.Create;
+using PlanejadorCompras.API.Security;
+using PlanejadorCompras.Domain.Authorization;
 
 namespace PlanejadorCompras.API.Controllers;
 
 [Authorize]
+[RequirePermission(OrganizationPermission.ViewData)]
 [ApiController]
 [Route("api/shopping-lists")]
 public sealed class ShoppingListsController : ControllerBase
@@ -66,6 +69,7 @@ public sealed class ShoppingListsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(ShoppingListResponseDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [RequirePermission(OrganizationPermission.ManageLists)]
     public async Task<IActionResult> Create(
         [FromBody] ShoppingListRequestDto request,
         CancellationToken cancellationToken)
@@ -98,6 +102,7 @@ public sealed class ShoppingListsController : ControllerBase
     [ProducesResponseType(typeof(ShoppingListResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [RequirePermission(OrganizationPermission.ManageLists)]
     public async Task<IActionResult> Update(
         Guid id,
         [FromBody] ShoppingListRequestDto request,
@@ -110,6 +115,7 @@ public sealed class ShoppingListsController : ControllerBase
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [RequirePermission(OrganizationPermission.ManageLists)]
     public async Task<IActionResult> Delete(
         Guid id,
         CancellationToken cancellationToken)
@@ -154,6 +160,7 @@ public sealed class ShoppingListsController : ControllerBase
     [HttpPost("{id:guid}/suppliers/{supplierId:guid}")]
     [ProducesResponseType(typeof(SupplierResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [RequirePermission(OrganizationPermission.ManageQuotes)]
     public async Task<IActionResult> AddSupplier(
         Guid id,
         Guid supplierId,
@@ -166,6 +173,7 @@ public sealed class ShoppingListsController : ControllerBase
     [HttpDelete("{id:guid}/suppliers/{supplierId:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [RequirePermission(OrganizationPermission.ManageQuotes)]
     public async Task<IActionResult> RemoveSupplier(
         Guid id,
         Guid supplierId,

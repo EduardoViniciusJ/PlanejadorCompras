@@ -59,6 +59,8 @@ export class LoginPageComponent implements OnInit {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
     passwordConfirmation: [''],
+    name: ['', Validators.maxLength(150)],
+    acceptedTerms: [false],
   });
 
   protected readonly emailForm = this.formBuilder.group({
@@ -114,9 +116,16 @@ export class LoginPageComponent implements OnInit {
       return;
     }
 
-    const { email, password, passwordConfirmation } = this.credentialsForm.getRawValue();
+    const { email, password, passwordConfirmation, name, acceptedTerms } =
+      this.credentialsForm.getRawValue();
     if (this.mode() === 'register' && password !== passwordConfirmation) {
       this.errorMessage.set('As senhas informadas não coincidem.');
+      return;
+    }
+    if (this.mode() === 'register' && !acceptedTerms) {
+      this.errorMessage.set(
+        'Para criar a conta é preciso aceitar os Termos de Uso e a Política de Privacidade.',
+      );
       return;
     }
 
@@ -124,7 +133,7 @@ export class LoginPageComponent implements OnInit {
     const request = { email: email.trim(), password };
     if (this.mode() === 'register') {
       this.authService
-        .register(request)
+        .register({ ...request, name: name.trim() || undefined, acceptedTerms })
         .pipe(
           finalize(() => this.isLoading.set(false)),
           takeUntilDestroyed(this.destroyRef),

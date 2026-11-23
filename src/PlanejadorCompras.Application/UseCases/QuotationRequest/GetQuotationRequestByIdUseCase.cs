@@ -7,16 +7,16 @@ namespace PlanejadorCompras.Application.UseCases.QuotationRequest;
 
 public sealed class GetQuotationRequestByIdUseCase(
     IQuotationRequestRepository repository,
-    ICurrentUser currentUser)
+    ICurrentOrganization currentOrganization)
 {
     public async Task<QuotationRequestDetailResponseDto> ExecuteAsync(
         Guid id,
         CancellationToken cancellationToken = default)
     {
         ArgumentOutOfRangeException.ThrowIfEqual(id, Guid.Empty);
-        var request = await repository.GetByIdForUserAsync(
+        var request = await repository.GetByIdForOrganizationAsync(
             id,
-            currentUser.UserId,
+            currentOrganization.OrganizationId,
             cancellationToken);
 
         return request is null

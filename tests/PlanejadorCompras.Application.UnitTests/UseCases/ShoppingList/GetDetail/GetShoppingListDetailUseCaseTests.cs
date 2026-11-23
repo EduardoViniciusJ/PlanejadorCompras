@@ -1,3 +1,4 @@
+using PlanejadorCompras.Application.UnitTests.Support;
 using PlanejadorCompras.Application.Features.ShoppingLists.Contracts;
 using Moq;
 using PlanejadorCompras.Application.Exceptions;
@@ -29,7 +30,7 @@ public sealed class GetShoppingListDetailUseCaseTests
         query.Setup(x => x.GetByIdAsync(UserId, listId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(expected);
 
-        var useCase = new GetShoppingListDetailUseCase(currentUser.Object, query.Object);
+        var useCase = new GetShoppingListDetailUseCase(TestOrganization.PersonalOf(currentUser), query.Object);
         var result = await useCase.ExecuteAsync(listId);
 
         Assert.Same(expected, result);
@@ -44,7 +45,7 @@ public sealed class GetShoppingListDetailUseCaseTests
         query.Setup(x => x.GetByIdAsync(UserId, listId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ShoppingListDetailResponseDto?)null);
 
-        var useCase = new GetShoppingListDetailUseCase(currentUser.Object, query.Object);
+        var useCase = new GetShoppingListDetailUseCase(TestOrganization.PersonalOf(currentUser), query.Object);
 
         await Assert.ThrowsAsync<NotFoundException>(() => useCase.ExecuteAsync(listId));
     }

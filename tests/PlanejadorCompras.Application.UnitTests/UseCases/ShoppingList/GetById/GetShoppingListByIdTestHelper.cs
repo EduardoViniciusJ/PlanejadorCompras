@@ -1,3 +1,4 @@
+using PlanejadorCompras.Application.UnitTests.Support;
 using Moq;
 using PlanejadorCompras.Application.Services.Interfaces;
 using PlanejadorCompras.Domain.Repositories.ShoppingList;
@@ -24,6 +25,7 @@ public sealed class GetShoppingListByIdTestHelper
         string name = "Monthly Tech Shopping",
         string? description = "Monitor, keyboard, and mouse")
     {
-        return ShoppingListEntity.Create(userId ?? DefaultUserId, name, description);
+        return ShoppingListEntity.Create(userId ?? DefaultUserId, name, description)
+            .InOrganization(userId ?? DefaultUserId);
     }
 }

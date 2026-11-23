@@ -7,7 +7,7 @@ namespace PlanejadorCompras.Infrastructure.Services;
 
 public sealed class SavedEqualizationAccessService(
     ISavedEqualizationRepository repository,
-    ICurrentUser currentUser)
+    ICurrentOrganization currentOrganization)
     : ISavedEqualizationAccessService
 {
     public async Task<SavedEqualization> GetForCurrentUserAsync(
@@ -18,7 +18,7 @@ public sealed class SavedEqualizationAccessService(
 
         var equalization = await repository.GetByIdAsync(id, cancellationToken);
 
-        if (equalization is null || equalization.UserId != currentUser.UserId)
+        if (equalization is null || equalization.OrganizationId != currentOrganization.OrganizationId)
         {
             throw new NotFoundException(
                 "Equalization not found.",

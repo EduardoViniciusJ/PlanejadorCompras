@@ -8,14 +8,14 @@ namespace PlanejadorCompras.Infrastructure.Services;
 public sealed class ShoppingListAccessService : IShoppingListAccessService
 {
     private readonly IShoppingListRepository _shoppingListRepository;
-    private readonly ICurrentUser _currentUser;
+    private readonly ICurrentOrganization _currentOrganization;
 
     public ShoppingListAccessService(
         IShoppingListRepository shoppingListRepository,
-        ICurrentUser currentUser)
+        ICurrentOrganization currentOrganization)
     {
         _shoppingListRepository = shoppingListRepository;
-        _currentUser = currentUser;
+        _currentOrganization = currentOrganization;
     }
 
     public async Task<ShoppingListEntity> GetForCurrentUserAsync(
@@ -25,7 +25,7 @@ public sealed class ShoppingListAccessService : IShoppingListAccessService
         ArgumentOutOfRangeException.ThrowIfEqual(shoppingListId, Guid.Empty);
 
         var shoppingList = await _shoppingListRepository.GetByIdAsync(shoppingListId, cancellationToken);
-        if (shoppingList is null || shoppingList.UserId != _currentUser.UserId)
+        if (shoppingList is null || shoppingList.OrganizationId != _currentOrganization.OrganizationId)
         {
             throw new NotFoundException("Shopping list not found.", "shopping_list_not_found");
         }

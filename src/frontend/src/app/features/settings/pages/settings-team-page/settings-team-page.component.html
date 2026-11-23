@@ -1,0 +1,289 @@
+@if (isLoading()) {
+  <div class="management-surface p-6" role="status">
+    <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+    Carregando equipe...
+  </div>
+} @else if (loadError()) {
+  <div class="management-surface grid gap-3 p-6" role="alert">
+    <p>{{ loadError() }}</p>
+    <div>
+      <button class="btn" type="button" (click)="load()">
+        <app-icon name="refresh" [size]="18" /> Tentar novamente
+      </button>
+    </div>
+  </div>
+} @else if (organization(); as org) {
+  <div class="grid gap-[var(--app-section-gap)]">
+    @if (feedback()) {
+      <div role="status" class="alert alert-success alert-soft">
+        <app-icon name="circle-check" [size]="20" />
+        <span>{{ feedback() }}</span>
+      </div>
+    }
+    @if (actionError()) {
+      <div role="alert" class="alert alert-error alert-soft">
+        <app-icon name="alert-circle" [size]="20" />
+        <span>{{ actionError() }}</span>
+      </div>
+    }
+
+    <section class="management-surface grid gap-4 p-5" aria-labelledby="org-title">
+      <div>
+        <span class="management-eyebrow">Empresa</span>
+        <h2 id="org-title" class="text-base font-bold">{{ org.name }}</h2>
+        <p class="text-sm text-base-content/70">
+          Seu papel: {{ roleLabel(org.role) }} · {{ org.memberCount }}
+          membro{{ org.memberCount === 1 ? '' : 's' }}
+        </p>
+      </div>
+      @if (canManage()) {
+        <form class="flex max-w-md items-end gap-2" [formGroup]="nameForm" (ngSubmit)="renameOrganization()" novalidate>
+          <div class="form-field grow">
+            <label class="label mb-1 text-sm font-medium" for="org-name">Nome da empresa</label>
+            <input id="org-name" class="input w-full" type="text" formControlName="name" maxlength="150" />
+          </div>
+          <button class="btn btn-primary" type="submit" [disabled]="isRenaming()">Salvar</button>
+        </form>
+      }
+    </section>
+
+    <section class="management-surface" aria-labelledby="members-title">
+      <div class="management-surface-header">
+        <div>
+          <h2 id="members-title">Membros</h2>
+          <p>Quem tem acesso aos dados desta empresa.</p>
+        </div>
+        @if (canManage()) {
+          <button class="btn btn-primary" type="button" data-testid="invite-member" (click)="openInvite()">
+            <app-icon name="plus" [size]="18" /> Convidar
+          </button>
+        }
+      </div>
+      <div class="overflow-x-auto">
+        <table class="table min-w-[640px]">
+          <thead>
+            <tr>
+              <th>Pessoa</th>
+              <th>Papel</th>
+              <th>Entrou em</th>
+              <th class="w-[72px]"><span class="visually-hidden">Ações</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (member of members(); track member.userId) {
+              <tr>
+                <td>
+                  <strong>{{ member.name || member.email }}</strong>
+                  @if (member.isCurrentUser) {
+                    <span class="badge badge-soft ml-2">Você</span>
+                  }
+                  @if (member.name) {
+                    <small class="block text-base-content/60">{{ member.email }}</small>
+                  }
+                </td>
+                <td>
+                  @if (canManage()) {
+                    <select
+                      class="select select-sm"
+                      [attr.aria-label]="'Papel de ' + (member.name || member.email)"
+                      [disabled]="busyId() === member.userId || isLastAdmin(member)"
+                      [title]="isLastAdmin(member) ? 'A empresa precisa de ao menos um administrador.' : ''"
+                      (change)="changeRole(member, $event)"
+                    >
+                      @for (role of roles; track role.value) {
+                        <option [value]="role.value" [selected]="role.value === member.role">
+                          {{ role.label }}
+                        </option>
+                      }
+                    </select>
+                  } @else {
+                    {{ roleLabel(member.role) }}
+                  }
+                </td>
+                <td>{{ member.joinedAtUtc | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                  @if ((canManage() || member.isCurrentUser) && !isLastAdmin(member)) {
+                    <button
+                      class="btn btn-ghost btn-square text-error"
+                      type="button"
+                      [attr.aria-label]="member.isCurrentUser ? 'Sair da empresa' : 'Remover ' + (member.name || member.email)"
+                      (click)="askRemove(member)"
+                    >
+                      <app-icon [name]="member.isCurrentUser ? 'logout' : 'trash'" [size]="18" />
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    @if (canManage()) {
+      <section class="management-surface" aria-labelledby="invitations-title">
+        <div class="management-surface-header">
+          <div>
+            <h2 id="invitations-title">Convites pendentes</h2>
+            <p>Os convites expiram sozinhos e valem uma única vez.</p>
+          </div>
+        </div>
+        @if (invitations().length === 0) {
+          <p class="p-5 text-sm text-base-content/70">Nenhum convite pendente.</p>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="table min-w-[640px]">
+              <thead>
+                <tr>
+                  <th>E-mail</th>
+                  <th>Papel</th>
+                  <th>Expira em</th>
+                  <th class="w-[72px]"><span class="visually-hidden">Ações</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (invitation of invitations(); track invitation.id) {
+                  <tr>
+                    <td>
+                      <strong>{{ invitation.email }}</strong>
+                      <small class="block text-base-content/60">Convidado por {{ invitation.invitedBy }}</small>
+                    </td>
+                    <td>{{ roleLabel(invitation.role) }}</td>
+                    <td>{{ invitation.expiresAtUtc | date: 'dd/MM/yyyy' }}</td>
+                    <td>
+                      <button
+                        class="btn btn-ghost btn-square text-error"
+                        type="button"
+                        [attr.aria-label]="'Cancelar convite para ' + invitation.email"
+                        [disabled]="busyId() === invitation.id"
+                        (click)="revoke(invitation)"
+                      >
+                        <app-icon name="x" [size]="18" />
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    }
+
+    <section class="management-surface p-5" aria-labelledby="roles-title">
+      <h2 id="roles-title" class="mb-2 text-base font-bold">O que cada papel pode fazer</h2>
+      <ul class="grid gap-1 text-sm text-base-content/80">
+        @for (role of roles; track role.value) {
+          <li><strong>{{ role.label }}:</strong> {{ role.description }}</li>
+        }
+      </ul>
+    </section>
+  </div>
+}
+
+@if (isInviteOpen()) {
+  <app-modal-dialog
+    title="Convidar para a equipe"
+    eyebrow="Novo membro"
+    width="medium"
+    [closeDisabled]="isInviting()"
+    (closeRequested)="closeInvite()"
+  >
+    @if (createdInvitation(); as created) {
+      <div class="grid gap-3 text-sm">
+        @if (created.emailSent) {
+          <div role="status" class="alert alert-success alert-soft">
+            <app-icon name="circle-check" [size]="20" />
+            <span>Convite enviado para <strong>{{ created.email }}</strong>.</span>
+          </div>
+        } @else {
+          <div role="status" class="alert alert-warning alert-soft">
+            <app-icon name="alert-triangle" [size]="20" />
+            <span>
+              O convite foi criado, mas o e-mail não pôde ser enviado. Copie o link abaixo e envie
+              para <strong>{{ created.email }}</strong>.
+            </span>
+          </div>
+        }
+        <label class="label text-sm font-medium" for="invite-link">Link do convite</label>
+        <div class="flex gap-2">
+          <input id="invite-link" class="input grow" type="text" readonly [value]="created.acceptUrl" />
+          <button class="btn" type="button" (click)="copyLink(created.acceptUrl)">Copiar</button>
+        </div>
+        <p class="text-base-content/70">
+          Este link só aparece agora. Ele vale até {{ created.expiresAtUtc | date: 'dd/MM/yyyy' }}.
+        </p>
+        <div class="flex justify-end">
+          <button class="btn btn-primary" type="button" (click)="closeInvite()">Concluir</button>
+        </div>
+      </div>
+    } @else {
+      <form class="grid gap-3" [formGroup]="inviteForm" (ngSubmit)="sendInvite()" novalidate>
+        <div class="form-field">
+          <label class="label mb-1 text-sm font-medium" for="invite-email">E-mail</label>
+          <input
+            id="invite-email"
+            class="input w-full"
+            type="email"
+            formControlName="email"
+            autocomplete="off"
+            placeholder="pessoa@empresa.com.br"
+            [class.input-error]="inviteForm.controls.email.invalid && inviteForm.controls.email.touched"
+          />
+          @if (inviteForm.controls.email.invalid && inviteForm.controls.email.touched) {
+            <p class="mt-1 text-sm text-error">Informe um e-mail válido.</p>
+          }
+        </div>
+        <div class="form-field">
+          <label class="label mb-1 text-sm font-medium" for="invite-role">Papel</label>
+          <select id="invite-role" class="select w-full" formControlName="role">
+            @for (role of roles; track role.value) {
+              <option [value]="role.value">{{ role.label }} — {{ role.description }}</option>
+            }
+          </select>
+        </div>
+        @if (inviteError()) {
+          <div role="alert" class="alert alert-error alert-soft">
+            <app-icon name="alert-circle" [size]="20" />
+            <span>{{ inviteError() }}</span>
+          </div>
+        }
+        <div class="flex justify-end gap-2">
+          <button class="btn" type="button" [disabled]="isInviting()" (click)="closeInvite()">Cancelar</button>
+          <button class="btn btn-primary" type="submit" [disabled]="isInviting()">
+            @if (isInviting()) {
+              <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+            }
+            Enviar convite
+          </button>
+        </div>
+      </form>
+    }
+  </app-modal-dialog>
+}
+
+@if (removingMember(); as member) {
+  <app-modal-dialog
+    [title]="member.isCurrentUser ? 'Sair da empresa?' : 'Remover membro?'"
+    eyebrow="Equipe"
+    width="small"
+    [closeDisabled]="isLeaving()"
+    (closeRequested)="cancelRemove()"
+  >
+    <div class="grid gap-4 text-sm">
+      <p>
+        @if (member.isCurrentUser) {
+          Você perderá o acesso aos dados desta empresa.
+        } @else {
+          <strong>{{ member.name || member.email }}</strong> perderá o acesso aos dados desta empresa.
+        }
+      </p>
+      <div class="flex justify-end gap-2">
+        <button class="btn" type="button" [disabled]="isLeaving()" (click)="cancelRemove()">Cancelar</button>
+        <button class="btn btn-error" type="button" [disabled]="isLeaving()" (click)="confirmRemove()">
+          {{ member.isCurrentUser ? 'Sair' : 'Remover' }}
+        </button>
+      </div>
+    </div>
+  </app-modal-dialog>
+}

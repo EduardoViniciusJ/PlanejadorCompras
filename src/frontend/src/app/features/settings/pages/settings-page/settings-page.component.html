@@ -1,0 +1,25 @@
+<section class="management-page">
+  <header class="management-page-header">
+    <div class="management-page-heading">
+      <span class="management-eyebrow">Conta e empresa</span>
+      <h1>Configurações</h1>
+      <p>Gerencie o seu perfil, a sua senha, os seus dados e a equipe da empresa.</p>
+    </div>
+  </header>
+
+  <nav class="tabs tabs-border" aria-label="Seções das configurações">
+    <a
+      class="tab"
+      routerLink="/app/configuracoes"
+      routerLinkActive="tab-active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      Perfil e dados
+    </a>
+    <a class="tab" routerLink="/app/configuracoes/equipe" routerLinkActive="tab-active">
+      Equipe
+    </a>
+  </nav>
+
+  <router-outlet />
+</section>

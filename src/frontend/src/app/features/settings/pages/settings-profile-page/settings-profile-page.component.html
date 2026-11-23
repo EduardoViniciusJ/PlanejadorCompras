@@ -1,0 +1,298 @@
+@if (isLoading()) {
+  <div class="management-surface p-6" role="status">
+    <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+    Carregando configurações...
+  </div>
+} @else if (loadError()) {
+  <div class="alert alert-error alert-soft" role="alert">
+    <app-icon name="alert-circle" [size]="20" />
+    <span>{{ loadError() }}</span>
+  </div>
+} @else if (account(); as currentAccount) {
+  <div class="grid gap-[var(--app-section-gap)]">
+    <section class="management-surface grid gap-4 p-5" aria-labelledby="profile-title">
+      <div>
+        <span class="management-eyebrow">Perfil</span>
+        <h2 id="profile-title" class="text-base font-bold">Seus dados</h2>
+        <p class="text-sm text-base-content/70">
+          {{ currentAccount.email }} · Empresa: {{ currentAccount.activeOrganization.name }}
+        </p>
+      </div>
+
+      <form class="grid max-w-md gap-3" [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+        <div class="form-field">
+          <label class="label mb-1 text-sm font-medium" for="profile-name">Nome</label>
+          <input
+            id="profile-name"
+            class="input w-full"
+            type="text"
+            formControlName="name"
+            autocomplete="name"
+            maxlength="150"
+            [class.input-error]="profileForm.controls.name.invalid && profileForm.controls.name.touched"
+          />
+          @if (profileForm.controls.name.invalid && profileForm.controls.name.touched) {
+            <p class="mt-1 text-sm text-error">Informe um nome com pelo menos 2 caracteres.</p>
+          }
+        </div>
+        @if (profileFeedback()) {
+          <div role="status" class="alert alert-success alert-soft">
+            <app-icon name="circle-check" [size]="20" />
+            <span>{{ profileFeedback() }}</span>
+          </div>
+        }
+        @if (profileError()) {
+          <div role="alert" class="alert alert-error alert-soft">
+            <app-icon name="alert-circle" [size]="20" />
+            <span>{{ profileError() }}</span>
+          </div>
+        }
+        <div>
+          <button class="btn btn-primary" type="submit" [disabled]="isSavingProfile()">
+            @if (isSavingProfile()) {
+              <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+            }
+            Salvar perfil
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="management-surface grid gap-4 p-5" aria-labelledby="password-title">
+      <div>
+        <span class="management-eyebrow">Segurança</span>
+        <h2 id="password-title" class="text-base font-bold">Senha</h2>
+      </div>
+
+      @if (currentAccount.hasPassword) {
+        <form
+          class="grid max-w-md gap-3"
+          [formGroup]="passwordForm"
+          (ngSubmit)="changePassword()"
+          novalidate
+        >
+          <div class="form-field">
+            <label class="label mb-1 text-sm font-medium" for="current-password">Senha atual</label>
+            <input
+              id="current-password"
+              class="input w-full"
+              type="password"
+              formControlName="currentPassword"
+              autocomplete="current-password"
+            />
+          </div>
+          <div class="form-field">
+            <label class="label mb-1 text-sm font-medium" for="new-password">Nova senha</label>
+            <input
+              id="new-password"
+              class="input w-full"
+              type="password"
+              formControlName="newPassword"
+              autocomplete="new-password"
+              [class.input-error]="
+                passwordForm.controls.newPassword.invalid && passwordForm.controls.newPassword.touched
+              "
+            />
+            <p class="mt-1 text-xs text-base-content/60">Use de 8 a 128 caracteres.</p>
+          </div>
+          <div class="form-field">
+            <label class="label mb-1 text-sm font-medium" for="confirm-password">
+              Confirme a nova senha
+            </label>
+            <input
+              id="confirm-password"
+              class="input w-full"
+              type="password"
+              formControlName="confirmation"
+              autocomplete="new-password"
+              [class.input-error]="passwordMismatch()"
+            />
+            @if (passwordMismatch()) {
+              <p class="mt-1 text-sm text-error">As senhas não coincidem.</p>
+            }
+          </div>
+          @if (passwordFeedback()) {
+            <div role="status" class="alert alert-success alert-soft">
+              <app-icon name="circle-check" [size]="20" />
+              <span>{{ passwordFeedback() }}</span>
+            </div>
+          }
+          @if (passwordError()) {
+            <div role="alert" class="alert alert-error alert-soft">
+              <app-icon name="alert-circle" [size]="20" />
+              <span>{{ passwordError() }}</span>
+            </div>
+          }
+          <div>
+            <button class="btn btn-primary" type="submit" [disabled]="isSavingPassword()">
+              @if (isSavingPassword()) {
+                <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+              }
+              Alterar senha
+            </button>
+          </div>
+        </form>
+      } @else {
+        <p class="text-sm text-base-content/70">
+          Sua conta entra com o Google e não tem senha própria. Para definir uma, use
+          "Esqueci minha senha" na tela de login.
+        </p>
+      }
+    </section>
+
+    <section class="management-surface grid gap-4 p-5" aria-labelledby="data-title">
+      <div>
+        <span class="management-eyebrow">Privacidade (LGPD)</span>
+        <h2 id="data-title" class="text-base font-bold">Seus dados</h2>
+        <p class="text-sm text-base-content/70">
+          Baixe uma cópia dos dados da sua conta e da empresa em formato JSON
+          @if (currentAccount.termsAcceptedAtUtc) {
+            · Termos de uso aceitos em
+            {{ currentAccount.termsAcceptedAtUtc | date: 'dd/MM/yyyy' }}
+          }
+        </p>
+      </div>
+      @if (exportError()) {
+        <div role="alert" class="alert alert-error alert-soft">
+          <app-icon name="alert-circle" [size]="20" />
+          <span>{{ exportError() }}</span>
+        </div>
+      }
+      <div>
+        <button class="btn" type="button" [disabled]="isExporting()" (click)="exportData()">
+          @if (isExporting()) {
+            <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+          } @else {
+            <app-icon name="download" [size]="18" />
+          }
+          Exportar meus dados
+        </button>
+      </div>
+    </section>
+
+    <section class="management-surface grid gap-4 p-5" aria-labelledby="delete-title">
+      <div>
+        <span class="management-eyebrow text-error">Zona de perigo</span>
+        <h2 id="delete-title" class="text-base font-bold">Excluir minha conta</h2>
+        <p class="text-sm text-base-content/70">
+          Seus dados pessoais serão apagados e esta ação não pode ser desfeita.
+        </p>
+      </div>
+      <div>
+        <button class="btn btn-error btn-soft" type="button" data-testid="open-delete-account" (click)="openDelete()">
+          <app-icon name="trash" [size]="18" />
+          Excluir conta
+        </button>
+      </div>
+    </section>
+  </div>
+}
+
+@if (isDeleteOpen()) {
+  <app-modal-dialog
+    title="Excluir minha conta"
+    eyebrow="Ação permanente"
+    width="medium"
+    [closeDisabled]="isDeleting()"
+    (closeRequested)="closeDelete()"
+  >
+    @if (isLoadingPreview()) {
+      <p role="status">
+        <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+        Verificando o que será excluído...
+      </p>
+    }
+    @if (deletionPreview(); as preview) {
+      <div class="grid gap-3 text-sm">
+        @if (preview.organizationsToDelete.length > 0) {
+          <div>
+            <p class="font-semibold">Empresas excluídas junto com todos os seus dados:</p>
+            <ul class="list-disc pl-5">
+              @for (organization of preview.organizationsToDelete; track organization.id) {
+                <li>{{ organization.name }}</li>
+              }
+            </ul>
+            <p class="text-base-content/70">Você é o único membro delas.</p>
+          </div>
+        }
+        @if (preview.organizationsToLeave.length > 0) {
+          <div>
+            <p class="font-semibold">Empresas das quais você será removido:</p>
+            <ul class="list-disc pl-5">
+              @for (organization of preview.organizationsToLeave; track organization.id) {
+                <li>{{ organization.name }}</li>
+              }
+            </ul>
+            <p class="text-base-content/70">Os dados dessas empresas continuam com a equipe.</p>
+          </div>
+        }
+        @if (!preview.canDelete) {
+          <div role="alert" class="alert alert-warning alert-soft">
+            <app-icon name="alert-triangle" [size]="20" />
+            <span>
+              Você é o único administrador de
+              @for (organization of preview.blockingOrganizations; track organization.id; let last = $last) {
+                <strong>{{ organization.name }}</strong>{{ last ? '' : ', ' }}
+              }
+              e ainda há outros membros. Promova outro administrador ou remova os membros antes de excluir a conta.
+            </span>
+          </div>
+        } @else {
+          <form class="grid gap-3" [formGroup]="deleteForm" (ngSubmit)="confirmDelete()" novalidate>
+            @if (preview.requiresPassword) {
+              <div class="form-field">
+                <label class="label mb-1 text-sm font-medium" for="delete-password">Senha</label>
+                <input
+                  id="delete-password"
+                  class="input w-full"
+                  type="password"
+                  formControlName="password"
+                  autocomplete="current-password"
+                />
+              </div>
+            }
+            <div class="form-field">
+              <label class="label mb-1 text-sm font-medium" for="delete-confirmation">
+                Digite {{ deleteConfirmationWord }} para confirmar
+              </label>
+              <input
+                id="delete-confirmation"
+                class="input w-full"
+                type="text"
+                formControlName="confirmation"
+                autocomplete="off"
+              />
+            </div>
+            @if (deleteError()) {
+              <div role="alert" class="alert alert-error alert-soft">
+                <app-icon name="alert-circle" [size]="20" />
+                <span>{{ deleteError() }}</span>
+              </div>
+            }
+            <div class="flex justify-end gap-2">
+              <button class="btn" type="button" [disabled]="isDeleting()" (click)="closeDelete()">
+                Cancelar
+              </button>
+              <button
+                class="btn btn-error"
+                type="submit"
+                data-testid="confirm-delete-account"
+                [disabled]="!canConfirmDelete() || isDeleting()"
+              >
+                @if (isDeleting()) {
+                  <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
+                }
+                Excluir definitivamente
+              </button>
+            </div>
+          </form>
+        }
+      </div>
+    } @else if (deleteError() && !isLoadingPreview()) {
+      <div role="alert" class="alert alert-error alert-soft">
+        <app-icon name="alert-circle" [size]="20" />
+        <span>{{ deleteError() }}</span>
+      </div>
+    }
+  </app-modal-dialog>
+}

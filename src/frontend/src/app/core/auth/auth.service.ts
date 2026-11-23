@@ -7,6 +7,7 @@ import { GoogleLoginRequestDto } from './dtos/google-login-request.dto';
 import {
   AuthMessageResponseDto,
   EmailPasswordRequestDto,
+  RegisterRequestDto,
   ForgotPasswordRequestDto,
   ResetPasswordRequestDto,
   TokenRequestDto,
@@ -36,7 +37,7 @@ export class AuthService {
       .pipe(switchMap(() => this.refreshCurrentUser()));
   }
 
-  register(request: EmailPasswordRequestDto): Observable<AuthMessageResponseDto> {
+  register(request: RegisterRequestDto): Observable<AuthMessageResponseDto> {
     return this.http.post<AuthMessageResponseDto>(buildApiUrl('/api/auth/register'), request);
   }
 

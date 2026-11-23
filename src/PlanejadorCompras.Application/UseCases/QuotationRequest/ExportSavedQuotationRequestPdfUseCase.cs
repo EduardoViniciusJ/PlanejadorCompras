@@ -7,7 +7,7 @@ namespace PlanejadorCompras.Application.UseCases.QuotationRequest;
 
 public sealed class ExportSavedQuotationRequestPdfUseCase(
     IQuotationRequestRepository repository,
-    ICurrentUser currentUser,
+    ICurrentOrganization currentOrganization,
     IQuotationRequestPdfExporter exporter)
 {
     public async Task<ExportedFileDto> ExecuteAsync(
@@ -15,9 +15,9 @@ public sealed class ExportSavedQuotationRequestPdfUseCase(
         CancellationToken cancellationToken = default)
     {
         ArgumentOutOfRangeException.ThrowIfEqual(id, Guid.Empty);
-        var request = await repository.GetByIdForUserAsync(
+        var request = await repository.GetByIdForOrganizationAsync(
             id,
-            currentUser.UserId,
+            currentOrganization.OrganizationId,
             cancellationToken);
         if (request is null)
         {

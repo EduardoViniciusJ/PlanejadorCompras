@@ -21,31 +21,50 @@ public sealed class SupplierRepository(PlanejadorComprasDbContext context) : ISu
             .ToListAsync(cancellationToken);
     }
 
-    public Task<List<Supplier>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default) =>
+    public Task<List<Supplier>> GetByOrganizationIdAsync(Guid organizationId, CancellationToken cancellationToken = default) =>
         context.Suppliers
             .AsNoTracking()
-            .Where(supplier => supplier.UserId == userId)
+            .Where(supplier => supplier.OrganizationId == organizationId)
             .OrderBy(supplier => supplier.Name)
             .ToListAsync(cancellationToken);
 
+    public async Task<(List<Supplier> Items, int TotalCount)> GetPageByOrganizationIdAsync(
+        Guid organizationId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var query = context.Suppliers
+            .AsNoTracking()
+            .Where(supplier => supplier.OrganizationId == organizationId);
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .OrderBy(supplier => supplier.Name)
+            .ThenBy(supplier => supplier.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+        return (items, totalCount);
+    }
+
     public Task<bool> ExistsByNameAsync(
-        Guid userId,
+        Guid organizationId,
         string name,
         Guid? excludingId = null,
         CancellationToken cancellationToken = default) =>
         context.Suppliers.AnyAsync(
-            supplier => supplier.UserId == userId &&
+            supplier => supplier.OrganizationId == organizationId &&
                         supplier.Name == name.Trim() &&
                         (!excludingId.HasValue || supplier.Id != excludingId.Value),
             cancellationToken);
 
     public Task<bool> ExistsByCnpjAsync(
-        Guid userId,
+        Guid organizationId,
         string cnpj,
         Guid? excludingId = null,
         CancellationToken cancellationToken = default) =>
         context.Suppliers.AnyAsync(
-            supplier => supplier.UserId == userId
+            supplier => supplier.OrganizationId == organizationId
                         && supplier.Cnpj == cnpj
                         && (!excludingId.HasValue || supplier.Id != excludingId.Value),
             cancellationToken);

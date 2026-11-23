@@ -79,6 +79,26 @@
           (ngSubmit)="submitCredentials()"
           novalidate
         >
+          @if (mode() === 'register') {
+            <div class="form-field">
+              <label class="label mb-1 text-sm font-medium text-base-content" for="name">
+                Nome (opcional)
+              </label>
+              <label class="input w-full">
+                <app-icon class="text-base-content/50" name="user" [size]="18" />
+                <input
+                  id="name"
+                  class="grow"
+                  type="text"
+                  formControlName="name"
+                  autocomplete="name"
+                  maxlength="150"
+                  placeholder="Como devemos chamar você"
+                />
+              </label>
+            </div>
+          }
+
           <div class="form-field">
             <label class="label mb-1 text-sm font-medium text-base-content" for="email">
               E-mail
@@ -180,6 +200,22 @@
             </div>
           }
 
+          @if (mode() === 'register') {
+            <label class="flex items-start gap-2 text-sm">
+              <input
+                type="checkbox"
+                class="checkbox checkbox-sm mt-0.5"
+                formControlName="acceptedTerms"
+                data-testid="accept-terms"
+              />
+              <span>
+                Li e concordo com os
+                <a class="link" routerLink="/termos-de-uso" target="_blank">Termos de Uso</a> e a
+                <a class="link" routerLink="/politica-de-privacidade" target="_blank">Política de Privacidade</a>.
+              </span>
+            </label>
+          }
+
           <button class="primary-action btn btn-primary btn-block mt-2" type="submit" [disabled]="isLoading()">
             @if (isLoading()) {
               <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
@@ -198,13 +234,6 @@
           </a>
         </p>
 
-        @if (mode() === 'register') {
-          <p class="mt-4 text-center text-xs text-base-content/60">
-            Ao criar a conta você concorda com os
-            <a class="link" routerLink="/termos-de-uso">Termos de Uso</a> e a
-            <a class="link" routerLink="/politica-de-privacidade">Política de Privacidade</a>.
-          </p>
-        }
       } @else if (mode() === 'forgot-password') {
         <div class="auth-heading text-center">
           <h1 class="font-display text-2xl font-semibold tracking-tight">Recupere sua senha</h1>

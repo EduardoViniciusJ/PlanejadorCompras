@@ -1,3 +1,4 @@
+using PlanejadorCompras.Application.UnitTests.Support;
 using PlanejadorCompras.Application.Features.ShoppingLists.Contracts;
 using Moq;
 using PlanejadorCompras.Application.UseCases.ShoppingList;
@@ -14,7 +15,7 @@ public sealed class GetShoppingListsByUserIdUseCaseTests
         _helper = new GetShoppingListsByUserIdTestHelper();
         _handler = new GetShoppingListsByUserIdUseCase(
             _helper.ShoppingListOverviewQueryMock.Object,
-            _helper.CurrentUserMock.Object);
+            TestOrganization.PersonalOf(_helper.CurrentUserMock));
     }
 
     [Fact]
@@ -29,7 +30,7 @@ public sealed class GetShoppingListsByUserIdUseCaseTests
         };
 
         _helper.ShoppingListOverviewQueryMock
-            .Setup(x => x.GetByUserIdAsync(userId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetByOrganizationIdAsync(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(shoppingLists);
 
         var response = await _handler.ExecuteAsync();
@@ -48,7 +49,7 @@ public sealed class GetShoppingListsByUserIdUseCaseTests
     {
         var userId = GetShoppingListsByUserIdTestHelper.DefaultUserId;
         _helper.ShoppingListOverviewQueryMock
-            .Setup(x => x.GetByUserIdAsync(userId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetByOrganizationIdAsync(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<ShoppingListOverviewDto>());
 
         var response = await _handler.ExecuteAsync();
@@ -64,13 +65,13 @@ public sealed class GetShoppingListsByUserIdUseCaseTests
     {
         var userId = GetShoppingListsByUserIdTestHelper.DefaultUserId;
         _helper.ShoppingListOverviewQueryMock
-            .Setup(x => x.GetByUserIdAsync(userId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetByOrganizationIdAsync(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<ShoppingListOverviewDto>());
 
         await _handler.ExecuteAsync();
 
         _helper.ShoppingListOverviewQueryMock.Verify(
-            x => x.GetByUserIdAsync(userId, It.IsAny<CancellationToken>()),
+            x => x.GetByOrganizationIdAsync(userId, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 }

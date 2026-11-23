@@ -15,16 +15,16 @@ public sealed class ShoppingListDetailQuery : IShoppingListDetailQuery
     }
 
     public async Task<ShoppingListDetailResponseDto?> GetByIdAsync(
-        Guid userId,
+        Guid organizationId,
         Guid shoppingListId,
         CancellationToken cancellationToken = default)
     {
-        ArgumentOutOfRangeException.ThrowIfEqual(userId, Guid.Empty);
+        ArgumentOutOfRangeException.ThrowIfEqual(organizationId, Guid.Empty);
         ArgumentOutOfRangeException.ThrowIfEqual(shoppingListId, Guid.Empty);
 
         var shoppingList = await _context.ShoppingLists
             .AsNoTracking()
-            .Where(list => list.Id == shoppingListId && list.UserId == userId)
+            .Where(list => list.Id == shoppingListId && list.OrganizationId == organizationId)
             .Select(list => new
             {
                 list.Id,

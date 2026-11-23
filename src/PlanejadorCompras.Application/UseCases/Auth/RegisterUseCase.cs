@@ -1,3 +1,5 @@
+using PlanejadorCompras.Domain.Rules;
+using PlanejadorCompras.Application.Exceptions;
 using PlanejadorCompras.Application.Features.Authentication.Contracts;
 using PlanejadorCompras.Application.Services.Interfaces;
 using PlanejadorCompras.Domain.Entities;
@@ -33,6 +35,13 @@ public sealed class RegisterUseCase
 
     public async Task ExecuteAsync(RegisterRequestDto request, CancellationToken cancellationToken = default)
     {
+        if (!request.AcceptedTerms)
+        {
+            throw new BadRequestException(
+                "Para criar a conta é preciso aceitar os Termos de Uso e a Política de Privacidade.",
+                "terms_not_accepted");
+        }
+
         var existingUser = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
         
         if (existingUser is not null)
@@ -43,6 +52,8 @@ public sealed class RegisterUseCase
 
         var passwordHash = _passwordHasher.HashPassword(request.Password);
         var user = User.CreateManualUser(request.Email, passwordHash);
+        user.UpdateName(request.Name);
+        user.AcceptTerms(OrganizationRules.CurrentTermsVersion, DateTime.UtcNow);
         
         await _userRepository.AddAsync(user, cancellationToken);
 

@@ -3,7 +3,7 @@ using PlanejadorCompras.Domain.Validation;
 
 namespace PlanejadorCompras.Domain.Entities;
 
-public sealed class QuotationRequest
+public sealed class QuotationRequest : IOrganizationOwned
 {
     private readonly List<QuotationRequestItem> _items = [];
 
@@ -58,6 +58,8 @@ public sealed class QuotationRequest
     }
 
     public Guid Id { get; private set; }
+
+    public Guid OrganizationId { get; private set; }
     public Guid UserId { get; private set; }
     public Guid? SourceShoppingListId { get; private set; }
     public string Code { get; private set; } = null!;
@@ -74,6 +76,7 @@ public sealed class QuotationRequest
     public static QuotationRequest Create(
         Guid userId,
         Guid sourceShoppingListId,
+        string code,
         string shoppingListName,
         string? description,
         string buyerName,
@@ -92,13 +95,11 @@ public sealed class QuotationRequest
         ArgumentNullException.ThrowIfNull(items);
         if (items.Count == 0) throw new ArgumentException("A quotation request must contain items.", nameof(items));
 
-        var id = Guid.NewGuid();
-        var code = $"SC-{createdAtUtc.Year}-{id:N}"[..14].ToUpperInvariant();
         var request = new QuotationRequest(
-            id,
+            Guid.NewGuid(),
             userId,
             sourceShoppingListId,
-            code,
+            DomainText.Required(code, QuotationRequestRules.CodeMaxLength, nameof(code)),
             shoppingListName,
             description,
             buyerName,

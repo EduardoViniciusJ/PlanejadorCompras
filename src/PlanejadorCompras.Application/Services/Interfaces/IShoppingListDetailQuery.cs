@@ -5,7 +5,7 @@ namespace PlanejadorCompras.Application.Services.Interfaces;
 public interface IShoppingListDetailQuery
 {
     Task<ShoppingListDetailResponseDto?> GetByIdAsync(
-        Guid userId,
+        Guid organizationId,
         Guid shoppingListId,
         CancellationToken cancellationToken = default);
 }

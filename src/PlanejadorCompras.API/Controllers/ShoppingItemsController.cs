@@ -3,10 +3,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlanejadorCompras.Application.UseCases.ShoppingItem;
 using PlanejadorCompras.Application.UseCases.ShoppingItem.Create;
+using PlanejadorCompras.API.Security;
+using PlanejadorCompras.Domain.Authorization;
 
 namespace PlanejadorCompras.API.Controllers;
 
 [Authorize]
+[RequirePermission(OrganizationPermission.ViewData)]
 [ApiController]
 [Route("api/shopping-items")]
 public sealed class ShoppingItemsController : ControllerBase
@@ -34,6 +37,7 @@ public sealed class ShoppingItemsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(ShoppingItemResponseDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [RequirePermission(OrganizationPermission.ManageLists)]
     public async Task<IActionResult> Create(
         [FromBody] ShoppingItemRequestDto request,
         CancellationToken cancellationToken)
@@ -44,6 +48,7 @@ public sealed class ShoppingItemsController : ControllerBase
 
     [HttpPost("/api/shopping-lists/{shoppingListId:guid}/items/batch")]
     [ProducesResponseType(typeof(IReadOnlyList<Guid>), StatusCodes.Status200OK)]
+    [RequirePermission(OrganizationPermission.ManageLists)]
     public async Task<IActionResult> CreateBatch(Guid shoppingListId,
         [FromBody] List<ShoppingItemRequestDto> requests,
         [FromServices] CreateShoppingItemsUseCase useCase, CancellationToken cancellationToken)
@@ -53,6 +58,7 @@ public sealed class ShoppingItemsController : ControllerBase
 
     [HttpPost("/api/shopping-lists/{shoppingListId:guid}/items/batch-delete")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [RequirePermission(OrganizationPermission.ManageLists)]
     public async Task<IActionResult> DeleteBatch(Guid shoppingListId,
         [FromBody] List<Guid> ids,
         [FromServices] DeleteShoppingItemsUseCase useCase, CancellationToken cancellationToken)
@@ -86,6 +92,7 @@ public sealed class ShoppingItemsController : ControllerBase
     [ProducesResponseType(typeof(ShoppingItemResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [RequirePermission(OrganizationPermission.ManageLists)]
     public async Task<IActionResult> Update(
         Guid id,
         [FromBody] ShoppingItemRequestDto request,
@@ -98,6 +105,7 @@ public sealed class ShoppingItemsController : ControllerBase
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [RequirePermission(OrganizationPermission.ManageLists)]
     public async Task<IActionResult> Delete(
         Guid id,
         CancellationToken cancellationToken)

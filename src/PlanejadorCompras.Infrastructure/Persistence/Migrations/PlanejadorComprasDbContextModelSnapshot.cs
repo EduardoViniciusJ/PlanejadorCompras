@@ -32,6 +32,9 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("ShoppingItemId")
                         .HasColumnType("uuid");
 
@@ -44,11 +47,117 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OrganizationId");
+
                     b.HasIndex("ShoppingItemId");
 
                     b.HasIndex("SupplierId");
 
                     b.ToTable("ItemQuotes", (string)null);
+                });
+
+            modelBuilder.Entity("PlanejadorCompras.Domain.Entities.Membership", b =>
+                {
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
+                    b.HasKey("OrganizationId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Memberships", (string)null);
+                });
+
+            modelBuilder.Entity("PlanejadorCompras.Domain.Entities.Organization", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Organizations", (string)null);
+                });
+
+            modelBuilder.Entity("PlanejadorCompras.Domain.Entities.OrganizationDocumentCounter", b =>
+                {
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Kind")
+                        .HasMaxLength(4)
+                        .HasColumnType("character varying(4)");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("LastNumber")
+                        .HasColumnType("integer");
+
+                    b.HasKey("OrganizationId", "Kind", "Year");
+
+                    b.ToTable("OrganizationDocumentCounters", (string)null);
+                });
+
+            modelBuilder.Entity("PlanejadorCompras.Domain.Entities.OrganizationInvitation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("citext");
+
+                    b.Property<DateTime>("ExpiresAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("InvitedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvitedByUserId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("OrganizationId", "Email")
+                        .IsUnique();
+
+                    b.ToTable("OrganizationInvitations", (string)null);
                 });
 
             modelBuilder.Entity("PlanejadorCompras.Domain.Entities.PurchaseOrder", b =>
@@ -91,6 +200,9 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("PaymentTerms")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
@@ -125,14 +237,16 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Code")
-                        .IsUnique();
-
                     b.HasIndex("SourceEqualizationId");
 
-                    b.HasIndex("UserId", "CreatedAtUtc");
+                    b.HasIndex("UserId");
 
-                    b.HasIndex("UserId", "SourceShoppingListId", "SupplierId")
+                    b.HasIndex("OrganizationId", "Code")
+                        .IsUnique();
+
+                    b.HasIndex("OrganizationId", "CreatedAtUtc");
+
+                    b.HasIndex("OrganizationId", "SourceShoppingListId", "SupplierId")
                         .IsUnique()
                         .HasFilter("\"Status\" <> 3 AND \"SourceShoppingListId\" IS NOT NULL AND \"SupplierId\" IS NOT NULL");
 
@@ -212,6 +326,9 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateOnly?>("ResponseDeadline")
                         .HasColumnType("date");
 
@@ -228,10 +345,12 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Code")
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("OrganizationId", "Code")
                         .IsUnique();
 
-                    b.HasIndex("UserId", "CreatedAtUtc");
+                    b.HasIndex("OrganizationId", "CreatedAtUtc");
 
                     b.ToTable("QuotationRequests", (string)null);
                 });
@@ -312,6 +431,9 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("RequestId")
                         .HasColumnType("uuid");
 
@@ -328,12 +450,14 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Code")
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("OrganizationId", "Code")
                         .IsUnique();
 
-                    b.HasIndex("UserId", "CreatedAtUtc");
+                    b.HasIndex("OrganizationId", "CreatedAtUtc");
 
-                    b.HasIndex("UserId", "RequestId")
+                    b.HasIndex("OrganizationId", "RequestId")
                         .IsUnique();
 
                     b.ToTable("Equalizations", (string)null);
@@ -426,6 +550,9 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
                     b.Property<decimal>("Quantity")
                         .HasPrecision(19, 3)
                         .HasColumnType("numeric(19,3)");
@@ -439,6 +566,8 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(20)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId");
 
                     b.HasIndex("ShoppingListId");
 
@@ -463,10 +592,15 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId");
 
                     b.HasIndex("UserId");
 
@@ -484,7 +618,12 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("ShoppingListId", "SupplierId");
+
+                    b.HasIndex("OrganizationId");
 
                     b.HasIndex("SupplierId");
 
@@ -509,16 +648,21 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("citext");
 
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId", "Cnpj")
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("OrganizationId", "Cnpj")
                         .IsUnique()
                         .HasFilter("\"Cnpj\" IS NOT NULL");
 
-                    b.HasIndex("UserId", "Name")
+                    b.HasIndex("OrganizationId", "Name")
                         .IsUnique();
 
                     b.ToTable("Suppliers", (string)null);
@@ -530,7 +674,13 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ActiveOrganizationId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
@@ -545,11 +695,24 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsEmailConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Name")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
                     b.Property<string>("PasswordHash")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<DateTime?>("TermsAcceptedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TermsVersion")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ActiveOrganizationId");
 
                     b.HasIndex("Email")
                         .IsUnique();
@@ -594,6 +757,12 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("PlanejadorCompras.Domain.Entities.ItemQuote", b =>
                 {
+                    b.HasOne("PlanejadorCompras.Domain.Entities.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("PlanejadorCompras.Domain.Entities.ShoppingItem", null)
                         .WithMany()
                         .HasForeignKey("ShoppingItemId")
@@ -607,12 +776,57 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PlanejadorCompras.Domain.Entities.PurchaseOrder", b =>
+            modelBuilder.Entity("PlanejadorCompras.Domain.Entities.Membership", b =>
                 {
+                    b.HasOne("PlanejadorCompras.Domain.Entities.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("PlanejadorCompras.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PlanejadorCompras.Domain.Entities.OrganizationDocumentCounter", b =>
+                {
+                    b.HasOne("PlanejadorCompras.Domain.Entities.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PlanejadorCompras.Domain.Entities.OrganizationInvitation", b =>
+                {
+                    b.HasOne("PlanejadorCompras.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("InvitedByUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PlanejadorCompras.Domain.Entities.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PlanejadorCompras.Domain.Entities.PurchaseOrder", b =>
+                {
+                    b.HasOne("PlanejadorCompras.Domain.Entities.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PlanejadorCompras.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -627,10 +841,16 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("PlanejadorCompras.Domain.Entities.QuotationRequest", b =>
                 {
+                    b.HasOne("PlanejadorCompras.Domain.Entities.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("PlanejadorCompras.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -645,10 +865,16 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("PlanejadorCompras.Domain.Entities.SavedEqualization", b =>
                 {
+                    b.HasOne("PlanejadorCompras.Domain.Entities.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("PlanejadorCompras.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -672,6 +898,12 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("PlanejadorCompras.Domain.Entities.ShoppingItem", b =>
                 {
+                    b.HasOne("PlanejadorCompras.Domain.Entities.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("PlanejadorCompras.Domain.Entities.ShoppingList", null)
                         .WithMany()
                         .HasForeignKey("ShoppingListId")
@@ -681,15 +913,27 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("PlanejadorCompras.Domain.Entities.ShoppingList", b =>
                 {
+                    b.HasOne("PlanejadorCompras.Domain.Entities.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("PlanejadorCompras.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("PlanejadorCompras.Domain.Entities.ShoppingListSupplier", b =>
                 {
+                    b.HasOne("PlanejadorCompras.Domain.Entities.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("PlanejadorCompras.Domain.Entities.ShoppingList", null)
                         .WithMany()
                         .HasForeignKey("ShoppingListId")
@@ -705,10 +949,16 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("PlanejadorCompras.Domain.Entities.Supplier", b =>
                 {
+                    b.HasOne("PlanejadorCompras.Domain.Entities.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("PlanejadorCompras.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.OwnsOne("PlanejadorCompras.Domain.Entities.SupplierAddress", "Address", b1 =>
@@ -765,6 +1015,14 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
                     b.Navigation("Address");
 
                     b.Navigation("Contact");
+                });
+
+            modelBuilder.Entity("PlanejadorCompras.Domain.Entities.User", b =>
+                {
+                    b.HasOne("PlanejadorCompras.Domain.Entities.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("ActiveOrganizationId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("PlanejadorCompras.Domain.Entities.UserToken", b =>

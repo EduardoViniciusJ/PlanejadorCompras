@@ -26,6 +26,6 @@ public sealed class ShoppingListConfiguration : IEntityTypeConfiguration<Shoppin
         builder.HasOne<User>()
             .WithMany()
             .HasForeignKey(list => list.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

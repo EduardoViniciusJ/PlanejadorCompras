@@ -2,7 +2,7 @@ using PlanejadorCompras.Domain.Rules;
 
 namespace PlanejadorCompras.Domain.Entities;
 
-public sealed class ItemQuote
+public sealed class ItemQuote : IOrganizationOwned
 {
     private ItemQuote(
         Guid id,
@@ -19,6 +19,8 @@ public sealed class ItemQuote
     }
 
     public Guid Id { get; private set; }
+
+    public Guid OrganizationId { get; private set; }
 
     public Guid ShoppingItemId { get; private set; }
 

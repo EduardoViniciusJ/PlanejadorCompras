@@ -4,7 +4,7 @@ namespace PlanejadorCompras.Application.Services.Interfaces;
 
 public interface IShoppingListOverviewQuery
 {
-    Task<IReadOnlyList<ShoppingListOverviewDto>> GetByUserIdAsync(
-        Guid userId,
+    Task<IReadOnlyList<ShoppingListOverviewDto>> GetByOrganizationIdAsync(
+        Guid organizationId,
         CancellationToken cancellationToken = default);
 }

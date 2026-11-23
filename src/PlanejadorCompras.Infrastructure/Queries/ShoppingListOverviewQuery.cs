@@ -14,15 +14,15 @@ public sealed class ShoppingListOverviewQuery : IShoppingListOverviewQuery
         _context = context;
     }
 
-    public async Task<IReadOnlyList<ShoppingListOverviewDto>> GetByUserIdAsync(
-        Guid userId,
+    public async Task<IReadOnlyList<ShoppingListOverviewDto>> GetByOrganizationIdAsync(
+        Guid organizationId,
         CancellationToken cancellationToken = default)
     {
-        ArgumentOutOfRangeException.ThrowIfEqual(userId, Guid.Empty);
+        ArgumentOutOfRangeException.ThrowIfEqual(organizationId, Guid.Empty);
 
         var lists = await _context.ShoppingLists
             .AsNoTracking()
-            .Where(list => list.UserId == userId)
+            .Where(list => list.OrganizationId == organizationId)
             .OrderByDescending(list => list.CreatedAt)
             .ToListAsync(cancellationToken);
 

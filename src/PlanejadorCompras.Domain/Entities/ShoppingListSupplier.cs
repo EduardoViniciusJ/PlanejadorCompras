@@ -1,6 +1,6 @@
 namespace PlanejadorCompras.Domain.Entities;
 
-public sealed class ShoppingListSupplier
+public sealed class ShoppingListSupplier : IOrganizationOwned
 {
     private ShoppingListSupplier(Guid shoppingListId, Guid supplierId, DateTime createdAt)
     {
@@ -8,6 +8,8 @@ public sealed class ShoppingListSupplier
         SupplierId = supplierId;
         CreatedAt = createdAt;
     }
+
+    public Guid OrganizationId { get; private set; }
 
     public Guid ShoppingListId { get; private set; }
 

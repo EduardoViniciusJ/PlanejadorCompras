@@ -9,19 +9,15 @@ public interface ISavedEqualizationRepository
         CancellationToken cancellationToken = default);
 
     Task<SavedEqualization?> GetByRequestIdAsync(
-        Guid userId,
+        Guid organizationId,
         Guid requestId,
         CancellationToken cancellationToken = default);
 
-    Task<(List<SavedEqualization> Items, int TotalCount)> SearchByUserIdAsync(
-        Guid userId,
+    Task<(List<SavedEqualization> Items, int TotalCount)> SearchByOrganizationIdAsync(
+        Guid organizationId,
         string? searchTerm,
         int page,
         int pageSize,
-        CancellationToken cancellationToken = default);
-
-    Task<bool> CodeExistsAsync(
-        string code,
         CancellationToken cancellationToken = default);
 
     Task AddAsync(

@@ -1,6 +1,6 @@
 namespace PlanejadorCompras.Domain.Entities;
 
-public sealed class SavedEqualization
+public sealed class SavedEqualization : IOrganizationOwned
 {
     private readonly List<SavedEqualizationItem> _items = [];
 
@@ -35,6 +35,8 @@ public sealed class SavedEqualization
     }
 
     public Guid Id { get; private set; }
+
+    public Guid OrganizationId { get; private set; }
 
     public Guid UserId { get; private set; }
 

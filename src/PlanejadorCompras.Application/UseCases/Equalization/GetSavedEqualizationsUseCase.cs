@@ -8,7 +8,7 @@ namespace PlanejadorCompras.Application.UseCases.Equalization;
 
 public sealed class GetSavedEqualizationsUseCase(
     ISavedEqualizationRepository repository,
-    ICurrentUser currentUser)
+    ICurrentOrganization currentOrganization)
 {
     public async Task<PagedResponseDto<SavedEqualizationSummaryResponseDto>> ExecuteAsync(
         string? searchTerm,
@@ -26,8 +26,8 @@ public sealed class GetSavedEqualizationsUseCase(
         var normalizedSearch = string.IsNullOrWhiteSpace(searchTerm)
             ? null
             : searchTerm.Trim();
-        var result = await repository.SearchByUserIdAsync(
-            currentUser.UserId,
+        var result = await repository.SearchByOrganizationIdAsync(
+            currentOrganization.OrganizationId,
             normalizedSearch,
             page,
             pageSize,

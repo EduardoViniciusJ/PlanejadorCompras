@@ -1,3 +1,4 @@
+using PlanejadorCompras.Application.Common.Pagination;
 using PlanejadorCompras.Application.Features.PurchaseOrders.Contracts;
 using PlanejadorCompras.Application.Services.Interfaces;
 using PlanejadorCompras.Domain.Repositories.PurchaseOrder;
@@ -6,17 +7,25 @@ namespace PlanejadorCompras.Application.UseCases.PurchaseOrder;
 
 public sealed class GetPurchaseOrdersUseCase(
     IPurchaseOrderRepository purchaseOrderRepository,
-    ICurrentUser currentUser)
+    ICurrentOrganization currentOrganization)
 {
-    public async Task<IReadOnlyCollection<PurchaseOrderSummaryResponseDto>> ExecuteAsync(
+    public async Task<PagedResponseDto<PurchaseOrderSummaryResponseDto>> ExecuteAsync(
+        int page = 1,
+        int pageSize = PageRequest.DefaultPageSize,
         CancellationToken cancellationToken = default)
     {
-        var orders = await purchaseOrderRepository.GetByUserIdAsync(
-            currentUser.UserId,
+        PageRequest.Validate(page, pageSize);
+
+        var result = await purchaseOrderRepository.GetPageByOrganizationIdAsync(
+            currentOrganization.OrganizationId,
+            page,
+            pageSize,
             cancellationToken);
 
-        return orders
-            .Select(PurchaseOrderResponseMapper.ToSummary)
-            .ToList();
+        return new PagedResponseDto<PurchaseOrderSummaryResponseDto>(
+            result.Items.Select(PurchaseOrderResponseMapper.ToSummary).ToList(),
+            page,
+            pageSize,
+            result.TotalCount);
     }
 }

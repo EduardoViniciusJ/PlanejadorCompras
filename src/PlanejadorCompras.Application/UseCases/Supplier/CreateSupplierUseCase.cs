@@ -10,7 +10,8 @@ namespace PlanejadorCompras.Application.UseCases.Supplier;
 public sealed class CreateSupplierUseCase(
     ISupplierRepository supplierRepository,
     IUnitOfWork unitOfWork,
-    ICurrentUser currentUser)
+    ICurrentUser currentUser,
+    ICurrentOrganization currentOrganization)
 {
     public async Task<SupplierResponseDto> ExecuteAsync(
         SupplierRequestDto request,
@@ -20,7 +21,7 @@ public sealed class CreateSupplierUseCase(
         var input = SupplierRequestNormalizer.Normalize(request);
 
         if (await supplierRepository.ExistsByNameAsync(
-                currentUser.UserId,
+                currentOrganization.OrganizationId,
                 input.Name,
                 cancellationToken: cancellationToken))
         {
@@ -29,7 +30,7 @@ public sealed class CreateSupplierUseCase(
 
         if (input.Cnpj is not null
             && await supplierRepository.ExistsByCnpjAsync(
-                currentUser.UserId,
+                currentOrganization.OrganizationId,
                 input.Cnpj,
                 cancellationToken: cancellationToken))
         {

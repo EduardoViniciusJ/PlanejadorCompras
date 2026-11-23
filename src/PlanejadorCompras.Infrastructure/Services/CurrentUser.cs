@@ -3,16 +3,21 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using PlanejadorCompras.Application.Exceptions;
 using PlanejadorCompras.Application.Services.Interfaces;
+using PlanejadorCompras.Infrastructure.Organizations;
 
 namespace PlanejadorCompras.Infrastructure.Services;
 
 public sealed class CurrentUser : ICurrentUser
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly OrganizationContext? _organizationContext;
 
-    public CurrentUser(IHttpContextAccessor httpContextAccessor)
+    public CurrentUser(
+        IHttpContextAccessor httpContextAccessor,
+        OrganizationContext? organizationContext = null)
     {
         _httpContextAccessor = httpContextAccessor;
+        _organizationContext = organizationContext;
     }
 
     public Guid UserId
@@ -48,6 +53,14 @@ public sealed class CurrentUser : ICurrentUser
         get
         {
             var user = GetAuthenticatedUser();
+
+            // The token keeps whatever name the user had at sign-in; the profile
+            // name saved afterwards is the one that must show up in documents.
+            if (!string.IsNullOrWhiteSpace(_organizationContext?.UserName))
+            {
+                return _organizationContext.UserName;
+            }
+
             return user.FindFirst(JwtRegisteredClaimNames.Name)?.Value
                 ?? user.FindFirst(ClaimTypes.Name)?.Value
                 ?? string.Empty;

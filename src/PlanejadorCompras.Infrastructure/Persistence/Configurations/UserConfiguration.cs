@@ -1,3 +1,4 @@
+using PlanejadorCompras.Domain.Rules;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PlanejadorCompras.Domain.Entities;
@@ -30,6 +31,19 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(user => user.CreatedAt)
             .IsRequired();
+
+        builder.Property(user => user.Name)
+            .HasMaxLength(OrganizationRules.UserNameMaxLength);
+
+        builder.Property(user => user.TermsVersion)
+            .HasMaxLength(OrganizationRules.TermsVersionMaxLength);
+
+        builder.Ignore(user => user.IsDeleted);
+
+        builder.HasOne<Organization>()
+            .WithMany()
+            .HasForeignKey(user => user.ActiveOrganizationId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasIndex(user => user.GoogleId)
             .IsUnique();
