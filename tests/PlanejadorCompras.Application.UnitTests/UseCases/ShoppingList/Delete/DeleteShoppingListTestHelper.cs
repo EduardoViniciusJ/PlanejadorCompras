@@ -1,3 +1,4 @@
+using PlanejadorCompras.Application.UnitTests.Support;
 using Moq;
 using PlanejadorCompras.Application.Services.Interfaces;
 using PlanejadorCompras.Domain.Repositories;
@@ -35,6 +36,7 @@ public sealed class DeleteShoppingListTestHelper
 
     public static ShoppingListEntity CreateShoppingListEntity(Guid? userId = null)
     {
-        return ShoppingListEntity.Create(userId ?? DefaultUserId, "Monthly Tech Shopping", "Monitor and keyboard");
+        return ShoppingListEntity.Create(userId ?? DefaultUserId, "Monthly Tech Shopping", "Monitor and keyboard")
+            .InOrganization(userId ?? DefaultUserId);
     }
 }

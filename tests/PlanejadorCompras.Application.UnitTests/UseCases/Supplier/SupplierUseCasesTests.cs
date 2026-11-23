@@ -1,3 +1,4 @@
+using PlanejadorCompras.Application.UnitTests.Support;
 using PlanejadorCompras.Application.Features.Suppliers.Contracts;
 using Moq;
 using PlanejadorCompras.Application.Exceptions;
@@ -42,7 +43,8 @@ public sealed class SupplierUseCasesTests
         var useCase = new CreateSupplierUseCase(
             _repository.Object,
             _unitOfWork.Object,
-            _currentUser.Object);
+            _currentUser.Object,
+            TestOrganization.PersonalOf(_currentUser));
 
         var result = await useCase.ExecuteAsync(new SupplierRequestDto("Papelaria Central"));
 
@@ -62,7 +64,8 @@ public sealed class SupplierUseCasesTests
         var useCase = new CreateSupplierUseCase(
             _repository.Object,
             _unitOfWork.Object,
-            _currentUser.Object);
+            _currentUser.Object,
+            TestOrganization.PersonalOf(_currentUser));
 
         var result = await useCase.ExecuteAsync(new SupplierRequestDto(
             "  Papelaria Central  ",
@@ -87,7 +90,8 @@ public sealed class SupplierUseCasesTests
         var useCase = new CreateSupplierUseCase(
             _repository.Object,
             _unitOfWork.Object,
-            _currentUser.Object);
+            _currentUser.Object,
+            TestOrganization.PersonalOf(_currentUser));
 
         var exception = await Assert.ThrowsAsync<BadRequestException>(() =>
             useCase.ExecuteAsync(new SupplierRequestDto("Papelaria Central", "11.111.111/1111-11")));
@@ -109,7 +113,8 @@ public sealed class SupplierUseCasesTests
         var useCase = new CreateSupplierUseCase(
             _repository.Object,
             _unitOfWork.Object,
-            _currentUser.Object);
+            _currentUser.Object,
+            TestOrganization.PersonalOf(_currentUser));
 
         var exception = await Assert.ThrowsAsync<ConflictException>(() =>
             useCase.ExecuteAsync(new SupplierRequestDto(
@@ -132,7 +137,8 @@ public sealed class SupplierUseCasesTests
         var useCase = new CreateSupplierUseCase(
             _repository.Object,
             _unitOfWork.Object,
-            _currentUser.Object);
+            _currentUser.Object,
+            TestOrganization.PersonalOf(_currentUser));
 
         await Assert.ThrowsAsync<ConflictException>(() =>
             useCase.ExecuteAsync(new SupplierRequestDto("Papelaria Central")));
@@ -145,9 +151,9 @@ public sealed class SupplierUseCasesTests
     {
         var supplier = SupplierEntity.Create(_userId, "Papelaria Central");
         _repository
-            .Setup(repository => repository.GetByUserIdAsync(_userId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.GetByOrganizationIdAsync(_userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<SupplierEntity> { supplier });
-        var useCase = new GetSuppliersUseCase(_repository.Object, _currentUser.Object);
+        var useCase = new GetSuppliersUseCase(_repository.Object, TestOrganization.PersonalOf(_currentUser));
 
         var result = await useCase.ExecuteAsync();
 

@@ -1,3 +1,4 @@
+using PlanejadorCompras.Application.UnitTests.Support;
 using Moq;
 using PlanejadorCompras.Application.Exceptions;
 using PlanejadorCompras.Application.UseCases.ShoppingList;
@@ -15,7 +16,7 @@ public sealed class GetShoppingListByIdUseCaseTests
         _helper = new GetShoppingListByIdTestHelper();
         var accessService = new ShoppingListAccessService(
             _helper.ShoppingListRepositoryMock.Object,
-            _helper.CurrentUserMock.Object);
+            TestOrganization.PersonalOf(_helper.CurrentUserMock));
 
         _handler = new GetShoppingListByIdUseCase(accessService);
     }

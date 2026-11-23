@@ -1,3 +1,4 @@
+using PlanejadorCompras.Application.UnitTests.Support;
 using PlanejadorCompras.Application.Features.ShoppingLists.Contracts;
 using Moq;
 using PlanejadorCompras.Application.Services.Interfaces;
@@ -39,6 +40,7 @@ public sealed class UpdateShoppingListTestHelper
         string name = "Monthly Tech Shopping",
         string? description = "Monitor, keyboard, and mouse")
     {
-        return ShoppingListEntity.Create(userId ?? DefaultUserId, name, description);
+        return ShoppingListEntity.Create(userId ?? DefaultUserId, name, description)
+            .InOrganization(userId ?? DefaultUserId);
     }
 }

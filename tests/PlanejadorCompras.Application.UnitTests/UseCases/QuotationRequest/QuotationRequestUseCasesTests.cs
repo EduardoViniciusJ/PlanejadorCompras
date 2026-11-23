@@ -1,3 +1,4 @@
+using PlanejadorCompras.Application.UnitTests.Support;
 using PlanejadorCompras.Application.Features.ShoppingLists.Contracts;
 using PlanejadorCompras.Application.Features.Reports.Contracts;
 using PlanejadorCompras.Application.Features.QuotationRequests.Contracts;
@@ -23,9 +24,16 @@ public sealed class QuotationRequestUseCasesTests
     private readonly Mock<IShoppingListDetailQuery> _detailQuery = new();
     private readonly Mock<IQuotationRequestRepository> _repository = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
+    private readonly Mock<IDocumentNumberGenerator> _documentNumbers = new();
 
     public QuotationRequestUseCasesTests()
     {
+        _documentNumbers
+            .Setup(generator => generator.NextAsync(
+                DocumentKind.QuotationRequest,
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("SC-2026-00001");
         _currentUser.SetupGet(user => user.UserId).Returns(_userId);
         _currentUser.SetupGet(user => user.Name).Returns("Marina Compradora");
         _currentUser.SetupGet(user => user.Email).Returns("marina@empresa.com.br");
@@ -98,7 +106,7 @@ public sealed class QuotationRequestUseCasesTests
     public async Task GetById_ShouldHideARequestOutsideTheCurrentUserScope()
     {
         _repository
-            .Setup(repository => repository.GetByIdForUserAsync(
+            .Setup(repository => repository.GetByIdForOrganizationAsync(
                 It.IsAny<Guid>(),
                 _userId,
                 It.IsAny<CancellationToken>()))
@@ -107,7 +115,7 @@ public sealed class QuotationRequestUseCasesTests
         var exception = await Assert.ThrowsAsync<NotFoundException>(() =>
             new GetQuotationRequestByIdUseCase(
                 _repository.Object,
-                _currentUser.Object)
+                TestOrganization.PersonalOf(_currentUser))
                 .ExecuteAsync(Guid.NewGuid()));
 
         Assert.Equal("quotation_request_not_found", exception.ErrorCode);
@@ -118,7 +126,7 @@ public sealed class QuotationRequestUseCasesTests
     {
         var request = CreateEntity();
         _repository
-            .Setup(repository => repository.GetByIdForUserAsync(
+            .Setup(repository => repository.GetByIdForOrganizationAsync(
                 request.Id,
                 _userId,
                 It.IsAny<CancellationToken>()))
@@ -136,7 +144,7 @@ public sealed class QuotationRequestUseCasesTests
 
         var result = await new ExportSavedQuotationRequestPdfUseCase(
             _repository.Object,
-            _currentUser.Object,
+            TestOrganization.PersonalOf(_currentUser),
             exporter.Object).ExecuteAsync(request.Id);
 
         Assert.Same(expected, result);
@@ -152,9 +160,9 @@ public sealed class QuotationRequestUseCasesTests
     public async Task Delete_ShouldCommitOnlyWhenRequestBelongsToCurrentUser(bool found)
     {
         var id = Guid.NewGuid();
-        _repository.Setup(repository => repository.DeleteForUserAsync(id, _userId, It.IsAny<CancellationToken>()))
+        _repository.Setup(repository => repository.DeleteForOrganizationAsync(id, _userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(found);
-        var useCase = new DeleteQuotationRequestUseCase(_repository.Object, _currentUser.Object, _unitOfWork.Object);
+        var useCase = new DeleteQuotationRequestUseCase(_repository.Object, TestOrganization.PersonalOf(_currentUser), _unitOfWork.Object);
         if (found)
             await useCase.ExecuteAsync(id);
         else
@@ -162,17 +170,18 @@ public sealed class QuotationRequestUseCasesTests
             var exception = await Assert.ThrowsAsync<NotFoundException>(() => useCase.ExecuteAsync(id));
             Assert.Equal("quotation_request_not_found", exception.ErrorCode);
         }
-        _repository.Verify(repository => repository.DeleteForUserAsync(id, _userId, It.IsAny<CancellationToken>()), Times.Once);
+        _repository.Verify(repository => repository.DeleteForOrganizationAsync(id, _userId, It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWork.Verify(unit => unit.CommitAsync(It.IsAny<CancellationToken>()), found ? Times.Once() : Times.Never());
     }
 
     private CreateQuotationRequestUseCase CreateUseCase() =>
         new(
             new GetShoppingListDetailUseCase(
-                _currentUser.Object,
+                TestOrganization.PersonalOf(_currentUser),
                 _detailQuery.Object),
             _repository.Object,
             _currentUser.Object,
+            _documentNumbers.Object,
             _unitOfWork.Object,
             new FixedTimeProvider(Now));
 
@@ -198,6 +207,7 @@ public sealed class QuotationRequestUseCasesTests
         QuotationRequestEntity.Create(
             _userId,
             _listId,
+            "SC-2026-00001",
             "Equipamentos de TI",
             "Renovação do escritório",
             "Marina Compradora",

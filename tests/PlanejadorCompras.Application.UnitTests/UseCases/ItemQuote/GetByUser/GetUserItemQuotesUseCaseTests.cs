@@ -1,3 +1,4 @@
+using PlanejadorCompras.Application.UnitTests.Support;
 using PlanejadorCompras.Application.Features.ItemQuotes.Contracts;
 using Moq;
 using PlanejadorCompras.Application.Services.Interfaces;
@@ -27,13 +28,13 @@ public sealed class GetUserItemQuotesUseCaseTests
             "Supplier",
             10m,
             DateTime.UtcNow);
-        query.Setup(x => x.GetByUserIdAsync(userId, It.IsAny<CancellationToken>()))
+        query.Setup(x => x.GetByOrganizationIdAsync(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<UserItemQuoteDto> { quote });
 
-        var useCase = new GetUserItemQuotesUseCase(currentUser.Object, query.Object);
+        var useCase = new GetUserItemQuotesUseCase(TestOrganization.PersonalOf(currentUser), query.Object);
         var result = await useCase.ExecuteAsync();
 
         Assert.Same(quote, Assert.Single(result.Quotes));
-        query.Verify(x => x.GetByUserIdAsync(userId, It.IsAny<CancellationToken>()), Times.Once);
+        query.Verify(x => x.GetByOrganizationIdAsync(userId, It.IsAny<CancellationToken>()), Times.Once);
     }
 }
