@@ -24,4 +24,11 @@
     <ProjectReference Include="..\..\src\PlanejadorCompras.API\PlanejadorCompras.API.csproj" />
   </ItemGroup>
 
+  <!-- The projects under test run on the ASP.NET Core shared framework. Referencing it here makes
+       NuGet drop the older Microsoft.AspNetCore.* packages that come in transitively (Resend pulls
+       a vulnerable Microsoft.AspNetCore.WebUtilities 8.0.x) in favor of the framework's own. -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
 </Project>
