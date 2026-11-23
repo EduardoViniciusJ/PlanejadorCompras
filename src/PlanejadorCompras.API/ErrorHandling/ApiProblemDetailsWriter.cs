@@ -9,7 +9,8 @@ internal static class ApiProblemDetailsWriter
         int statusCode,
         string title,
         string errorCode,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        IReadOnlyDictionary<string, object?>? extensions = null)
     {
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = "application/problem+json";
@@ -20,6 +21,14 @@ internal static class ApiProblemDetailsWriter
             Title = title,
             Instance = context.Request.Path
         };
+
+        if (extensions is not null)
+        {
+            foreach (var (key, value) in extensions)
+            {
+                problemDetails.Extensions[key] = value;
+            }
+        }
 
         problemDetails.Extensions["errorCode"] = errorCode;
         problemDetails.Extensions["traceId"] = context.TraceIdentifier;

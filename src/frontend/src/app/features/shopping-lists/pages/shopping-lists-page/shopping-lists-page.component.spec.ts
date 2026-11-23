@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
+import { AiService } from '../../../ai/data-access/ai.service';
 import { ShoppingListService } from '../../data-access/shopping-list.service';
 import { ShoppingListDetailService } from '../../data-access/shopping-list-detail.service';
 import { ShoppingItemService } from '../../../shopping-items/data-access/shopping-item.service';
@@ -97,6 +98,22 @@ describe('ShoppingListsPageComponent', () => {
           useValue: { snapshot: { queryParamMap: { get: () => null } } },
         },
         { provide: ShoppingListService, useValue: service },
+        {
+          provide: AiService,
+          useValue: {
+            getStatus: vi.fn(() =>
+              of({
+                enabled: false,
+                used: 0,
+                limit: 20,
+                remaining: 20,
+                renewsOn: '2026-12-01',
+                maxFileBytes: 5242880,
+                maxInputCharacters: 20000,
+              }),
+            ),
+          },
+        },
         { provide: ShoppingListDetailService, useValue: { getDetail: vi.fn(() => of({ items: [] })) } },
         { provide: ShoppingItemService, useValue: shoppingItemService },
         { provide: QuotationRequestService, useValue: quotationRequestService },

@@ -14,4 +14,8 @@ public abstract class AppException : Exception
     public HttpStatusCode StatusCode { get; }
 
     public string ErrorCode { get; }
+
+    /// <summary>Extra machine-readable fields added to the problem details response.</summary>
+    public virtual IReadOnlyDictionary<string, object?> Extensions { get; } =
+        new Dictionary<string, object?>();
 }
