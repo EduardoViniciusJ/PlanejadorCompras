@@ -2,11 +2,14 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
+import { AiService } from '../../../ai/data-access/ai.service';
 import { ShoppingListService } from '../../data-access/shopping-list.service';
 import { ShoppingListDetailService } from '../../data-access/shopping-list-detail.service';
 import { ShoppingItemService } from '../../../shopping-items/data-access/shopping-item.service';
 import { ReportFileDownloadService } from '../../../reports/services/report-file-download.service';
 import { QuotationRequestService } from '../../../quotation-requests/data-access/quotation-request.service';
+import { SupplierService } from '../../../suppliers/data-access/supplier.service';
+import { Supplier } from '../../../suppliers/models/supplier.model';
 import { ShoppingList, ShoppingListsOverview } from '../../models/shopping-list.model';
 import { ShoppingListsPageComponent } from './shopping-lists-page.component';
 
@@ -43,6 +46,24 @@ const OVERVIEW: ShoppingListsOverview = {
   lists: [DRAFT_LIST, WAITING_LIST],
 };
 
+const SUPPLIER_ALFA: Supplier = {
+  id: 'supplier-alfa',
+  name: 'Atacado Alfa',
+  cnpj: null,
+  address: null,
+  contact: { email: 'vendas@alfa.com.br', phone: '11999990000' },
+  createdAt: new Date('2026-06-01T12:00:00Z'),
+};
+
+const SUPPLIER_BETA: Supplier = {
+  id: 'supplier-beta',
+  name: 'Distribuidora Beta',
+  cnpj: null,
+  address: null,
+  contact: null,
+  createdAt: new Date('2026-06-02T12:00:00Z'),
+};
+
 describe('ShoppingListsPageComponent', () => {
   let fixture: ComponentFixture<ShoppingListsPageComponent>;
   let service: {
@@ -66,8 +87,30 @@ describe('ShoppingListsPageComponent', () => {
         instructions: null,
         createdAtUtc: '2026-08-04T12:00:00Z',
         items: [],
+        suppliers: [
+          {
+            id: 'quotation-alfa',
+            supplierId: 'supplier-alfa',
+            supplierName: 'Atacado Alfa',
+            supplierEmail: 'vendas@alfa.com.br',
+            supplierPhone: '11999990000',
+            status: 'sent',
+            sentAtUtc: '2026-08-04T12:00:00Z',
+            emailSentAtUtc: null,
+            viewedAtUtc: null,
+            respondedAtUtc: null,
+            linkExpiresAtUtc: '2026-09-03T12:00:00Z',
+            isLinkRevoked: false,
+            isLinkActive: true,
+            terms: null,
+            prices: [],
+            linkUrl: 'https://app.test/cotacao/token-alfa',
+            emailDelivery: null,
+          },
+        ],
       }),
     ),
+    getDeliveryOptions: vi.fn(() => of({ emailAvailable: false })),
     downloadPdf: vi.fn(() =>
       of({ content: new Blob(['pdf'], { type: 'application/pdf' }), fileName: 'solicitacao.pdf' }),
     ),
@@ -97,9 +140,32 @@ describe('ShoppingListsPageComponent', () => {
           useValue: { snapshot: { queryParamMap: { get: () => null } } },
         },
         { provide: ShoppingListService, useValue: service },
+        {
+          provide: AiService,
+          useValue: {
+            getStatus: vi.fn(() =>
+              of({
+                enabled: false,
+                used: 0,
+                limit: 20,
+                remaining: 20,
+                renewsOn: '2026-12-01',
+                maxFileBytes: 5242880,
+                maxInputCharacters: 20000,
+              }),
+            ),
+          },
+        },
         { provide: ShoppingListDetailService, useValue: { getDetail: vi.fn(() => of({ items: [] })) } },
         { provide: ShoppingItemService, useValue: shoppingItemService },
         { provide: QuotationRequestService, useValue: quotationRequestService },
+        {
+          provide: SupplierService,
+          useValue: {
+            getAll: vi.fn(() => of([SUPPLIER_ALFA, SUPPLIER_BETA])),
+            getForShoppingList: vi.fn(() => of([SUPPLIER_ALFA])),
+          },
+        },
         { provide: ReportFileDownloadService, useValue: fileDownloadService },
       ],
     }).compileComponents();
@@ -155,13 +221,42 @@ describe('ShoppingListsPageComponent', () => {
     clickElement(fixture, '[data-testid="quotation-request-waiting-list"]');
     clickElement(fixture, '[data-testid="generate-quotation-request"]');
 
+    // O fornecedor já vinculado à lista chega marcado; o outro fica de fora.
     expect(quotationRequestService.create).toHaveBeenCalledWith('waiting-list', {
       responseDeadline: null,
       deliveryAddress: null,
       instructions: null,
+      supplierIds: ['supplier-alfa'],
+      sendEmail: false,
     });
     expect(quotationRequestService.downloadPdf).toHaveBeenCalledWith('request-1');
     expect(getHost(fixture).textContent).toContain('Solicitação SC-2026-ABC123 salva');
+  });
+
+  it('should show the response link of each supplier after generating the request', () => {
+    clickElement(fixture, '[data-testid="quotation-request-waiting-list"]');
+    clickElement(fixture, '[data-testid="quotation-supplier-supplier-beta"]');
+    clickElement(fixture, '[data-testid="generate-quotation-request"]');
+
+    expect(quotationRequestService.create).toHaveBeenLastCalledWith(
+      'waiting-list',
+      expect.objectContaining({ supplierIds: ['supplier-alfa', 'supplier-beta'] }),
+    );
+    const host = getHost(fixture);
+    const link = host.querySelector<HTMLInputElement>('[data-testid="supplier-link-url"]');
+    expect(link?.value).toBe('https://app.test/cotacao/token-alfa');
+    const whatsApp = host.querySelector<HTMLAnchorElement>('[data-testid="whatsapp-supplier-link"]');
+    expect(whatsApp?.href).toContain('https://wa.me/5511999990000?text=');
+    expect(decodeURIComponent(whatsApp?.href ?? '')).toContain('https://app.test/cotacao/token-alfa');
+  });
+
+  it('should keep e-mail delivery unavailable when the server has no e-mail provider', () => {
+    clickElement(fixture, '[data-testid="quotation-request-waiting-list"]');
+
+    const host = getHost(fixture);
+    const sendEmail = host.querySelector<HTMLInputElement>('[data-testid="quotation-send-email"]');
+    expect(sendEmail?.disabled).toBe(true);
+    expect(host.textContent).toContain('O envio por e-mail não está configurado neste ambiente');
   });
 
   it('should edit a shopping list with the same form', () => {

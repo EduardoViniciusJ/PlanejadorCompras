@@ -15,6 +15,8 @@ public sealed class ShoppingListSupplierConfiguration : IEntityTypeConfiguration
         builder.Property(link => link.CreatedAt)
             .IsRequired();
 
+        builder.ComplexProperty(link => link.Terms, CommercialTermsConfiguration.Configure);
+
         builder.HasOne<ShoppingList>()
             .WithMany()
             .HasForeignKey(link => link.ShoppingListId)

@@ -55,6 +55,21 @@ public sealed class ItemQuoteRepository : IItemQuoteRepository
         return false;
     }
 
+    public Task<List<ItemQuote>> GetBySupplierInShoppingListAsync(
+        Guid shoppingListId,
+        Guid supplierId,
+        CancellationToken cancellationToken = default) =>
+        _context.ItemQuotes
+            .Where(quote =>
+                quote.SupplierId == supplierId &&
+                _context.ShoppingItems.Any(item =>
+                    item.Id == quote.ShoppingItemId &&
+                    item.ShoppingListId == shoppingListId))
+            .OrderBy(quote => quote.CreatedAt)
+            .ToListAsync(cancellationToken);
+
+    public void Remove(ItemQuote itemQuote) => _context.ItemQuotes.Remove(itemQuote);
+
     public async Task<List<ItemQuote>> GetByShoppingListIdAsync(Guid shoppingListId, CancellationToken cancellationToken = default)
     {
         return await _context.ItemQuotes

@@ -6,12 +6,28 @@ import { ModalDialogComponent } from '../../../../shared/ui/modal-dialog/modal-d
 import { AppIconComponent } from '../../../../shared/ui/app-icon/app-icon.component';
 import { SkeletonComponent } from '../../../../shared/ui/skeleton/skeleton.component';
 import { MascotComponent } from '../../../../shared/ui/mascot/mascot.component';
+import { SupplierStatusChipComponent } from '../../components/supplier-status-chip/supplier-status-chip.component';
 import { QuotationRequestService } from '../../data-access/quotation-request.service';
-import { QuotationRequestSummaryDto } from '../../dtos/quotation-request.dto';
+import {
+  QuotationRequestSummaryDto,
+  SupplierQuotationSummaryDto,
+} from '../../dtos/quotation-request.dto';
+import {
+  formatDateTime,
+  supplierQuotationStatusDate,
+  supplierQuotationStatusView,
+} from '../../models/supplier-quotation';
 
 @Component({
   selector: 'app-quotation-requests-page',
-  imports: [ModalDialogComponent, RouterLink, AppIconComponent, MascotComponent, SkeletonComponent],
+  imports: [
+    ModalDialogComponent,
+    RouterLink,
+    AppIconComponent,
+    MascotComponent,
+    SkeletonComponent,
+    SupplierStatusChipComponent,
+  ],
   templateUrl: './quotation-requests-page.component.html',
   styleUrl: './quotation-requests-page.component.scss',
 })
@@ -31,7 +47,10 @@ export class QuotationRequestsPageComponent implements OnInit {
     const search = normalize(this.searchTerm());
     return search
       ? this.requests().filter((request) =>
-          normalize(`${request.code} ${request.shoppingListName} ${request.buyerName}`).includes(search),
+          normalize(
+            `${request.code} ${request.shoppingListName} ${request.buyerName} ` +
+              request.suppliers.map((supplier) => supplier.supplierName).join(' '),
+          ).includes(search),
         )
       : this.requests();
   });
@@ -95,6 +114,16 @@ export class QuotationRequestsPageComponent implements OnInit {
       dateStyle: 'short',
       timeStyle: 'short',
     }).format(new Date(value));
+  }
+
+  protected respondedCount(request: QuotationRequestSummaryDto): number {
+    return request.suppliers.filter((supplier) => supplier.status === 'responded').length;
+  }
+
+  /** Ex.: "Respondida em 04/08/2026 15:30", para leitores de tela e para o `title`. */
+  protected statusDescription(supplier: SupplierQuotationSummaryDto): string {
+    const view = supplierQuotationStatusView(supplier);
+    return `${view.label} em ${formatDateTime(supplierQuotationStatusDate(supplier))}`;
   }
 
   protected formatDate(value: string | null): string {

@@ -9,7 +9,12 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
+import { catchError, forkJoin, of } from 'rxjs';
 
+import {
+  AiListCreated,
+  AiListCreatorComponent,
+} from '../../../ai/components/ai-list-creator/ai-list-creator.component';
 import { ModalDialogComponent } from '../../../../shared/ui/modal-dialog/modal-dialog.component';
 import { AppIconComponent } from '../../../../shared/ui/app-icon/app-icon.component';
 import { SkeletonComponent } from '../../../../shared/ui/skeleton/skeleton.component';
@@ -22,6 +27,8 @@ import { ShoppingListReportFile } from '../../../reports/models/shopping-list-re
 import { ReportFileDownloadService } from '../../../reports/services/report-file-download.service';
 import { QuotationRequestService } from '../../../quotation-requests/data-access/quotation-request.service';
 import { QuotationRequestDetailDto } from '../../../quotation-requests/dtos/quotation-request.dto';
+import { SupplierService } from '../../../suppliers/data-access/supplier.service';
+import { Supplier } from '../../../suppliers/models/supplier.model';
 import { QuotationRequestFormComponent } from '../../components/quotation-request-form/quotation-request-form.component';
 import { QuotationRequestPdfRequestDto } from '../../dtos/quotation-request.dto';
 import { OnboardingChecklistComponent } from '../../../onboarding/components/onboarding-checklist/onboarding-checklist.component';
@@ -74,6 +81,7 @@ const dateFormatter = new Intl.DateTimeFormat('pt-BR', {
     AppIconComponent,
     SkeletonComponent,
     MascotComponent,
+    AiListCreatorComponent,
     OnboardingChecklistComponent,
   ],
   templateUrl: './shopping-lists-page.component.html',
@@ -87,6 +95,7 @@ export class ShoppingListsPageComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly quotationRequestService = inject(QuotationRequestService);
   private readonly fileDownloadService = inject(ReportFileDownloadService);
+  private readonly supplierService = inject(SupplierService);
 
   protected readonly lists = signal<readonly ShoppingList[]>([]);
   protected readonly isLoading = signal(true);
@@ -132,6 +141,10 @@ export class ShoppingListsPageComponent implements OnInit {
   protected readonly generatedQuotationRequestRecord = signal<QuotationRequestDetailDto | null>(
     null,
   );
+  protected readonly quotationSuppliers = signal<readonly Supplier[]>([]);
+  protected readonly quotationPreselectedSupplierIds = signal<readonly string[]>([]);
+  protected readonly isLoadingQuotationSuppliers = signal(false);
+  protected readonly quotationEmailAvailable = signal(false);
 
   ngOnInit(): void {
     this.loadOverview();
@@ -251,6 +264,16 @@ export class ShoppingListsPageComponent implements OnInit {
     });
   }
 
+  /** A list proposed by the AI was reviewed and created by the user. */
+  protected onAiListCreated(result: AiListCreated): void {
+    this.feedbackMessage.set(
+      result.itemCount === 1
+        ? `Lista "${result.name}" criada com 1 item.`
+        : `Lista "${result.name}" criada com ${result.itemCount} itens.`,
+    );
+    this.loadOverview(false);
+  }
+
   protected openPriceMap(list: ShoppingList): void {
     this.feedbackMessage.set(null);
     void this.router.navigate(['/app/price-map', list.id]);
@@ -299,6 +322,35 @@ export class ShoppingListsPageComponent implements OnInit {
     this.generatedQuotationRequest.set(null);
     this.generatedQuotationRequestRecord.set(null);
     this.quotationRequestList.set(list);
+    this.loadQuotationSuppliers(list.id);
+  }
+
+  /**
+   * Fornecedores que podem receber um link de resposta. Uma falha aqui não impede a
+   * solicitação: ela continua podendo ser gerada só com o PDF.
+   */
+  private loadQuotationSuppliers(listId: string): void {
+    this.quotationSuppliers.set([]);
+    this.quotationPreselectedSupplierIds.set([]);
+    this.quotationEmailAvailable.set(false);
+    this.isLoadingQuotationSuppliers.set(true);
+    forkJoin({
+      catalog: this.supplierService.getAll().pipe(catchError(() => of([] as readonly Supplier[]))),
+      linked: this.supplierService
+        .getForShoppingList(listId)
+        .pipe(catchError(() => of([] as readonly Supplier[]))),
+      options: this.quotationRequestService
+        .getDeliveryOptions()
+        .pipe(catchError(() => of({ emailAvailable: false }))),
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ catalog, linked, options }) => {
+        if (this.quotationRequestList()?.id !== listId) return;
+        this.quotationSuppliers.set(catalog);
+        this.quotationPreselectedSupplierIds.set(linked.map((supplier) => supplier.id));
+        this.quotationEmailAvailable.set(options.emailAvailable);
+        this.isLoadingQuotationSuppliers.set(false);
+      });
   }
 
   protected closeQuotationRequest(): void {
@@ -323,10 +375,12 @@ export class ShoppingListsPageComponent implements OnInit {
           this.generatedQuotationRequestRecord.set(record);
           this.prepareQuotationRequestPdf(record.id);
         },
-        error: () => {
+        error: (error: { error?: { errorCode?: string } }) => {
           this.isGeneratingQuotationRequest.set(false);
           this.quotationRequestError.set(
-            'Não foi possível gerar a solicitação. Verifique os itens e tente novamente.',
+            error.error?.errorCode === 'email_delivery_unavailable'
+              ? 'O envio por e-mail não está configurado. Desmarque o envio por e-mail e use o link ou o WhatsApp.'
+              : 'Não foi possível gerar a solicitação. Verifique os itens e tente novamente.',
           );
         },
       });

@@ -8,4 +8,7 @@ public sealed record QuotationRequestPdfRequestDto(
     [MaxLength(QuotationRequestRules.DeliveryAddressMaxLength)]
     string? DeliveryAddress = null,
     [MaxLength(QuotationRequestRules.InstructionsMaxLength)]
-    string? Instructions = null);
+    string? Instructions = null,
+    [MaxLength(SupplierQuotationRules.MaximumSuppliersPerRequest)]
+    IReadOnlyList<Guid>? SupplierIds = null,
+    bool SendEmail = false);

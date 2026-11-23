@@ -22,6 +22,14 @@ internal static class ApiSecurityPipeline
                 context.Response.Headers["Pragma"] = "no-cache";
             }
 
+            // The supplier link carries its token in the address: nothing may cache or index it.
+            if (context.Request.Path.StartsWithSegments("/api/public"))
+            {
+                context.Response.Headers["Cache-Control"] = "no-store";
+                context.Response.Headers["Pragma"] = "no-cache";
+                context.Response.Headers["X-Robots-Tag"] = "noindex, nofollow";
+            }
+
             await next();
         });
 

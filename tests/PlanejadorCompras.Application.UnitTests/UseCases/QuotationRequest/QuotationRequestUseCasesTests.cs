@@ -9,6 +9,8 @@ using PlanejadorCompras.Application.UseCases.ShoppingList;
 using PlanejadorCompras.Domain.Entities;
 using PlanejadorCompras.Domain.Repositories;
 using PlanejadorCompras.Domain.Repositories.QuotationRequest;
+using PlanejadorCompras.Domain.Repositories.ShoppingListSupplier;
+using PlanejadorCompras.Domain.Repositories.Supplier;
 using QuotationRequestEntity = PlanejadorCompras.Domain.Entities.QuotationRequest;
 
 namespace PlanejadorCompras.Application.UnitTests.UseCases.QuotationRequest;
@@ -107,7 +109,8 @@ public sealed class QuotationRequestUseCasesTests
         var exception = await Assert.ThrowsAsync<NotFoundException>(() =>
             new GetQuotationRequestByIdUseCase(
                 _repository.Object,
-                _currentUser.Object)
+                _currentUser.Object,
+                new FixedTimeProvider(Now))
                 .ExecuteAsync(Guid.NewGuid()));
 
         Assert.Equal("quotation_request_not_found", exception.ErrorCode);
@@ -172,6 +175,12 @@ public sealed class QuotationRequestUseCasesTests
                 _currentUser.Object,
                 _detailQuery.Object),
             _repository.Object,
+            new Mock<ISupplierRepository>().Object,
+            new Mock<IShoppingListSupplierRepository>().Object,
+            new Mock<IFrontendUrlService>().Object,
+            new SupplierQuotationEmailSender(
+                new Mock<IEmailAvailability>().Object,
+                new Lazy<IEmailService>(() => throw new InvalidOperationException("E-mail is not used here."))),
             _currentUser.Object,
             _unitOfWork.Object,
             new FixedTimeProvider(Now));

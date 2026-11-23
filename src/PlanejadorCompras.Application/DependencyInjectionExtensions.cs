@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using PlanejadorCompras.Application.Services;
+using PlanejadorCompras.Application.UseCases.Ai;
 using PlanejadorCompras.Application.UseCases.Auth;
 using PlanejadorCompras.Application.UseCases.ItemQuote.Create;
 using PlanejadorCompras.Application.UseCases.ShoppingItem.Create;
@@ -56,6 +57,8 @@ public static class DependencyInjectionExtensions
         services.AddScoped<RemoveSupplierFromShoppingListUseCase>();
         services.AddScoped<IGetShoppingListReportDataUseCase, GetShoppingListReportDataUseCase>();
         services.AddScoped<IExportShoppingListReportUseCase, ExportShoppingListReportUseCase>();
+        services.AddScoped<GetShoppingListSupplierTermsUseCase>();
+        services.AddScoped<UpdateShoppingListSupplierTermsUseCase>();
 
         // ShoppingItem
         services.AddScoped<CreateShoppingItemUseCase>();
@@ -89,6 +92,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<UpdatePurchaseOrderStatusUseCase>();
         services.AddScoped<DeletePurchaseOrderUseCase>();
         services.AddScoped<ExportPurchaseOrderPdfUseCase>();
+        services.AddScoped<ExportPurchaseOrderExcelUseCase>();
 
         // Equalization history
         services.AddScoped<CreateSavedEqualizationUseCase>();
@@ -102,5 +106,18 @@ public static class DependencyInjectionExtensions
         services.AddScoped<GetQuotationRequestsUseCase>();
         services.AddScoped<GetQuotationRequestByIdUseCase>();
         services.AddScoped<ExportSavedQuotationRequestPdfUseCase>();
+        services.AddScoped<SupplierQuotationEmailSender>();
+        services.AddScoped<RotateSupplierQuotationLinkUseCase>();
+        services.AddScoped<RevokeSupplierQuotationLinkUseCase>();
+        services.AddScoped<PublicSupplierQuotationResolver>();
+        services.AddScoped<GetPublicSupplierQuotationUseCase>();
+        services.AddScoped<SubmitPublicSupplierQuotationUseCase>();
+
+        // AI
+        services.AddScoped<AiUsageService>();
+        services.AddScoped<AiInputPreparer>();
+        services.AddScoped<ExtractSupplierQuoteUseCase>();
+        services.AddScoped<ApplyQuoteBatchUseCase>();
+        services.AddScoped<DraftShoppingListUseCase>();
     }
 }

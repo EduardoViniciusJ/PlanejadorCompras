@@ -39,5 +39,11 @@ public sealed class QuotationRequestConfiguration : IEntityTypeConfiguration<Quo
             .HasForeignKey(item => item.QuotationRequestId)
             .OnDelete(DeleteBehavior.Cascade);
         builder.Navigation(request => request.Items).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.HasMany(request => request.SupplierQuotations)
+            .WithOne()
+            .HasForeignKey(quotation => quotation.QuotationRequestId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(request => request.SupplierQuotations).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Ignore(request => request.ResponseCutoffUtc);
     }
 }

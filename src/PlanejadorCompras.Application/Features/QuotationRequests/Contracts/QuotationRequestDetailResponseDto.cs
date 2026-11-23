@@ -12,9 +12,11 @@ public sealed record QuotationRequestDetailResponseDto(
     string? DeliveryAddress,
     string? Instructions,
     DateTime CreatedAtUtc,
-    IReadOnlyCollection<QuotationRequestItemResponseDto> Items);
+    IReadOnlyCollection<QuotationRequestItemResponseDto> Items,
+    IReadOnlyCollection<SupplierQuotationResponseDto> Suppliers);
 
 public sealed record QuotationRequestItemResponseDto(
+    Guid Id,
     Guid? SourceShoppingItemId,
     string Name,
     decimal Quantity,

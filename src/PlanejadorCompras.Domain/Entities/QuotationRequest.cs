@@ -6,6 +6,7 @@ namespace PlanejadorCompras.Domain.Entities;
 public sealed class QuotationRequest
 {
     private readonly List<QuotationRequestItem> _items = [];
+    private readonly List<SupplierQuotation> _supplierQuotations = [];
 
     private QuotationRequest()
     {
@@ -70,6 +71,56 @@ public sealed class QuotationRequest
     public string? Instructions { get; private set; }
     public DateTime CreatedAtUtc { get; private set; }
     public IReadOnlyCollection<QuotationRequestItem> Items => _items.AsReadOnly();
+    public IReadOnlyCollection<SupplierQuotation> SupplierQuotations =>
+        _supplierQuotations.AsReadOnly();
+
+    /// <summary>
+    /// Last instant a supplier can send or change an answer: the end of the deadline day in
+    /// Brasília time. Null when the request has no deadline (the link lifetime applies).
+    /// </summary>
+    public DateTime? ResponseCutoffUtc =>
+        ResponseDeadline is { } deadline
+            ? deadline.AddDays(1).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)
+                - SupplierQuotationRules.DeadlineUtcOffset
+            : null;
+
+    public bool AcceptsResponsesAt(DateTime utcNow) =>
+        ResponseCutoffUtc is not { } cutoff || utcNow < cutoff;
+
+    /// <summary>Expiration of a public link issued at <paramref name="utcNow"/>.</summary>
+    public DateTime CalculateLinkExpiration(DateTime utcNow)
+    {
+        var expiration = ResponseCutoffUtc is { } cutoff
+            ? cutoff + SupplierQuotationRules.ReadOnlyPeriodAfterDeadline
+            : utcNow + SupplierQuotationRules.LinkLifetimeWithoutDeadline;
+        var minimum = utcNow + SupplierQuotationRules.ReadOnlyPeriodAfterDeadline;
+
+        return expiration > minimum ? expiration : minimum;
+    }
+
+    public SupplierQuotation AddSupplierQuotation(
+        SupplierQuotationRecipient recipient,
+        DateTime utcNow)
+    {
+        ArgumentNullException.ThrowIfNull(recipient);
+        if (_supplierQuotations.Count >= SupplierQuotationRules.MaximumSuppliersPerRequest)
+        {
+            throw new InvalidOperationException("The quotation request has too many suppliers.");
+        }
+
+        if (_supplierQuotations.Any(quotation => quotation.SupplierId == recipient.SupplierId))
+        {
+            throw new InvalidOperationException("The supplier is already part of this request.");
+        }
+
+        var quotation = SupplierQuotation.Create(
+            Id,
+            recipient,
+            CalculateLinkExpiration(utcNow),
+            utcNow);
+        _supplierQuotations.Add(quotation);
+        return quotation;
+    }
 
     public static QuotationRequest Create(
         Guid userId,

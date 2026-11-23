@@ -2,60 +2,138 @@
   <span class="request-icon"><app-icon name="file-invoice" [size]="22" /></span>
   <div>
     <strong>{{ listName() }}</strong>
-    <p>O PDF conterá os itens e as informações para o fornecedor responder à cotação.</p>
+    <p>
+      Cada fornecedor escolhido recebe um link próprio para informar preços e condições. O PDF
+      com os itens continua disponível.
+    </p>
   </div>
 </div>
 
 <form class="quotation-request-form grid gap-4" [formGroup]="form" (ngSubmit)="generate()" novalidate>
-  <div class="form-field grid gap-1.5">
-    <label class="label" for="response-deadline">Responder até</label>
-    <input
-      type="date"
-      class="input w-full"
-      id="response-deadline"
-      formControlName="responseDeadline"
-      [min]="minDeadline"
-      [class.input-error]="deadlineInPast()"
-      [attr.aria-invalid]="deadlineInPast()"
-      aria-describedby="response-deadline-help"
-    />
-    <p id="response-deadline-help" class="text-sm text-base-content/60">Data limite opcional.</p>
-    @if (deadlineInPast()) {
-      <p class="text-error text-sm" role="alert">A data limite não pode ser anterior a hoje.</p>
-    }
-  </div>
+  @if (!generated()) {
+    <fieldset class="supplier-picker grid gap-2">
+      <legend class="label">Fornecedores que vão cotar</legend>
+      @if (suppliersLoading()) {
+        <p class="text-sm text-base-content/60" role="status">Carregando fornecedores...</p>
+      } @else if (suppliers().length === 0) {
+        <p class="text-sm text-base-content/60">
+          Nenhum fornecedor cadastrado. A solicitação será gerada só com o PDF; cadastre
+          fornecedores para enviar um link de resposta a cada um.
+        </p>
+      } @else {
+        <ul class="supplier-options" aria-label="Fornecedores disponíveis">
+          @for (supplier of suppliers(); track supplier.id) {
+            <li>
+              <label class="supplier-option">
+                <input
+                  type="checkbox"
+                  class="checkbox checkbox-sm"
+                  [checked]="isSelected(supplier.id)"
+                  [disabled]="generating() || !canSelect(supplier.id)"
+                  [attr.data-testid]="'quotation-supplier-' + supplier.id"
+                  (change)="toggleSupplier(supplier.id, $any($event.target).checked)"
+                />
+                <span class="supplier-option-copy">
+                  <strong>{{ supplier.name }}</strong>
+                  <small>{{ supplier.contact?.email || 'Sem e-mail cadastrado' }}</small>
+                </span>
+              </label>
+            </li>
+          }
+        </ul>
+        <p class="text-sm text-base-content/60" aria-live="polite">
+          @if (selectedCount() === 0) {
+            Nenhum fornecedor marcado: a solicitação terá só o PDF, sem links de resposta.
+          } @else if (selectedCount() === 1) {
+            1 fornecedor receberá um link de resposta.
+          } @else {
+            {{ selectedCount() }} fornecedores receberão um link de resposta cada.
+          }
+          @if (selectedCount() >= maximumSuppliers) {
+            Limite de {{ maximumSuppliers }} fornecedores por solicitação.
+          }
+        </p>
 
-  <div class="form-field grid gap-1.5">
-    <label class="label" for="delivery-address">Local de entrega</label>
-    <textarea
-      class="textarea w-full"
-      id="delivery-address"
-      formControlName="deliveryAddress"
-      maxlength="500"
-      rows="2"
-      placeholder="Endereço ou referência para entrega"
-      aria-describedby="delivery-address-help"
-    ></textarea>
-    <p id="delivery-address-help" class="text-sm text-base-content/60">
-      Opcional. Informe somente se o fornecedor precisar considerar frete.
-    </p>
-  </div>
+        <label class="supplier-option email-option">
+          <input
+            type="checkbox"
+            class="checkbox checkbox-sm"
+            [checked]="emailAvailable() && sendEmail()"
+            [disabled]="!emailAvailable() || generating() || selectedCount() === 0"
+            data-testid="quotation-send-email"
+            aria-describedby="quotation-send-email-help"
+            (change)="toggleSendEmail($any($event.target).checked)"
+          />
+          <span class="supplier-option-copy">
+            <strong>Enviar o link também por e-mail</strong>
+            <small id="quotation-send-email-help">
+              @if (!emailAvailable()) {
+                O envio por e-mail não está configurado neste ambiente. Envie o link pelo
+                WhatsApp ou copie o endereço depois de gerar.
+              } @else if (sendEmail() && selectedWithoutEmail() > 0) {
+                {{ selectedWithoutEmail() }} fornecedor(es) marcado(s) sem e-mail cadastrado: para
+                esses, use o link ou o WhatsApp.
+              } @else {
+                Vai para o e-mail cadastrado de cada fornecedor marcado.
+              }
+            </small>
+          </span>
+        </label>
+      }
+    </fieldset>
 
-  <div class="form-field grid gap-1.5">
-    <label class="label" for="quotation-instructions">Orientações ao fornecedor</label>
-    <textarea
-      class="textarea w-full"
-      id="quotation-instructions"
-      formControlName="instructions"
-      maxlength="2000"
-      rows="3"
-      placeholder="Condições que devem acompanhar a proposta"
-      aria-describedby="quotation-instructions-help"
-    ></textarea>
-    <p id="quotation-instructions-help" class="text-sm text-base-content/60">
-      Ex.: informar marca, prazo, frete, validade e forma de pagamento.
-    </p>
-  </div>
+    <div class="form-field grid gap-1.5">
+      <label class="label" for="response-deadline">Responder até</label>
+      <input
+        type="date"
+        class="input w-full"
+        id="response-deadline"
+        formControlName="responseDeadline"
+        [min]="minDeadline"
+        [class.input-error]="deadlineInPast()"
+        [attr.aria-invalid]="deadlineInPast()"
+        aria-describedby="response-deadline-help"
+      />
+      <p id="response-deadline-help" class="text-sm text-base-content/60">
+        Opcional. Depois dessa data o fornecedor não consegue mais enviar nem alterar a resposta.
+      </p>
+      @if (deadlineInPast()) {
+        <p class="text-error text-sm" role="alert">A data limite não pode ser anterior a hoje.</p>
+      }
+    </div>
+
+    <div class="form-field grid gap-1.5">
+      <label class="label" for="delivery-address">Local de entrega</label>
+      <textarea
+        class="textarea w-full"
+        id="delivery-address"
+        formControlName="deliveryAddress"
+        maxlength="500"
+        rows="2"
+        placeholder="Endereço ou referência para entrega"
+        aria-describedby="delivery-address-help"
+      ></textarea>
+      <p id="delivery-address-help" class="text-sm text-base-content/60">
+        Opcional. Informe somente se o fornecedor precisar considerar frete.
+      </p>
+    </div>
+
+    <div class="form-field grid gap-1.5">
+      <label class="label" for="quotation-instructions">Orientações ao fornecedor</label>
+      <textarea
+        class="textarea w-full"
+        id="quotation-instructions"
+        formControlName="instructions"
+        maxlength="2000"
+        rows="3"
+        placeholder="Condições que devem acompanhar a proposta"
+        aria-describedby="quotation-instructions-help"
+      ></textarea>
+      <p id="quotation-instructions-help" class="text-sm text-base-content/60">
+        Ex.: informar marca, prazo, frete, validade e forma de pagamento.
+      </p>
+    </div>
+  }
 
   @if (errorMessage()) {
     <div role="alert" class="alert alert-error alert-soft">
@@ -69,9 +147,50 @@
       <app-icon name="circle-check" [size]="20" />
       <div>
         <strong class="block">{{ 'Solicitação ' + (generatedCode() || '') + ' salva' }}</strong>
-        <span>A solicitação foi salva. Baixe o documento ou compartilhe o PDF com o fornecedor.</span>
+        @if (createdSuppliers().length > 0) {
+          <span>Envie a cada fornecedor o link dele. Você acompanha quem viu e quem respondeu em Solicitações.</span>
+        } @else {
+          <span>A solicitação foi salva. Baixe o documento ou compartilhe o PDF com o fornecedor.</span>
+        }
       </div>
     </div>
+
+    @if (createdRequest(); as request) {
+      @if (request.suppliers.length > 0) {
+        <section class="created-links grid gap-3" aria-label="Links dos fornecedores">
+          <p class="created-links-note">
+            <app-icon name="lock" [size]="16" />
+            Copie ou envie os links agora. Por segurança eles não ficam guardados: depois, só
+            gerando um link novo na tela da solicitação.
+          </p>
+          @for (supplier of request.suppliers; track supplier.id) {
+            <article class="created-link">
+              <header>
+                <strong>{{ supplier.supplierName }}</strong>
+                @if (emailDeliveryLabel(supplier.emailDelivery); as label) {
+                  <span
+                    class="created-link-email"
+                    [class.created-link-email-sent]="supplier.emailDelivery === 'sent'"
+                  >
+                    <app-icon name="mail" [size]="14" /> {{ label }}
+                  </span>
+                }
+              </header>
+              @if (supplier.linkUrl; as linkUrl) {
+                <app-supplier-link-actions
+                  [linkUrl]="linkUrl"
+                  [supplierName]="supplier.supplierName"
+                  [supplierPhone]="supplier.supplierPhone"
+                  [code]="request.code"
+                  [listName]="request.shoppingListName"
+                  [responseDeadline]="request.responseDeadline"
+                />
+              }
+            </article>
+          }
+        </section>
+      }
+    }
   }
 
   <div class="form-actions">
@@ -85,9 +204,11 @@
       <button class="btn" type="button" (click)="downloadRequested.emit()">
         <app-icon name="download" [size]="17" /> Baixar PDF
       </button>
-      <button class="btn whatsapp-button" type="button" (click)="shareRequested.emit()">
-        <app-icon name="brand-whatsapp" [size]="18" /> Compartilhar
-      </button>
+      @if (createdSuppliers().length === 0) {
+        <button class="btn whatsapp-button" type="button" (click)="shareRequested.emit()">
+          <app-icon name="brand-whatsapp" [size]="18" /> Compartilhar
+        </button>
+      }
     } @else {
       <button class="btn btn-primary" type="submit" data-testid="generate-quotation-request" [disabled]="generating()">
         @if (generating()) {

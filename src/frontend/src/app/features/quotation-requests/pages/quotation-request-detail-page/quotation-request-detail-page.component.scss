@@ -249,3 +249,137 @@ tbody tr:hover {
     flex: 1 1 10rem;
   }
 }
+
+.suppliers-empty {
+  margin: 0;
+  padding: 1rem 1.05rem;
+  color: var(--app-text-muted);
+  font-size: 0.86rem;
+}
+
+.supplier-quotations {
+  display: grid;
+}
+
+.supplier-quotation {
+  min-width: 0;
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem 1.05rem;
+  border-bottom: 1px solid var(--app-border-color);
+}
+
+.supplier-quotation:last-child {
+  border-bottom: 0;
+}
+
+.supplier-quotation-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.supplier-quotation-title {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.supplier-quotation-title h3 {
+  margin: 0;
+  color: var(--app-text-color);
+  font-size: 0.98rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.supplier-quotation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.supplier-timeline,
+.supplier-terms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 0.6rem 1rem;
+  margin: 0;
+}
+
+.supplier-timeline dt,
+.supplier-terms dt {
+  color: var(--app-text-muted);
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.supplier-timeline dd,
+.supplier-terms dd {
+  margin: 0.15rem 0 0;
+  color: var(--app-text-color);
+  font-size: 0.84rem;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.supplier-link-state {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  color: var(--app-text-muted);
+  font-size: 0.78rem;
+}
+
+.supplier-link-state-off {
+  color: var(--app-danger-strong);
+}
+
+.supplier-response {
+  display: grid;
+  gap: 0.75rem;
+  border: 1px solid var(--app-border-color);
+  border-radius: var(--app-control-radius);
+  overflow: hidden;
+}
+
+.supplier-response .supplier-terms {
+  padding: 0 1.05rem 0.9rem;
+}
+
+.numeric {
+  text-align: right;
+  white-space: nowrap;
+}
+
+tfoot th,
+tfoot td {
+  border-top: 1px solid var(--app-border-color);
+  border-bottom: 0;
+  background: var(--app-surface-alt-bg);
+  color: var(--app-text-color);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: none;
+}
+
+.modal-hint {
+  color: var(--app-text-muted);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 720px) {
+  .supplier-quotation {
+    padding: 0.9rem;
+  }
+
+  .supplier-quotation-actions .btn {
+    flex: 1 1 9rem;
+  }
+}

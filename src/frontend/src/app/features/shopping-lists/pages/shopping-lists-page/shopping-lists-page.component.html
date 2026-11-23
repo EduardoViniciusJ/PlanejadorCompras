@@ -6,15 +6,18 @@
       <p>Organize as demandas e acompanhe cada lista até a comparação de preços.</p>
     </div>
 
-    <button
-      type="button"
-      class="btn btn-primary page-primary-action mascot-hover-action"
-      data-testid="add-list"
-      (click)="openCreateForm()"
-    >
-      <app-icon name="plus" [size]="18" />
-      Adicionar lista
-    </button>
+    <div class="flex flex-wrap items-center gap-2">
+      <app-ai-list-creator (created)="onAiListCreated($event)" />
+      <button
+        type="button"
+        class="btn btn-primary page-primary-action mascot-hover-action"
+        data-testid="add-list"
+        (click)="openCreateForm()"
+      >
+        <app-icon name="plus" [size]="18" />
+        Adicionar lista
+      </button>
+    </div>
   </header>
 
   @if (feedbackMessage()) {
@@ -307,6 +310,11 @@
       [generated]="!!generatedQuotationRequestRecord()"
       [generatedCode]="generatedQuotationRequestRecord()?.code ?? null"
       [errorMessage]="quotationRequestError()"
+      [suppliers]="quotationSuppliers()"
+      [preselectedSupplierIds]="quotationPreselectedSupplierIds()"
+      [suppliersLoading]="isLoadingQuotationSuppliers()"
+      [emailAvailable]="quotationEmailAvailable()"
+      [createdRequest]="generatedQuotationRequestRecord()"
       (generateRequested)="generateQuotationRequest($event)"
       (downloadRequested)="downloadQuotationRequest()"
       (shareRequested)="shareQuotationRequest()"

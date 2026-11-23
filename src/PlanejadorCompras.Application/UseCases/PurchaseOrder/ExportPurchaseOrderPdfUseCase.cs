@@ -14,28 +14,27 @@ public sealed class ExportPurchaseOrderPdfUseCase(
         var order = await purchaseOrderAccessService.GetForCurrentUserAsync(
             id,
             cancellationToken);
-        var report = new PurchaseOrderReportDataDto(
-            order.Code,
-            order.ShoppingListName,
-            order.SupplierName,
-            order.BuyerName,
-            order.BuyerEmail,
-            order.ExpectedDeliveryDate,
-            order.DeliveryAddress,
-            order.PaymentTerms,
-            order.Notes,
-            PurchaseOrderResponseMapper.ToDisplayStatus(order.Status),
-            order.CreatedAtUtc,
-            order.TotalPrice,
-            order.Items
-                .Select(item => new PurchaseOrderReportItemDto(
-                    item.Name,
-                    item.Quantity,
-                    item.Unit,
-                    item.UnitPrice,
-                    item.TotalPrice))
-                .ToList());
 
-        return await pdfExporter.ExportAsync(report, cancellationToken);
+        return await pdfExporter.ExportAsync(
+            PurchaseOrderResponseMapper.ToReport(order),
+            cancellationToken);
+    }
+}
+
+public sealed class ExportPurchaseOrderExcelUseCase(
+    IPurchaseOrderAccessService purchaseOrderAccessService,
+    IPurchaseOrderExcelExporter excelExporter)
+{
+    public async Task<ExportedFileDto> ExecuteAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        var order = await purchaseOrderAccessService.GetForCurrentUserAsync(
+            id,
+            cancellationToken);
+
+        return await excelExporter.ExportAsync(
+            PurchaseOrderResponseMapper.ToReport(order),
+            cancellationToken);
     }
 }

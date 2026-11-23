@@ -7,7 +7,8 @@ namespace PlanejadorCompras.Application.UseCases.QuotationRequest;
 
 public sealed class GetQuotationRequestByIdUseCase(
     IQuotationRequestRepository repository,
-    ICurrentUser currentUser)
+    ICurrentUser currentUser,
+    TimeProvider timeProvider)
 {
     public async Task<QuotationRequestDetailResponseDto> ExecuteAsync(
         Guid id,
@@ -23,6 +24,8 @@ public sealed class GetQuotationRequestByIdUseCase(
             ? throw new NotFoundException(
                 "Quotation request not found.",
                 "quotation_request_not_found")
-            : QuotationRequestResponseMapper.ToDetail(request);
+            : QuotationRequestResponseMapper.ToDetail(
+                request,
+                timeProvider.GetUtcNow().UtcDateTime);
     }
 }

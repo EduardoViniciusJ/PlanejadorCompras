@@ -15,7 +15,8 @@ public sealed class PurchaseOrdersController(
     GetPurchaseOrderByIdUseCase getByIdUseCase,
     UpdatePurchaseOrderStatusUseCase updateStatusUseCase,
     DeletePurchaseOrderUseCase deleteUseCase,
-    ExportPurchaseOrderPdfUseCase exportPdfUseCase)
+    ExportPurchaseOrderPdfUseCase exportPdfUseCase,
+    ExportPurchaseOrderExcelUseCase exportExcelUseCase)
     : ControllerBase
 {
     [HttpGet]
@@ -92,6 +93,18 @@ public sealed class PurchaseOrdersController(
         CancellationToken cancellationToken)
     {
         var file = await exportPdfUseCase.ExecuteAsync(id, cancellationToken);
+        return File(file.Content, file.ContentType, file.FileName);
+    }
+
+    [HttpGet("{id:guid}/excel")]
+    [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetExcel(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var file = await exportExcelUseCase.ExecuteAsync(id, cancellationToken);
         return File(file.Content, file.ContentType, file.FileName);
     }
 }

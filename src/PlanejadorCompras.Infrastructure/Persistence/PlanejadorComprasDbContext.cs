@@ -27,11 +27,17 @@ public sealed class PlanejadorComprasDbContext(DbContextOptions<PlanejadorCompra
 
     public DbSet<QuotationRequestItem> QuotationRequestItems => Set<QuotationRequestItem>();
 
+    public DbSet<SupplierQuotation> SupplierQuotations => Set<SupplierQuotation>();
+
+    public DbSet<SupplierQuotationResponseItem> SupplierQuotationResponseItems => Set<SupplierQuotationResponseItem>();
+
     public DbSet<SavedEqualization> SavedEqualizations => Set<SavedEqualization>();
 
     public DbSet<SavedEqualizationItem> SavedEqualizationItems => Set<SavedEqualizationItem>();
 
     public DbSet<SavedEqualizationQuote> SavedEqualizationQuotes => Set<SavedEqualizationQuote>();
+
+    public DbSet<AiUsage> AiUsages => Set<AiUsage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
