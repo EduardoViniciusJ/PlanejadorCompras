@@ -1,6 +1,8 @@
 using PlanejadorCompras.Application.Features.Authentication.Contracts;
+using PlanejadorCompras.Application.Services;
 using PlanejadorCompras.Application.Services.Interfaces;
 using PlanejadorCompras.Application.Exceptions;
+using PlanejadorCompras.Domain.Repositories;
 using PlanejadorCompras.Domain.Repositories.User;
 
 namespace PlanejadorCompras.Application.UseCases.Auth;
@@ -9,19 +11,22 @@ public sealed class LoginUseCase
 {
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
-    private readonly IJwtTokenService _jwtTokenService;
+    private readonly AuthSessionService _authSessionService;
+    private readonly IUnitOfWork _unitOfWork;
 
     public LoginUseCase(
         IUserRepository userRepository,
         IPasswordHasher passwordHasher,
-        IJwtTokenService jwtTokenService)
+        AuthSessionService authSessionService,
+        IUnitOfWork unitOfWork)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
-        _jwtTokenService = jwtTokenService;
+        _authSessionService = authSessionService;
+        _unitOfWork = unitOfWork;
     }
 
-    public async Task<LoginResultDto> ExecuteAsync(LoginRequestDto request, CancellationToken cancellationToken = default)
+    public async Task<AuthSessionDto> ExecuteAsync(LoginRequestDto request, CancellationToken cancellationToken = default)
     {
         var user = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
 
@@ -44,12 +49,10 @@ public sealed class LoginUseCase
                 "email_not_confirmed");
         }
 
-        // We don't have user.Name in User entity, so we pass string.Empty or email as name
-        var tokenResult = _jwtTokenService.GenerateAccessToken(
-            new GenerateAccessTokenRequestDto(user.Id, user.Email, user.Email));
+        // The User entity has no name, so the e-mail is what the UI shows for password accounts.
+        var session = await _authSessionService.StartAsync(user, user.Email, cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
 
-        return new LoginResultDto(
-            tokenResult.AccessToken,
-            tokenResult.ExpiresAtUtc);
+        return session;
     }
 }

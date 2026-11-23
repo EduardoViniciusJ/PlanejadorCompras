@@ -2,6 +2,7 @@ using Moq;
 using PlanejadorCompras.Application.Exceptions;
 using PlanejadorCompras.Application.Features.Authentication.Contracts;
 using PlanejadorCompras.Application.Services.Interfaces;
+using PlanejadorCompras.Application.UnitTests.UseCases.Auth.Sessions;
 using PlanejadorCompras.Application.UseCases.Auth;
 using PlanejadorCompras.Domain.Entities;
 using PlanejadorCompras.Domain.Repositories;
@@ -26,6 +27,7 @@ public sealed class GoogleAccountTakeoverTests
     private readonly Mock<IUserRepository> _userRepositoryMock = new();
     private readonly Mock<IUserTokenRepository> _userTokenRepositoryMock = new();
     private readonly Mock<IUnitOfWork> _unitOfWorkMock = new();
+    private readonly InMemoryRefreshTokenRepository _refreshTokens = new();
 
     public GoogleAccountTakeoverTests()
     {
@@ -91,13 +93,16 @@ public sealed class GoogleAccountTakeoverTests
 
     private GoogleLoginUseCase CreateGoogleLoginUseCase() => new(
         _googleTokenValidatorMock.Object,
-        _jwtTokenServiceMock.Object,
+        SessionTestSupport.CreateSessionService(_refreshTokens, TimeProvider.System, _jwtTokenServiceMock.Object),
         _userRepositoryMock.Object,
         _userTokenRepositoryMock.Object,
+        _refreshTokens,
+        TimeProvider.System,
         _unitOfWorkMock.Object);
 
     private LoginUseCase CreateLoginUseCase() => new(
         _userRepositoryMock.Object,
         _passwordHasher,
-        _jwtTokenServiceMock.Object);
+        SessionTestSupport.CreateSessionService(_refreshTokens, TimeProvider.System, _jwtTokenServiceMock.Object),
+        _unitOfWorkMock.Object);
 }

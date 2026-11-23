@@ -1,8 +1,11 @@
 using PlanejadorCompras.Application.Features.Authentication.Contracts;
 using PlanejadorCompras.Application.Exceptions;
 using PlanejadorCompras.Application.Services.Interfaces;
+using PlanejadorCompras.Domain.Entities;
 using PlanejadorCompras.Domain.Repositories;
+using PlanejadorCompras.Domain.Repositories.RefreshToken;
 using PlanejadorCompras.Domain.Repositories.User;
+using PlanejadorCompras.Domain.Security;
 
 namespace PlanejadorCompras.Application.UseCases.Auth;
 
@@ -10,24 +13,33 @@ public sealed class ResetPasswordUseCase
 {
     private readonly IUserTokenRepository _userTokenRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly TimeProvider _timeProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public ResetPasswordUseCase(
         IUserTokenRepository userTokenRepository,
         IUserRepository userRepository,
+        IRefreshTokenRepository refreshTokenRepository,
         IPasswordHasher passwordHasher,
+        TimeProvider timeProvider,
         IUnitOfWork unitOfWork)
     {
         _userTokenRepository = userTokenRepository;
         _userRepository = userRepository;
+        _refreshTokenRepository = refreshTokenRepository;
         _passwordHasher = passwordHasher;
+        _timeProvider = timeProvider;
         _unitOfWork = unitOfWork;
     }
 
     public async Task ExecuteAsync(ResetPasswordRequestDto request, CancellationToken cancellationToken = default)
     {
-        var userToken = await _userTokenRepository.GetByTokenAsync(request.Token, "PasswordReset", cancellationToken);
+        var userToken = await _userTokenRepository.GetByTokenHashAsync(
+            SecretToken.Hash(request.Token),
+            "PasswordReset",
+            cancellationToken);
 
         if (userToken is null || !userToken.IsValid())
         {
@@ -37,13 +49,20 @@ public sealed class ResetPasswordUseCase
         var newPasswordHash = _passwordHasher.HashPassword(request.NewPassword);
         userToken.User.UpdatePassword(newPasswordHash);
         userToken.User.ConfirmEmail();
-        
-        await _userTokenRepository.RemoveByUserAndTypeAsync(
+
+        // The reset link proves ownership of the e-mail, so the confirmation token is no longer
+        // needed either: every pending token of the user is removed.
+        await _userTokenRepository.RemoveAllByUserAsync(userToken.UserId, cancellationToken);
+
+        // Whoever knew the old password (or stole a session) must not stay logged in.
+        await _refreshTokenRepository.RevokeAllForUserAsync(
             userToken.UserId,
-            "PasswordReset",
+            RefreshTokenRevocationReason.PasswordReset,
+            _timeProvider.GetUtcNow().UtcDateTime,
             cancellationToken);
+
         _userRepository.Update(userToken.User);
-        
+
         await _unitOfWork.CommitAsync(cancellationToken);
     }
 }
