@@ -8,4 +8,5 @@ public sealed record QuotationRequestSummaryResponseDto(
     string BuyerName,
     int ItemCount,
     DateOnly? ResponseDeadline,
-    DateTime CreatedAtUtc);
+    DateTime CreatedAtUtc,
+    IReadOnlyCollection<SupplierQuotationSummaryDto> Suppliers);

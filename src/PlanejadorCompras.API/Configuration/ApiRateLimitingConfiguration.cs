@@ -8,6 +8,9 @@ internal static class ApiRateLimitingConfiguration
 {
     internal const string LoginPolicy = "auth-login";
     internal const string EmailPolicy = "auth-email";
+    internal const string PublicQuotationReadPolicy = "public-quotation-read";
+    internal const string PublicQuotationWritePolicy = "public-quotation-write";
+    internal const string QuotationDeliveryPolicy = "quotation-delivery";
 
     internal static IServiceCollection AddApiRateLimiting(
         this IServiceCollection services)
@@ -27,6 +30,15 @@ internal static class ApiRateLimitingConfiguration
                 CreateFixedWindowPartition(httpContext, 10, TimeSpan.FromMinutes(1)));
             options.AddPolicy(EmailPolicy, httpContext =>
                 CreateFixedWindowPartition(httpContext, 5, TimeSpan.FromMinutes(10)));
+            // Public supplier link: no login, so the limit per address is what holds back
+            // token guessing and automated submissions.
+            options.AddPolicy(PublicQuotationReadPolicy, httpContext =>
+                CreateFixedWindowPartition(httpContext, 30, TimeSpan.FromMinutes(1)));
+            options.AddPolicy(PublicQuotationWritePolicy, httpContext =>
+                CreateFixedWindowPartition(httpContext, 10, TimeSpan.FromMinutes(1)));
+            // Issuing requests and links can send e-mail to addresses chosen by the user.
+            options.AddPolicy(QuotationDeliveryPolicy, httpContext =>
+                CreateFixedWindowPartition(httpContext, 20, TimeSpan.FromMinutes(10)));
         });
 
         return services;

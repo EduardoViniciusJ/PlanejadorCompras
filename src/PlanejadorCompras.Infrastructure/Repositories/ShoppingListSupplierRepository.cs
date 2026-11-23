@@ -22,6 +22,21 @@ public sealed class ShoppingListSupplierRepository(PlanejadorComprasDbContext co
             .OrderBy(supplier => supplier.Name)
             .ToListAsync(cancellationToken);
 
+    public Task<List<ShoppingListSupplier>> GetLinksAsync(
+        Guid shoppingListId,
+        CancellationToken cancellationToken = default) =>
+        context.ShoppingListSuppliers
+            .Where(link => link.ShoppingListId == shoppingListId)
+            .ToListAsync(cancellationToken);
+
+    public Task<ShoppingListSupplier?> GetLinkAsync(
+        Guid shoppingListId,
+        Guid supplierId,
+        CancellationToken cancellationToken = default) =>
+        context.ShoppingListSuppliers.FirstOrDefaultAsync(
+            link => link.ShoppingListId == shoppingListId && link.SupplierId == supplierId,
+            cancellationToken);
+
     public Task<bool> ExistsAsync(
         Guid shoppingListId,
         Guid supplierId,

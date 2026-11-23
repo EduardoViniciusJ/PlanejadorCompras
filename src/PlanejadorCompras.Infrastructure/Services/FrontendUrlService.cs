@@ -27,6 +27,9 @@ public sealed class FrontendUrlService : IFrontendUrlService
     public string BuildPasswordResetUrl(string token) =>
         BuildUrl("reset-password", token);
 
+    public string BuildSupplierQuotationUrl(string token) =>
+        $"{_baseUrl}/cotacao/{Uri.EscapeDataString(token)}";
+
     private string BuildUrl(string path, string token) =>
         $"{_baseUrl}/{path}?token={Uri.EscapeDataString(token)}";
 }

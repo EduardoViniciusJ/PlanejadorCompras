@@ -6,11 +6,16 @@ namespace PlanejadorCompras.Application.UseCases.QuotationRequest;
 
 public sealed class GetQuotationRequestsUseCase(
     IQuotationRequestRepository repository,
-    ICurrentUser currentUser)
+    ICurrentUser currentUser,
+    TimeProvider timeProvider)
 {
     public async Task<IReadOnlyCollection<QuotationRequestSummaryResponseDto>> ExecuteAsync(
-        CancellationToken cancellationToken = default) =>
-        (await repository.GetByUserIdAsync(currentUser.UserId, cancellationToken))
-            .Select(QuotationRequestResponseMapper.ToSummary)
+        CancellationToken cancellationToken = default)
+    {
+        var utcNow = timeProvider.GetUtcNow().UtcDateTime;
+
+        return (await repository.GetByUserIdAsync(currentUser.UserId, cancellationToken))
+            .Select(request => QuotationRequestResponseMapper.ToSummary(request, utcNow))
             .ToList();
+    }
 }

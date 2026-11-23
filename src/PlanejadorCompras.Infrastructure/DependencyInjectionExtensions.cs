@@ -105,6 +105,11 @@ public static class DependencyInjectionExtensions
         services.AddSingleton<ISavedEqualizationCodeGenerator, SavedEqualizationCodeGenerator>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IEmailService, ResendEmailService>();
+        services.AddSingleton<IEmailAvailability, ConfiguredEmailAvailability>();
+        // ResendEmailService throws while being built when the key is missing, so flows that
+        // can work without e-mail resolve it only when they are really going to send.
+        services.AddScoped(provider =>
+            new Lazy<IEmailService>(provider.GetRequiredService<IEmailService>));
         services.AddSingleton<IFrontendUrlService, FrontendUrlService>();
     }
 }

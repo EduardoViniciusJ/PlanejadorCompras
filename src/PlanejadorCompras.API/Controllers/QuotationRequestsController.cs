@@ -1,6 +1,9 @@
 using PlanejadorCompras.Application.Features.QuotationRequests.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using PlanejadorCompras.API.Configuration;
+using PlanejadorCompras.Application.Services.Interfaces;
 using PlanejadorCompras.Application.UseCases.QuotationRequest;
 
 namespace PlanejadorCompras.API.Controllers;
@@ -13,7 +16,10 @@ public sealed class QuotationRequestsController(
     DeleteQuotationRequestUseCase deleteUseCase,
     GetQuotationRequestsUseCase getAllUseCase,
     GetQuotationRequestByIdUseCase getByIdUseCase,
-    ExportSavedQuotationRequestPdfUseCase exportPdfUseCase)
+    ExportSavedQuotationRequestPdfUseCase exportPdfUseCase,
+    RotateSupplierQuotationLinkUseCase rotateLinkUseCase,
+    RevokeSupplierQuotationLinkUseCase revokeLinkUseCase,
+    IEmailAvailability emailAvailability)
     : ControllerBase
 {
     [HttpGet]
@@ -22,6 +28,11 @@ public sealed class QuotationRequestsController(
         StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
         Ok(await getAllUseCase.ExecuteAsync(cancellationToken));
+
+    [HttpGet("delivery-options")]
+    [ProducesResponseType(typeof(QuotationDeliveryOptionsDto), StatusCodes.Status200OK)]
+    public IActionResult GetDeliveryOptions() =>
+        Ok(new QuotationDeliveryOptionsDto(emailAvailability.IsAvailable));
 
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(QuotationRequestDetailResponseDto), StatusCodes.Status200OK)]
@@ -32,6 +43,7 @@ public sealed class QuotationRequestsController(
         Ok(await getByIdUseCase.ExecuteAsync(id, cancellationToken));
 
     [HttpPost("/api/shopping-lists/{shoppingListId:guid}/quotation-requests")]
+    [EnableRateLimiting(ApiRateLimitingConfiguration.QuotationDeliveryPolicy)]
     [ProducesResponseType(typeof(QuotationRequestDetailResponseDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -46,6 +58,31 @@ public sealed class QuotationRequestsController(
             cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
+
+    [HttpPost("{id:guid}/supplier-quotations/{supplierQuotationId:guid}/link")]
+    [EnableRateLimiting(ApiRateLimitingConfiguration.QuotationDeliveryPolicy)]
+    [ProducesResponseType(typeof(SupplierQuotationResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RotateSupplierLink(
+        Guid id,
+        Guid supplierQuotationId,
+        [FromBody] SupplierQuotationLinkRequestDto? request,
+        CancellationToken cancellationToken) =>
+        Ok(await rotateLinkUseCase.ExecuteAsync(
+            id,
+            supplierQuotationId,
+            request ?? new SupplierQuotationLinkRequestDto(),
+            cancellationToken));
+
+    [HttpPost("{id:guid}/supplier-quotations/{supplierQuotationId:guid}/revoke")]
+    [ProducesResponseType(typeof(SupplierQuotationResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RevokeSupplierLink(
+        Guid id,
+        Guid supplierQuotationId,
+        CancellationToken cancellationToken) =>
+        Ok(await revokeLinkUseCase.ExecuteAsync(id, supplierQuotationId, cancellationToken));
 
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

@@ -52,6 +52,8 @@ public static class DependencyInjectionExtensions
         services.AddScoped<RemoveSupplierFromShoppingListUseCase>();
         services.AddScoped<IGetShoppingListReportDataUseCase, GetShoppingListReportDataUseCase>();
         services.AddScoped<IExportShoppingListReportUseCase, ExportShoppingListReportUseCase>();
+        services.AddScoped<GetShoppingListSupplierTermsUseCase>();
+        services.AddScoped<UpdateShoppingListSupplierTermsUseCase>();
 
         // ShoppingItem
         services.AddScoped<CreateShoppingItemUseCase>();
@@ -98,5 +100,11 @@ public static class DependencyInjectionExtensions
         services.AddScoped<GetQuotationRequestsUseCase>();
         services.AddScoped<GetQuotationRequestByIdUseCase>();
         services.AddScoped<ExportSavedQuotationRequestPdfUseCase>();
+        services.AddScoped<SupplierQuotationEmailSender>();
+        services.AddScoped<RotateSupplierQuotationLinkUseCase>();
+        services.AddScoped<RevokeSupplierQuotationLinkUseCase>();
+        services.AddScoped<PublicSupplierQuotationResolver>();
+        services.AddScoped<GetPublicSupplierQuotationUseCase>();
+        services.AddScoped<SubmitPublicSupplierQuotationUseCase>();
     }
 }
