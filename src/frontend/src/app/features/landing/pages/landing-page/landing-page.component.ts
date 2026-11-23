@@ -42,6 +42,8 @@ interface Segment {
   readonly icon: string;
   readonly title: string;
   readonly text: string;
+  /** Página própria do segmento, quando existe. */
+  readonly link?: string;
 }
 
 interface Question {
@@ -489,21 +491,25 @@ const SEGMENTS: readonly Segment[] = [
   {
     icon: 'shopping-cart',
     title: 'Mercados',
+    link: '/para-mercados',
     text: 'Mercearias e mercados de bairro: reposição semanal com muitos itens e vários distribuidores.',
   },
   {
     icon: 'tools-kitchen-2',
     title: 'Restaurantes',
+    link: '/para-restaurantes',
     text: 'Restaurantes, bares e food service: insumos com preço que muda toda semana.',
   },
   {
     icon: 'shopping-bag',
     title: 'Lojas',
+    link: '/para-lojas',
     text: 'Comércios em geral: compras recorrentes de mercadoria e material de uso.',
   },
   {
     icon: 'stethoscope',
     title: 'Clínicas',
+    link: '/para-clinicas',
     text: 'Clínicas e consultórios: materiais e descartáveis com mais de um fornecedor.',
   },
   {

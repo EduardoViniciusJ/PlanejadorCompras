@@ -27,6 +27,7 @@ import { SupplierService } from '../../../suppliers/data-access/supplier.service
 import { Supplier } from '../../../suppliers/models/supplier.model';
 import { QuotationRequestFormComponent } from '../../components/quotation-request-form/quotation-request-form.component';
 import { QuotationRequestPdfRequestDto } from '../../dtos/quotation-request.dto';
+import { OnboardingChecklistComponent } from '../../../onboarding/components/onboarding-checklist/onboarding-checklist.component';
 
 import {
   ShoppingListFormComponent,
@@ -76,6 +77,7 @@ const dateFormatter = new Intl.DateTimeFormat('pt-BR', {
     AppIconComponent,
     SkeletonComponent,
     MascotComponent,
+    OnboardingChecklistComponent,
   ],
   templateUrl: './shopping-lists-page.component.html',
   styleUrl: './shopping-lists-page.component.scss',

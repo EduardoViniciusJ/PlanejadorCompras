@@ -14,27 +14,29 @@
     </div>
   }
 
-  <section class="requests-toolbar management-surface" aria-label="Busca de solicitações">
-    <div>
-      <span class="management-eyebrow">Histórico de documentos</span>
-      <h2>Documentos emitidos</h2>
-      <p>Pesquise pelo número, lista, fornecedor ou comprador responsável.</p>
-    </div>
-    <div class="requests-filters">
-      <label class="input request-search">
-        <app-icon name="search" [size]="18" />
-        <span class="visually-hidden">Buscar solicitação</span>
-        <input
-          class="grow"
-          type="search"
-          placeholder="Buscar solicitação"
-          autocomplete="off"
-          [value]="searchTerm()"
-          (input)="updateSearch($event)"
-        />
-      </label>
-    </div>
-  </section>
+  @if (isLoading() || loadError() || requests().length > 0 || searchTerm()) {
+    <section class="requests-toolbar management-surface" aria-label="Busca de solicitações">
+      <div>
+        <span class="management-eyebrow">Histórico de documentos</span>
+        <h2>Documentos emitidos</h2>
+        <p>Pesquise pelo número, lista, fornecedor ou comprador responsável.</p>
+      </div>
+      <div class="requests-filters">
+        <label class="input request-search">
+          <app-icon name="search" [size]="18" />
+          <span class="visually-hidden">Buscar solicitação</span>
+          <input
+            class="grow"
+            type="search"
+            placeholder="Buscar solicitação"
+            autocomplete="off"
+            [value]="searchTerm()"
+            (input)="updateSearch($event)"
+          />
+        </label>
+      </div>
+    </section>
+  }
 
   @if (isLoading()) {
     <app-skeleton variant="cards" [count]="6" label="Carregando solicitações..." />
@@ -55,9 +57,12 @@
         <p>Revise os termos usados na pesquisa.</p>
       } @else {
         <app-mascot variant="02" size="medium" />
-        <h2>Nenhuma solicitação emitida</h2>
-        <p>Abra uma lista com itens e use “Solicitar cotação” para criar o primeiro documento.</p>
-        <a class="btn btn-primary" routerLink="/app">Ver listas de compras</a>
+        <h2>Nenhuma solicitação de cotação ainda</h2>
+        <p>Em uma lista com itens, use “Solicitar cotação” para gerar o PDF e enviar aos fornecedores pelo WhatsApp.</p>
+        <a class="btn btn-primary" routerLink="/app">
+          <app-icon name="checklist" [size]="18" />
+          Ir para as listas de compras
+        </a>
       }
     </div>
   } @else {
