@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (build + tests)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-dotnet@v4.3.1
+        with:
+          dotnet-version: 10.0.x
+      - name: Restore
+        run: dotnet restore PlanejadorCompras.sln
+      - name: Build
+        run: dotnet build PlanejadorCompras.sln --no-restore --configuration Release
+      # Integration tests start PostgreSQL through Testcontainers (Docker is available on the runner).
+      - name: Test
+        run: dotnet test PlanejadorCompras.sln --no-build --configuration Release
+
+  package-audit:
+    name: Package audit (.NET)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-dotnet@v4.3.1
+        with:
+          dotnet-version: 10.0.x
+      - name: Restore
+        run: dotnet restore PlanejadorCompras.sln
+      # `dotnet list package` exits 0 even when it finds vulnerabilities, so the report is checked.
+      - name: Fail on vulnerable packages
+        run: |
+          dotnet list PlanejadorCompras.sln package --vulnerable --include-transitive 2>&1 | tee vulnerable.txt
+          if grep -q "has the following vulnerable packages" vulnerable.txt; then
+            echo "::error::Vulnerable NuGet packages found."
+            exit 1
+          fi
+
+  frontend:
+    name: Frontend (tests + build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: src/frontend
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-node@v4.4.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: src/frontend/package-lock.json
+      - run: npm ci
+      - run: npx ng test --watch=false
+      - run: npm run build

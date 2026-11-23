@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using PlanejadorCompras.API.ErrorHandling;
 using PlanejadorCompras.API.Security;
+using PlanejadorCompras.Domain.Repositories.RefreshToken;
 
 namespace PlanejadorCompras.API.Configuration;
 
@@ -49,6 +50,35 @@ internal static class ApiAuthenticationConfiguration
             context.Token = context.Request.Cookies[
                 AuthenticationConstants.AccessTokenCookieName];
             return Task.CompletedTask;
+        },
+        OnTokenValidated = async context =>
+        {
+            // A valid signature is not enough: the session the token belongs to must still be
+            // alive. This is what makes logout, password reset and refresh-token reuse detection
+            // take effect immediately instead of when the access token expires.
+            var sessionClaim = context.Principal?.FindFirst(
+                AuthenticationConstants.SessionIdClaimName)?.Value;
+
+            if (!Guid.TryParse(sessionClaim, out var sessionId))
+            {
+                context.Fail("The access token is not bound to a session.");
+                return;
+            }
+
+            var refreshTokens = context.HttpContext.RequestServices
+                .GetRequiredService<IRefreshTokenRepository>();
+            var now = context.HttpContext.RequestServices
+                .GetRequiredService<TimeProvider>()
+                .GetUtcNow()
+                .UtcDateTime;
+
+            if (!await refreshTokens.IsSessionActiveAsync(
+                    sessionId,
+                    now,
+                    context.HttpContext.RequestAborted))
+            {
+                context.Fail("The session was revoked.");
+            }
         },
         OnChallenge = async context =>
         {

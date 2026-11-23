@@ -7,23 +7,22 @@ namespace PlanejadorCompras.Infrastructure.Services;
 
 public sealed class GoogleTokenValidator : IGoogleTokenValidator
 {
-    private readonly string _clientId;
+    private readonly string? _clientId;
 
     public GoogleTokenValidator(IConfiguration configuration)
     {
-        var clientId = configuration["Authentication:Google:ClientId"];
-
-        if (string.IsNullOrWhiteSpace(clientId))
-        {
-            throw new InvalidOperationException("Missing configuration 'Authentication:Google:ClientId'.");
-        }
-
-        _clientId = clientId;
+        // Optional integration: validated on use, not at construction (see GoogleLoginConfiguration).
+        _clientId = configuration["Authentication:Google:ClientId"];
     }
 
     public async Task<GoogleUserInfo> ValidateAsync(string idToken, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(idToken);
+
+        if (string.IsNullOrWhiteSpace(_clientId))
+        {
+            throw GoogleLoginConfiguration.NotConfigured();
+        }
 
         GoogleJsonWebSignature.Payload payload;
         try

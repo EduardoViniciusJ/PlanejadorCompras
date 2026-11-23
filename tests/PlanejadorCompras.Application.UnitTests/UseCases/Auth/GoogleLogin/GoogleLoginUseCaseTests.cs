@@ -1,6 +1,7 @@
 using PlanejadorCompras.Application.Features.Authentication.Contracts;
 using Moq;
 using PlanejadorCompras.Application.Services.Interfaces;
+using PlanejadorCompras.Application.UnitTests.UseCases.Auth.Sessions;
 using PlanejadorCompras.Application.UseCases.Auth;
 using PlanejadorCompras.Domain.Entities;
 using PlanejadorCompras.Domain.Repositories;
@@ -13,7 +14,9 @@ public sealed class GoogleLoginUseCaseTests
     private readonly Mock<IGoogleTokenValidator> _googleTokenValidatorMock = new();
     private readonly Mock<IJwtTokenService> _jwtTokenServiceMock = new();
     private readonly Mock<IUserRepository> _userRepositoryMock = new();
+    private readonly Mock<IUserTokenRepository> _userTokenRepositoryMock = new();
     private readonly Mock<IUnitOfWork> _unitOfWorkMock = new();
+    private readonly InMemoryRefreshTokenRepository _refreshTokens = new();
 
     [Fact]
     public async Task ExecuteAsync_ShouldCreateUser_WhenUserDoesNotExist()
@@ -49,7 +52,7 @@ public sealed class GoogleLoginUseCaseTests
 
         Assert.NotNull(createdUser);
         Assert.Equal("jwt-token", response.AccessToken);
-        Assert.True(response.ExpiresAtUtc > DateTime.UtcNow);
+        Assert.True(response.AccessTokenExpiresAtUtc > DateTime.UtcNow);
 
         _userRepositoryMock.Verify(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWorkMock.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -85,10 +88,15 @@ public sealed class GoogleLoginUseCaseTests
         var response = await useCase.ExecuteAsync(request);
 
         Assert.Equal("jwt-token", response.AccessToken);
-        Assert.True(response.ExpiresAtUtc > DateTime.UtcNow);
+        Assert.True(response.AccessTokenExpiresAtUtc > DateTime.UtcNow);
 
         _userRepositoryMock.Verify(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
-        _unitOfWorkMock.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+        // Every login persists a session (its refresh token), even when the user already exists.
+        _unitOfWorkMock.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
+        var storedSession = Assert.Single(_refreshTokens.Tokens);
+        Assert.Equal(existingUser.Id, storedSession.UserId);
+        Assert.Equal(googleUser.Name, storedSession.DisplayName);
+        Assert.False(string.IsNullOrWhiteSpace(response.RefreshToken));
         _jwtTokenServiceMock.Verify(
             x => x.GenerateAccessToken(It.Is<GenerateAccessTokenRequestDto>(dto =>
                 dto.UserId == existingUser.Id &&
@@ -139,8 +147,11 @@ public sealed class GoogleLoginUseCaseTests
     {
         return new GoogleLoginUseCase(
             _googleTokenValidatorMock.Object,
-            _jwtTokenServiceMock.Object,
+            SessionTestSupport.CreateSessionService(_refreshTokens, TimeProvider.System, _jwtTokenServiceMock.Object),
             _userRepositoryMock.Object,
+            _userTokenRepositoryMock.Object,
+            _refreshTokens,
+            TimeProvider.System,
             _unitOfWorkMock.Object);
     }
 }

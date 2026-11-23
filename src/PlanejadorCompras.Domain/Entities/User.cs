@@ -47,11 +47,28 @@ public sealed class User
             DateTime.UtcNow);
     }
 
-    public void LinkGoogleAccount(string googleId)
+    /// <summary>
+    /// Links a Google identity to this account. Google has proven ownership of the e-mail, so the
+    /// e-mail becomes confirmed. If it was NOT confirmed before, whoever registered the account never
+    /// proved they own the address: the existing password is discarded so it cannot be used to take
+    /// over the account. Returns true when those unverified credentials were discarded, in which case
+    /// the caller must also invalidate pending tokens and sessions.
+    /// </summary>
+    public bool LinkGoogleAccount(string googleId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(googleId);
+
+        var hadUnverifiedCredentials = !IsEmailConfirmed;
+
+        if (hadUnverifiedCredentials)
+        {
+            PasswordHash = null;
+        }
+
         GoogleId = googleId.Trim();
-        IsEmailConfirmed = true; // Linking a Google account implies email confirmation
+        IsEmailConfirmed = true;
+
+        return hadUnverifiedCredentials;
     }
 
     public void ConfirmEmail()

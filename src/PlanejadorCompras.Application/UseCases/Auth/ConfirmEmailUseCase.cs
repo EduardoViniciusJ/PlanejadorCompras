@@ -1,6 +1,7 @@
 using PlanejadorCompras.Application.Features.Authentication.Contracts;
 using PlanejadorCompras.Application.Exceptions;
 using PlanejadorCompras.Domain.Repositories;
+using PlanejadorCompras.Domain.Security;
 using PlanejadorCompras.Domain.Repositories.User;
 
 namespace PlanejadorCompras.Application.UseCases.Auth;
@@ -20,7 +21,10 @@ public sealed class ConfirmEmailUseCase
 
     public async Task ExecuteAsync(ConfirmEmailRequestDto request, CancellationToken cancellationToken = default)
     {
-        var userToken = await _userTokenRepository.GetByTokenAsync(request.Token, "EmailConfirmation", cancellationToken);
+        var userToken = await _userTokenRepository.GetByTokenHashAsync(
+            SecretToken.Hash(request.Token),
+            "EmailConfirmation",
+            cancellationToken);
 
         if (userToken is null || !userToken.IsValid())
         {

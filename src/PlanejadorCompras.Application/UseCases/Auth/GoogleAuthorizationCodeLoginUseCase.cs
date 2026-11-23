@@ -16,7 +16,7 @@ public sealed class GoogleAuthorizationCodeLoginUseCase
         _googleLoginUseCase = googleLoginUseCase;
     }
 
-    public async Task<GoogleLoginResultDto> ExecuteAsync(
+    public async Task<AuthSessionDto> ExecuteAsync(
         GoogleAuthorizationCodeLoginRequestDto request,
         CancellationToken cancellationToken = default)
     {

@@ -43,11 +43,11 @@ public sealed class ForgotPasswordUseCase
             "PasswordReset",
             cancellationToken);
 
-        var token = UserToken.Create(user.Id, "PasswordReset", TimeSpan.FromHours(1));
+        var (token, rawToken) = UserToken.Create(user.Id, "PasswordReset", TimeSpan.FromHours(1));
         await _userTokenRepository.AddAsync(token, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        var resetLink = _frontendUrlService.BuildPasswordResetUrl(token.Token);
+        var resetLink = _frontendUrlService.BuildPasswordResetUrl(rawToken);
         var emailBody = $"<p>Você solicitou a redefinição de senha. Clique no link para criar uma nova senha: <a href='{resetLink}'>Redefinir Senha</a></p>";
         
         await _emailService.SendEmailAsync(user.Email, "Redefinição de Senha", emailBody, cancellationToken);
