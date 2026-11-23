@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using PlanejadorCompras.API.Configuration;
+using PlanejadorCompras.API.ErrorHandling;
 using PlanejadorCompras.API.Security;
+using PlanejadorCompras.Application.Exceptions;
 using PlanejadorCompras.Application.Services.Interfaces;
 using PlanejadorCompras.Application.UseCases.Auth;
 
@@ -14,16 +16,15 @@ namespace PlanejadorCompras.API.Controllers;
 [Route("api/[controller]")]
 public sealed class AuthController : ControllerBase
 {
-    private readonly GoogleAuthorizationCodeLoginUseCase _googleAuthorizationCodeLoginUseCase;
     private readonly ICurrentUser _currentUser;
     private readonly IAuthCookieService _authCookieService;
 
+    // Use cases are injected per action ([FromServices]) so that a provider that is not
+    // configured (Google, e-mail) only affects its own route instead of every /api/auth/* route.
     public AuthController(
-        GoogleAuthorizationCodeLoginUseCase googleAuthorizationCodeLoginUseCase,
         ICurrentUser currentUser,
         IAuthCookieService authCookieService)
     {
-        _googleAuthorizationCodeLoginUseCase = googleAuthorizationCodeLoginUseCase;
         _currentUser = currentUser;
         _authCookieService = authCookieService;
     }
@@ -36,12 +37,10 @@ public sealed class AuthController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GoogleCodeLogin(
         [FromBody] GoogleAuthorizationCodeLoginRequestDto request,
+        [FromServices] GoogleAuthorizationCodeLoginUseCase useCase,
         CancellationToken cancellationToken)
     {
-        if (!string.Equals(
-            Request.Headers[AuthenticationConstants.XmlHttpRequestHeaderName],
-            AuthenticationConstants.XmlHttpRequestHeaderValue,
-            StringComparison.OrdinalIgnoreCase))
+        if (!HasXmlHttpRequestHeader())
         {
             var problemDetails = new ProblemDetails
             {
@@ -55,9 +54,9 @@ public sealed class AuthController : ControllerBase
             return Unauthorized(problemDetails);
         }
 
-        var result = await _googleAuthorizationCodeLoginUseCase.ExecuteAsync(request, cancellationToken);
+        var session = await useCase.ExecuteAsync(request, cancellationToken);
 
-        _authCookieService.AppendAccessToken(HttpContext, result.AccessToken, result.ExpiresAtUtc);
+        _authCookieService.AppendSession(HttpContext, session);
 
         return Ok();
     }
@@ -73,13 +72,72 @@ public sealed class AuthController : ControllerBase
             _currentUser.Name));
     }
 
+    /// <summary>
+    /// Exchanges the refresh token cookie for a new access token and a new refresh token.
+    /// The frontend calls it once when a request comes back 401.
+    /// </summary>
+    [HttpPost("refresh")]
+    [AllowAnonymous]
+    [EnableRateLimiting(ApiRateLimitingConfiguration.RefreshPolicy)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Refresh(
+        [FromServices] RefreshSessionUseCase useCase,
+        CancellationToken cancellationToken)
+    {
+        // Without an access token cookie the CSRF middleware does not run, so the header is
+        // required here explicitly: a cross-site form post must not be able to rotate the session.
+        if (!HasXmlHttpRequestHeader())
+        {
+            await ApiProblemDetailsWriter.WriteAsync(
+                HttpContext,
+                StatusCodes.Status401Unauthorized,
+                "Missing required request header.",
+                "missing_x_requested_with",
+                cancellationToken);
+            return new EmptyResult();
+        }
+
+        try
+        {
+            var session = await useCase.ExecuteAsync(
+                _authCookieService.ReadRefreshToken(HttpContext),
+                cancellationToken);
+
+            _authCookieService.AppendSession(HttpContext, session);
+
+            return NoContent();
+        }
+        catch (UnauthorizedException exception)
+        {
+            // Written here instead of by the exception handler, which would discard the
+            // Set-Cookie headers that remove the dead session from the browser.
+            _authCookieService.DeleteSession(HttpContext);
+
+            await ApiProblemDetailsWriter.WriteAsync(
+                HttpContext,
+                StatusCodes.Status401Unauthorized,
+                exception.Message,
+                exception.ErrorCode,
+                cancellationToken);
+            return new EmptyResult();
+        }
+    }
+
     [HttpPost("logout")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout(
+        [FromServices] LogoutUseCase useCase,
+        CancellationToken cancellationToken)
     {
-        _authCookieService.DeleteAccessToken(HttpContext);
+        await useCase.ExecuteAsync(
+            _authCookieService.ReadRefreshToken(HttpContext),
+            GetAuthenticatedSessionId(),
+            cancellationToken);
+
+        _authCookieService.DeleteSession(HttpContext);
 
         return NoContent();
     }
@@ -107,8 +165,8 @@ public sealed class AuthController : ControllerBase
         [FromServices] LoginUseCase useCase,
         CancellationToken cancellationToken)
     {
-        var result = await useCase.ExecuteAsync(request, cancellationToken);
-        _authCookieService.AppendAccessToken(HttpContext, result.AccessToken, result.ExpiresAtUtc);
+        var session = await useCase.ExecuteAsync(request, cancellationToken);
+        _authCookieService.AppendSession(HttpContext, session);
         return Ok(new { message = "Login realizado com sucesso." });
     }
 
@@ -146,5 +204,23 @@ public sealed class AuthController : ControllerBase
     {
         await useCase.ExecuteAsync(request, cancellationToken);
         return Ok(new { message = "Senha redefinida com sucesso." });
+    }
+
+    private bool HasXmlHttpRequestHeader() =>
+        string.Equals(
+            Request.Headers[AuthenticationConstants.XmlHttpRequestHeaderName],
+            AuthenticationConstants.XmlHttpRequestHeaderValue,
+            StringComparison.OrdinalIgnoreCase);
+
+    private Guid? GetAuthenticatedSessionId()
+    {
+        if (User.Identity?.IsAuthenticated != true)
+        {
+            return null;
+        }
+
+        return Guid.TryParse(User.FindFirst(AuthenticationConstants.SessionIdClaimName)?.Value, out var sessionId)
+            ? sessionId
+            : null;
     }
 }

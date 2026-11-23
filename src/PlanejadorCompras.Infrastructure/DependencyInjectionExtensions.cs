@@ -3,9 +3,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PlanejadorCompras.Application.Features.Ai;
+using PlanejadorCompras.Application.Services;
 using PlanejadorCompras.Application.Services.Interfaces;
 using PlanejadorCompras.Domain.Repositories;
 using PlanejadorCompras.Domain.Repositories.User;
+using PlanejadorCompras.Domain.Repositories.RefreshToken;
 using PlanejadorCompras.Domain.Repositories.ShoppingList;
 using PlanejadorCompras.Domain.Repositories.ShoppingItem;
 using PlanejadorCompras.Domain.Repositories.ItemQuote;
@@ -35,6 +37,7 @@ public static class DependencyInjectionExtensions
         AddReportExporters(services);
         AddExternalServices(services);
         AddAi(services, configuration);
+        AddSessionSettings(services, configuration);
 
         return services;
     }
@@ -53,6 +56,19 @@ public static class DependencyInjectionExtensions
             options.UseNpgsql(connectionString));
     }
 
+    private static void AddSessionSettings(IServiceCollection services, IConfiguration configuration)
+    {
+        var defaults = SessionSettings.Default;
+        var lifetime = int.TryParse(configuration["Authentication:RefreshToken:ExpiresInDays"], out var days) && days > 0
+            ? TimeSpan.FromDays(days)
+            : defaults.RefreshTokenLifetime;
+        var leeway = int.TryParse(configuration["Authentication:RefreshToken:ReuseLeewaySeconds"], out var seconds) && seconds >= 0
+            ? TimeSpan.FromSeconds(seconds)
+            : defaults.RefreshTokenReuseLeeway;
+
+        services.AddSingleton(new SessionSettings(lifetime, leeway));
+    }
+
     private static void AddRepositories(IServiceCollection services)
     {
         services.AddScoped<IUserRepository, UserRepository>();
@@ -65,6 +81,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ISavedEqualizationRepository, SavedEqualizationRepository>();
         services.AddScoped<IQuotationRequestRepository, QuotationRequestRepository>();
         services.AddScoped<IUserTokenRepository, UserTokenRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
     }
 
     private static void AddAi(IServiceCollection services, IConfiguration configuration)
@@ -124,6 +141,7 @@ public static class DependencyInjectionExtensions
         services.AddSingleton<IPurchaseOrderCodeGenerator, PurchaseOrderCodeGenerator>();
         services.AddSingleton<ISavedEqualizationCodeGenerator, SavedEqualizationCodeGenerator>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddSingleton<ILoginAttemptLimiter, InMemoryLoginAttemptLimiter>();
         services.AddScoped<IEmailService, ResendEmailService>();
         services.AddSingleton<IFrontendUrlService, FrontendUrlService>();
     }

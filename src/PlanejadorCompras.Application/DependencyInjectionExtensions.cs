@@ -24,6 +24,8 @@ public static class DependencyInjectionExtensions
         services.TryAddSingleton(TimeProvider.System);
         services.AddSingleton<ShoppingListComparisonCalculator>();
         services.AddScoped<PurchaseOrderDraftService>();
+        services.TryAddSingleton(SessionSettings.Default);
+        services.AddScoped<AuthSessionService>();
         AddUseCases(services);
 
         return services;
@@ -39,6 +41,8 @@ public static class DependencyInjectionExtensions
         services.AddScoped<LoginUseCase>();
         services.AddScoped<ForgotPasswordUseCase>();
         services.AddScoped<ResetPasswordUseCase>();
+        services.AddScoped<RefreshSessionUseCase>();
+        services.AddScoped<LogoutUseCase>();
         // ShoppingList
         services.AddScoped<CreateShoppingListUseCase>();
         services.AddScoped<GetShoppingListByIdUseCase>();
