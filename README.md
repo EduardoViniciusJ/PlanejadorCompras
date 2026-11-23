@@ -20,6 +20,9 @@
 > [!NOTE]
 > Planejador de Compras helps you organize the whole buying flow: create shopping lists, register suppliers, collect and compare quotes on a price map, equalize offers to find the best deal, and turn the result into purchase orders — with PDF and Excel reports along the way.
 
+> [!TIP]
+> Planejador de Compras is **free and open source**. There are no paid plans: every feature, including the AI assistant, is available to everyone with the same usage limit.
+
 ## Features
 
 - **Shopping lists and items:** create lists, add the items you need to buy and keep everything organized in one place.
