@@ -8,6 +8,7 @@ internal static class ApiRateLimitingConfiguration
 {
     internal const string LoginPolicy = "auth-login";
     internal const string EmailPolicy = "auth-email";
+    internal const string AiPolicy = "ai";
 
     internal static IServiceCollection AddApiRateLimiting(
         this IServiceCollection services)
@@ -27,6 +28,10 @@ internal static class ApiRateLimitingConfiguration
                 CreateFixedWindowPartition(httpContext, 10, TimeSpan.FromMinutes(1)));
             options.AddPolicy(EmailPolicy, httpContext =>
                 CreateFixedWindowPartition(httpContext, 5, TimeSpan.FromMinutes(10)));
+            // Burst protection for calls that cost money; the monthly limit per user is
+            // enforced separately, in the database.
+            options.AddPolicy(AiPolicy, httpContext =>
+                CreateFixedWindowPartition(httpContext, 20, TimeSpan.FromMinutes(1)));
         });
 
         return services;

@@ -37,7 +37,8 @@ public static class ExceptionHandlingExtensions
                     statusCode,
                     title,
                     errorCode,
-                    context.RequestAborted);
+                    context.RequestAborted,
+                    (exception as AppException)?.Extensions);
             });
         });
 

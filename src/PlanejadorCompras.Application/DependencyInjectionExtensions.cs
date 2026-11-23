@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using PlanejadorCompras.Application.Services;
+using PlanejadorCompras.Application.UseCases.Ai;
 using PlanejadorCompras.Application.UseCases.Auth;
 using PlanejadorCompras.Application.UseCases.ItemQuote.Create;
 using PlanejadorCompras.Application.UseCases.ShoppingItem.Create;
@@ -98,5 +99,12 @@ public static class DependencyInjectionExtensions
         services.AddScoped<GetQuotationRequestsUseCase>();
         services.AddScoped<GetQuotationRequestByIdUseCase>();
         services.AddScoped<ExportSavedQuotationRequestPdfUseCase>();
+
+        // AI
+        services.AddScoped<AiUsageService>();
+        services.AddScoped<AiInputPreparer>();
+        services.AddScoped<ExtractSupplierQuoteUseCase>();
+        services.AddScoped<ApplyQuoteBatchUseCase>();
+        services.AddScoped<DraftShoppingListUseCase>();
     }
 }

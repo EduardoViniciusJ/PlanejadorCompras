@@ -23,6 +23,32 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "citext");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("PlanejadorCompras.Domain.Entities.AiUsage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("PeriodStart")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UsedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "PeriodStart")
+                        .IsUnique();
+
+                    b.ToTable("AiUsages", (string)null);
+                });
+
             modelBuilder.Entity("PlanejadorCompras.Domain.Entities.ItemQuote", b =>
                 {
                     b.Property<Guid>("Id")
@@ -590,6 +616,15 @@ namespace PlanejadorCompras.Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("PlanejadorCompras.Domain.Entities.AiUsage", b =>
+                {
+                    b.HasOne("PlanejadorCompras.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PlanejadorCompras.Domain.Entities.ItemQuote", b =>
