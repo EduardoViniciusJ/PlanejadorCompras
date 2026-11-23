@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlanejadorCompras.Application.UseCases.Interfaces;
+using PlanejadorCompras.API.Security;
+using PlanejadorCompras.Domain.Authorization;
 
 namespace PlanejadorCompras.API.Controllers;
 
 [Authorize]
+[RequirePermission(OrganizationPermission.ViewData)]
 [ApiController]
 [Route("api/shopping-lists/{id:guid}/reports")]
 public sealed class ShoppingListReportsController(

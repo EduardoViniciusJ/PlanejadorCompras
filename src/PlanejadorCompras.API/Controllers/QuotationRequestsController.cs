@@ -2,10 +2,13 @@ using PlanejadorCompras.Application.Features.QuotationRequests.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlanejadorCompras.Application.UseCases.QuotationRequest;
+using PlanejadorCompras.API.Security;
+using PlanejadorCompras.Domain.Authorization;
 
 namespace PlanejadorCompras.API.Controllers;
 
 [Authorize]
+[RequirePermission(OrganizationPermission.ViewData)]
 [ApiController]
 [Route("api/quotation-requests")]
 public sealed class QuotationRequestsController(
@@ -35,6 +38,7 @@ public sealed class QuotationRequestsController(
     [ProducesResponseType(typeof(QuotationRequestDetailResponseDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [RequirePermission(OrganizationPermission.ManageQuotations)]
     public async Task<IActionResult> Create(
         Guid shoppingListId,
         [FromBody] QuotationRequestPdfRequestDto request,
@@ -50,6 +54,7 @@ public sealed class QuotationRequestsController(
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [RequirePermission(OrganizationPermission.ManageQuotations)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
         await deleteUseCase.ExecuteAsync(id, cancellationToken);

@@ -27,6 +27,7 @@ internal static class ApiApplicationPipeline
         app.UseCookieRequestProtection();
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseOrganizationContext();
 
         return app;
     }

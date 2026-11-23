@@ -2,10 +2,13 @@ using PlanejadorCompras.Application.Features.PurchaseOrders.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlanejadorCompras.Application.UseCases.PurchaseOrder;
+using PlanejadorCompras.API.Security;
+using PlanejadorCompras.Domain.Authorization;
 
 namespace PlanejadorCompras.API.Controllers;
 
 [Authorize]
+[RequirePermission(OrganizationPermission.ViewData)]
 [ApiController]
 [Route("api/purchase-orders")]
 public sealed class PurchaseOrdersController(
@@ -53,6 +56,7 @@ public sealed class PurchaseOrdersController(
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequirePermission(OrganizationPermission.ManagePurchaseOrders)]
     public async Task<IActionResult> Create(
         [FromBody] CreatePurchaseOrderRequestDto request,
         CancellationToken cancellationToken)
@@ -66,6 +70,7 @@ public sealed class PurchaseOrdersController(
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequirePermission(OrganizationPermission.ApprovePurchaseOrders)]
     public async Task<IActionResult> UpdateStatus(
         Guid id,
         [FromBody] UpdatePurchaseOrderStatusRequestDto request,
@@ -75,6 +80,7 @@ public sealed class PurchaseOrdersController(
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [RequirePermission(OrganizationPermission.ManagePurchaseOrders)]
     public async Task<IActionResult> Delete(
         Guid id,
         CancellationToken cancellationToken)

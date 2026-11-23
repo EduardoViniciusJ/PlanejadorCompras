@@ -2,10 +2,13 @@ using PlanejadorCompras.Application.Features.Suppliers.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlanejadorCompras.Application.UseCases.Supplier;
+using PlanejadorCompras.API.Security;
+using PlanejadorCompras.Domain.Authorization;
 
 namespace PlanejadorCompras.API.Controllers;
 
 [Authorize]
+[RequirePermission(OrganizationPermission.ViewData)]
 [ApiController]
 [Route("api/suppliers")]
 public sealed class SuppliersController(
@@ -30,6 +33,7 @@ public sealed class SuppliersController(
     [ProducesResponseType(typeof(SupplierResponseDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequirePermission(OrganizationPermission.ManageSuppliers)]
     public async Task<IActionResult> Create(
         [FromBody] SupplierRequestDto request,
         CancellationToken cancellationToken)
@@ -43,6 +47,7 @@ public sealed class SuppliersController(
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequirePermission(OrganizationPermission.ManageSuppliers)]
     public async Task<IActionResult> Update(
         Guid id,
         [FromBody] SupplierRequestDto request,
@@ -53,6 +58,7 @@ public sealed class SuppliersController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [RequirePermission(OrganizationPermission.ManageSuppliers)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
         await deleteUseCase.ExecuteAsync(id, cancellationToken);
