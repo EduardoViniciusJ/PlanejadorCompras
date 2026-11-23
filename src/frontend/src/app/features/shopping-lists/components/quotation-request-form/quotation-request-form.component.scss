@@ -35,8 +35,110 @@
   color: var(--app-success-strong);
 }
 
+.supplier-picker {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.supplier-options {
+  max-height: 13.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.15rem;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.supplier-option {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--app-border-color);
+  border-radius: var(--app-control-radius);
+  background: var(--app-surface-bg);
+  cursor: pointer;
+}
+
+.supplier-option:has(input:checked) {
+  border-color: var(--app-border-strong);
+  background: var(--app-surface-alt-bg);
+}
+
+.supplier-option:has(input:disabled) {
+  cursor: not-allowed;
+}
+
+.supplier-option-copy {
+  min-width: 0;
+  display: grid;
+  gap: 0.1rem;
+}
+
+.supplier-option-copy strong {
+  color: var(--app-text-color);
+  font-size: 0.86rem;
+  overflow-wrap: anywhere;
+}
+
+.supplier-option-copy small {
+  color: var(--app-text-muted);
+  font-size: 0.76rem;
+  overflow-wrap: anywhere;
+}
+
+.created-links-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  margin: 0;
+  color: var(--app-text-muted);
+  font-size: 0.8rem;
+}
+
+.created-link {
+  min-width: 0;
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.7rem;
+  border: 1px solid var(--app-border-color);
+  border-radius: var(--app-control-radius);
+}
+
+.created-link header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.created-link header strong {
+  color: var(--app-text-color);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.created-link-email {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--app-text-muted);
+  font-size: 0.76rem;
+}
+
+.created-link-email-sent {
+  color: var(--app-success-strong);
+}
+
 .form-actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 0.55rem;
   margin-top: 1.25rem;

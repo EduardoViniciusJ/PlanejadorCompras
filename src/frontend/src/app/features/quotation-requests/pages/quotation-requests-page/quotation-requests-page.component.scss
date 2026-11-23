@@ -32,7 +32,7 @@
 .quotation-request-card {
   min-width: 0;
   display: grid;
-  grid-template-rows: auto 1fr auto auto;
+  grid-template-rows: auto 1fr auto auto auto;
   overflow: hidden;
   padding: 0;
   container-type: inline-size;
@@ -131,6 +131,53 @@
   color: var(--app-text-primary);
   font-size: .78rem;
   font-weight: 800;
+}
+
+.quotation-request-suppliers {
+  min-width: 0;
+  padding: .75rem 1rem;
+  border-top: 1px solid var(--app-border-color);
+}
+
+.quotation-request-suppliers header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .5rem;
+  margin-bottom: .45rem;
+}
+
+.quotation-request-progress,
+.quotation-request-suppliers-empty {
+  margin: 0;
+  color: var(--app-text-muted);
+  font-size: .72rem;
+}
+
+.quotation-request-suppliers ul {
+  display: grid;
+  gap: .35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quotation-request-suppliers li {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+}
+
+.quotation-request-supplier-name {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--app-text-primary);
+  font-size: .78rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .quotation-request-card footer {

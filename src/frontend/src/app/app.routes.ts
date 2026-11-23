@@ -36,6 +36,16 @@ export const routes: Routes = [
     data: { authMode: 'confirm-email', noindex: true },
   },
   {
+    // Página pública do fornecedor: o token do link é a credencial, sem login.
+    path: 'cotacao/:token',
+    title: 'Responder cotação | Planejador de Compras',
+    data: { noindex: true },
+    loadComponent: () =>
+      import(
+        './features/supplier-portal/pages/supplier-quotation-page/supplier-quotation-page.component'
+      ).then(({ SupplierQuotationPageComponent }) => SupplierQuotationPageComponent),
+  },
+  {
     path: '',
     component: PublicLayoutComponent,
     children: [

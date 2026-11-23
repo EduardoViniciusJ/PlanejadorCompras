@@ -24,6 +24,12 @@
       </div>
 
       <div class="management-actions">
+        @if (request.sourceShoppingListId) {
+          <a class="btn" [routerLink]="['/app/price-map', request.sourceShoppingListId]">
+            <app-icon name="table" [size]="18" />
+            Mapa de preços
+          </a>
+        }
         <button class="btn" type="button" [disabled]="isPreparingPdf()" (click)="downloadPdf()">
           @if (isPreparingPdf()) {
             <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
@@ -39,7 +45,7 @@
           (click)="share()"
         >
           <app-icon name="brand-whatsapp" [size]="18" />
-          Compartilhar
+          Compartilhar PDF
         </button>
       </div>
     </header>
@@ -85,6 +91,150 @@
       </div>
     </section>
 
+    <section class="detail-section management-surface" aria-labelledby="suppliers-heading">
+      <header>
+        <div>
+          <span class="management-eyebrow">Acompanhamento</span>
+          <h2 id="suppliers-heading">Cotação por fornecedor</h2>
+        </div>
+        <span class="items-count">
+          {{ request.suppliers.length }}
+          {{ request.suppliers.length === 1 ? 'fornecedor' : 'fornecedores' }}
+        </span>
+      </header>
+
+      @if (request.suppliers.length === 0) {
+        <p class="suppliers-empty">
+          Esta solicitação foi emitida só com o PDF, sem fornecedores. Para acompanhar quem viu e
+          quem respondeu, gere uma nova solicitação escolhendo os fornecedores.
+        </p>
+      } @else {
+        <div class="supplier-quotations">
+          @for (supplier of request.suppliers; track supplier.id) {
+            <article class="supplier-quotation" [attr.data-testid]="'supplier-quotation-' + supplier.id">
+              <header class="supplier-quotation-header">
+                <div class="supplier-quotation-title">
+                  <h3>{{ supplier.supplierName }}</h3>
+                  <app-supplier-status-chip
+                    [status]="supplier.status"
+                    [isLinkActive]="supplier.isLinkActive"
+                  />
+                </div>
+                <div class="supplier-quotation-actions">
+                  <button
+                    class="btn btn-sm"
+                    type="button"
+                    [attr.data-testid]="'renew-link-' + supplier.id"
+                    (click)="openSupplierAction(supplier, 'renew')"
+                  >
+                    <app-icon name="link" [size]="16" /> Gerar novo link
+                  </button>
+                  @if (supplier.isLinkActive) {
+                    <button
+                      class="btn btn-sm"
+                      type="button"
+                      [attr.data-testid]="'revoke-link-' + supplier.id"
+                      (click)="openSupplierAction(supplier, 'revoke')"
+                    >
+                      <app-icon name="lock" [size]="16" /> Revogar link
+                    </button>
+                  }
+                </div>
+              </header>
+
+              <dl class="supplier-timeline">
+                <div>
+                  <dt>Enviada</dt>
+                  <dd>{{ formatDateTime(supplier.sentAtUtc) }}</dd>
+                </div>
+                <div>
+                  <dt>E-mail</dt>
+                  <dd>
+                    {{ supplier.emailSentAtUtc ? formatDateTime(supplier.emailSentAtUtc) : 'Não enviado' }}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Vista</dt>
+                  <dd>{{ supplier.viewedAtUtc ? formatDateTime(supplier.viewedAtUtc) : 'Ainda não abriu' }}</dd>
+                </div>
+                <div>
+                  <dt>Respondida</dt>
+                  <dd>
+                    {{ supplier.respondedAtUtc ? formatDateTime(supplier.respondedAtUtc) : 'Sem resposta' }}
+                  </dd>
+                </div>
+              </dl>
+
+              <p class="supplier-link-state" [class.supplier-link-state-off]="!supplier.isLinkActive">
+                <app-icon [name]="supplier.isLinkActive ? 'shield-check' : 'lock'" [size]="15" />
+                {{ linkState(supplier) }}
+              </p>
+
+              @if (freshLinks()[supplier.id]; as linkUrl) {
+                <app-supplier-link-actions
+                  [linkUrl]="linkUrl"
+                  [supplierName]="supplier.supplierName"
+                  [supplierPhone]="supplier.supplierPhone"
+                  [code]="request.code"
+                  [listName]="request.shoppingListName"
+                  [responseDeadline]="request.responseDeadline"
+                />
+              }
+
+              @if (supplier.respondedAtUtc) {
+                @let rows = responseRows(request, supplier);
+                <div class="supplier-response">
+                  <div class="items-table-wrapper">
+                    <table>
+                      <caption class="visually-hidden">
+                        Preços informados por {{ supplier.supplierName }}
+                      </caption>
+                      <thead>
+                        <tr>
+                          <th scope="col">Item</th>
+                          <th scope="col" class="numeric">Quantidade</th>
+                          <th scope="col" class="numeric">Preço unitário</th>
+                          <th scope="col" class="numeric">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (row of rows; track row.item.id) {
+                          <tr>
+                            <td>{{ row.item.name }}</td>
+                            <td class="numeric">{{ row.item.quantity }} {{ row.item.unit }}</td>
+                            <td class="numeric">
+                              {{ row.unitPrice === null ? 'Não cotou' : formatCurrency(row.unitPrice) }}
+                            </td>
+                            <td class="numeric">{{ row.total === null ? '-' : formatCurrency(row.total) }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <th scope="row" colspan="3">Total dos itens cotados</th>
+                          <td class="numeric">{{ formatCurrency(responseTotal(rows)) }}</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                  @if (termLines(supplier).length > 0) {
+                    <dl class="supplier-terms">
+                      @for (line of termLines(supplier); track line.label) {
+                        <div>
+                          <dt>{{ line.label }}</dt>
+                          <dd>{{ line.value }}</dd>
+                        </div>
+                      }
+                    </dl>
+                  }
+                </div>
+              }
+            </article>
+          }
+        </div>
+      }
+    </section>
+
     <section class="detail-section management-surface">
       <header>
         <div>
@@ -127,3 +277,79 @@
     </section>
   }
 </section>
+
+@if (pendingAction(); as pending) {
+  <app-modal-dialog
+    [title]="pending.action === 'revoke' ? 'Revogar link?' : 'Gerar novo link?'"
+    eyebrow="Link do fornecedor"
+    width="small"
+    [closeDisabled]="isUpdatingSupplier()"
+    (closeRequested)="closeSupplierAction()"
+  >
+    <div class="management-delete-content">
+      @if (pending.action === 'revoke') {
+        <p>
+          <strong>{{ pending.supplier.supplierName }}</strong> não vai mais conseguir abrir nem
+          responder a cotação por este link. A resposta já enviada continua guardada.
+        </p>
+      } @else {
+        <p>
+          O link atual de <strong>{{ pending.supplier.supplierName }}</strong> para de funcionar e
+          um novo é criado. Use quando o link foi perdido ou enviado para a pessoa errada.
+        </p>
+        @if (!emailAvailable()) {
+          <p class="modal-hint">
+            O envio por e-mail não está configurado neste ambiente: copie o link ou envie pelo WhatsApp.
+          </p>
+        } @else if (!pending.supplier.supplierEmail) {
+          <p class="modal-hint">
+            Este fornecedor não tem e-mail cadastrado: copie o link ou envie pelo WhatsApp.
+          </p>
+        }
+      }
+      @if (supplierActionError()) {
+        <div role="alert" class="alert alert-error alert-soft">
+          <app-icon name="alert-circle" [size]="20" />
+          <span>{{ supplierActionError() }}</span>
+        </div>
+      }
+      <div class="management-delete-actions">
+        <button class="btn" type="button" [disabled]="isUpdatingSupplier()" (click)="closeSupplierAction()">
+          Cancelar
+        </button>
+        @if (pending.action === 'revoke') {
+          <button
+            class="btn btn-error"
+            type="button"
+            data-testid="confirm-revoke-link"
+            [disabled]="isUpdatingSupplier()"
+            (click)="confirmSupplierAction('revoke')"
+          >
+            Revogar link
+          </button>
+        } @else {
+          @if (emailAvailable() && pending.supplier.supplierEmail) {
+            <button
+              class="btn"
+              type="button"
+              data-testid="confirm-renew-link-email"
+              [disabled]="isUpdatingSupplier()"
+              (click)="confirmSupplierAction('renew-email')"
+            >
+              <app-icon name="mail" [size]="16" /> Gerar e enviar por e-mail
+            </button>
+          }
+          <button
+            class="btn btn-primary"
+            type="button"
+            data-testid="confirm-renew-link"
+            [disabled]="isUpdatingSupplier()"
+            (click)="confirmSupplierAction('renew')"
+          >
+            Gerar link
+          </button>
+        }
+      </div>
+    </div>
+  </app-modal-dialog>
+}

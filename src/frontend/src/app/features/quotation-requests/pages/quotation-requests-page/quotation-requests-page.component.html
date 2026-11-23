@@ -3,7 +3,7 @@
     <div class="management-page-heading">
       <span class="management-eyebrow">Comunicação com fornecedores</span>
       <h1>Solicitações de cotação</h1>
-      <p>Consulte cada documento enviado sem depender das alterações posteriores na lista.</p>
+      <p>Acompanhe, por fornecedor, quem recebeu, quem abriu e quem já respondeu cada cotação.</p>
     </div>
   </header>
 
@@ -18,7 +18,7 @@
     <div>
       <span class="management-eyebrow">Histórico de documentos</span>
       <h2>Documentos emitidos</h2>
-      <p>Pesquise pelo número, lista ou comprador responsável.</p>
+      <p>Pesquise pelo número, lista, fornecedor ou comprador responsável.</p>
     </div>
     <div class="requests-filters">
       <label class="input request-search">
@@ -79,6 +79,31 @@
             <div><dt>Itens</dt><dd>{{ request.itemCount }}</dd></div>
             <div><dt>Responder até</dt><dd>{{ formatDate(request.responseDeadline) }}</dd></div>
           </dl>
+          <section class="quotation-request-suppliers" aria-label="Status por fornecedor">
+            @if (request.suppliers.length === 0) {
+              <p class="quotation-request-suppliers-empty">Somente PDF, sem link de resposta.</p>
+            } @else {
+              <header>
+                <span class="management-eyebrow">Fornecedores</span>
+                <span class="quotation-request-progress">
+                  {{ respondedCount(request) }} de {{ request.suppliers.length }}
+                  {{ request.suppliers.length === 1 ? 'respondeu' : 'responderam' }}
+                </span>
+              </header>
+              <ul>
+                @for (supplier of request.suppliers; track supplier.id) {
+                  <li [title]="statusDescription(supplier)">
+                    <span class="quotation-request-supplier-name">{{ supplier.supplierName }}</span>
+                    <app-supplier-status-chip
+                      [status]="supplier.status"
+                      [isLinkActive]="supplier.isLinkActive"
+                    />
+                    <span class="visually-hidden">{{ statusDescription(supplier) }}</span>
+                  </li>
+                }
+              </ul>
+            }
+          </section>
           <footer class="management-card-actions">
             <a class="btn management-card-action" [routerLink]="['/app/quotation-requests', request.id]">
               <app-icon name="eye" [size]="18" /> Ver solicitação
