@@ -35,6 +35,19 @@ describe('PublicLayoutComponent', () => {
     expect(hrefs).toContain('/cadastro');
   });
 
+  it('should link to the repository and not to a pricing section', async () => {
+    const fixture = TestBed.createComponent(PublicLayoutComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const element = fixture.nativeElement as HTMLElement;
+    const hrefs = Array.from(element.querySelectorAll('a')).map((link) => link.getAttribute('href'));
+
+    expect(hrefs).toContain('https://github.com/EduardoViniciusJ/PlanejadorCompras');
+    expect(hrefs.some((href) => href?.includes('#precos'))).toBe(false);
+    expect(element.textContent).not.toContain('Preços');
+  });
+
   it('should toggle and persist the theme', async () => {
     const fixture = TestBed.createComponent(PublicLayoutComponent);
     fixture.detectChanges();
