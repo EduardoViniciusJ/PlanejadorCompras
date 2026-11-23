@@ -4,7 +4,7 @@
 # JSON-LD, sitemap.xml e robots.txt. Sem SITE_URL, nada muda.
 set -eu
 
-placeholder='https://planejador-de-compras.example'
+placeholder='https://planejadordecompras.com'
 site_url="${SITE_URL:-}"
 site_url="${site_url%/}"
 

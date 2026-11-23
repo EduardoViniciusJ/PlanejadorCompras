@@ -9,4 +9,4 @@ Disallow: /reset-password
 Disallow: /confirmar-email
 
 # O endereço é trocado pelo domínio real na subida do contêiner (SITE_URL).
-Sitemap: https://planejador-de-compras.example/sitemap.xml
+Sitemap: https://planejadordecompras.com/sitemap.xml
