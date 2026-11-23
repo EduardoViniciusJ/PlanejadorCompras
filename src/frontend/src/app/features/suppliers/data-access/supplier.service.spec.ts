@@ -19,12 +19,34 @@ describe('SupplierService', () => {
 
   afterEach(() => httpTesting.verify());
 
-  it('should get and map suppliers', () => {
-    service.getAll().subscribe((suppliers) => expect(suppliers[0].createdAt).toBeInstanceOf(Date));
+  it('should get and map suppliers across every page', () => {
+    let result: readonly { createdAt: Date }[] = [];
+    service.getAll().subscribe((suppliers) => (result = suppliers));
 
-    const request = httpTesting.expectOne(buildApiUrl('/api/suppliers'));
-    expect(request.request.method).toBe('GET');
-    request.flush([{ id: 'supplier-1', name: 'Central', createdAt: '2026-07-11T12:00:00Z' }]);
+    const supplier = { id: 'supplier-1', name: 'Central', createdAt: '2026-07-11T12:00:00Z' };
+    const first = httpTesting.expectOne(
+      (candidate) =>
+        candidate.url === buildApiUrl('/api/suppliers') &&
+        candidate.params.get('page') === '1' &&
+        candidate.params.get('pageSize') === '100',
+    );
+    expect(first.request.method).toBe('GET');
+    first.flush({ items: [supplier], page: 1, pageSize: 100, totalCount: 2, totalPages: 2 });
+
+    const second = httpTesting.expectOne(
+      (candidate) =>
+        candidate.url === buildApiUrl('/api/suppliers') && candidate.params.get('page') === '2',
+    );
+    second.flush({
+      items: [{ ...supplier, id: 'supplier-2' }],
+      page: 2,
+      pageSize: 100,
+      totalCount: 2,
+      totalPages: 2,
+    });
+
+    expect(result.length).toBe(2);
+    expect(result[0].createdAt).toBeInstanceOf(Date);
   });
 
   it('should call supplier mutation endpoints', () => {

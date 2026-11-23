@@ -151,13 +151,30 @@ public sealed class SupplierUseCasesTests
     {
         var supplier = SupplierEntity.Create(_userId, "Papelaria Central");
         _repository
-            .Setup(repository => repository.GetByOrganizationIdAsync(_userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<SupplierEntity> { supplier });
+            .Setup(repository => repository.GetPageByOrganizationIdAsync(_userId, 1, 20, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((new List<SupplierEntity> { supplier }, 1));
         var useCase = new GetSuppliersUseCase(_repository.Object, TestOrganization.PersonalOf(_currentUser));
 
         var result = await useCase.ExecuteAsync();
 
-        Assert.Equal(supplier.Id, Assert.Single(result).Id);
+        Assert.Equal(supplier.Id, Assert.Single(result.Items).Id);
+        Assert.Equal(1, result.TotalCount);
+    }
+
+    [Theory]
+    [InlineData(0, 20)]
+    [InlineData(1, 0)]
+    [InlineData(1, 101)]
+    public async Task GetAll_ShouldRejectPaginationAboveTheCeiling(int page, int pageSize)
+    {
+        var useCase = new GetSuppliersUseCase(_repository.Object, TestOrganization.PersonalOf(_currentUser));
+
+        await Assert.ThrowsAsync<BadRequestException>(() => useCase.ExecuteAsync(page, pageSize));
+
+        _repository.Verify(
+            repository => repository.GetPageByOrganizationIdAsync(
+                It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

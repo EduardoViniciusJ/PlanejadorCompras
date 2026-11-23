@@ -405,7 +405,7 @@ public sealed class OrganizationIsolationTests
                 .ExecuteAsync(other.SupplierId));
 
         var listed = await new GetSuppliersUseCase(services.Suppliers, services.Organization).ExecuteAsync();
-        Assert.Equal(_world.A.SupplierId, Assert.Single(listed).Id);
+        Assert.Equal(_world.A.SupplierId, Assert.Single(listed.Items).Id);
 
         await AssertOrganizationBIsIntactAsync();
     }
@@ -451,7 +451,7 @@ public sealed class OrganizationIsolationTests
                 .ExecuteAsync(other.QuotationRequestId));
 
         var listed = await new GetQuotationRequestsUseCase(repository, services.Organization).ExecuteAsync();
-        Assert.Equal(_world.A.QuotationRequestId, Assert.Single(listed).Id);
+        Assert.Equal(_world.A.QuotationRequestId, Assert.Single(listed.Items).Id);
 
         await AssertOrganizationBIsIntactAsync();
     }
@@ -514,7 +514,7 @@ public sealed class OrganizationIsolationTests
             draftService.BuildAsync(_world.A.ListId, _world.A.SupplierId, other.EqualizationId));
 
         var listed = await new GetPurchaseOrdersUseCase(services.Orders, services.Organization).ExecuteAsync();
-        Assert.Equal(_world.A.PurchaseOrderId, Assert.Single(listed).Id);
+        Assert.Equal(_world.A.PurchaseOrderId, Assert.Single(listed.Items).Id);
 
         await AssertOrganizationBIsIntactAsync();
     }
@@ -535,7 +535,7 @@ public sealed class OrganizationIsolationTests
             .ExecuteAsync(_world.A.ListId, new ShoppingListRequestDto("Editada pelo colega", null));
 
         Assert.Equal("Editada pelo colega", updated.Name);
-        Assert.Single(await new GetSuppliersUseCase(services.Suppliers, services.Organization).ExecuteAsync());
+        Assert.Single((await new GetSuppliersUseCase(services.Suppliers, services.Organization).ExecuteAsync()).Items);
     }
 
     private async Task AssertOrganizationBIsIntactAsync()

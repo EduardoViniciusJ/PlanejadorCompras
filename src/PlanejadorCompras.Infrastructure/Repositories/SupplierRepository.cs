@@ -28,6 +28,25 @@ public sealed class SupplierRepository(PlanejadorComprasDbContext context) : ISu
             .OrderBy(supplier => supplier.Name)
             .ToListAsync(cancellationToken);
 
+    public async Task<(List<Supplier> Items, int TotalCount)> GetPageByOrganizationIdAsync(
+        Guid organizationId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var query = context.Suppliers
+            .AsNoTracking()
+            .Where(supplier => supplier.OrganizationId == organizationId);
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .OrderBy(supplier => supplier.Name)
+            .ThenBy(supplier => supplier.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+        return (items, totalCount);
+    }
+
     public Task<bool> ExistsByNameAsync(
         Guid organizationId,
         string name,

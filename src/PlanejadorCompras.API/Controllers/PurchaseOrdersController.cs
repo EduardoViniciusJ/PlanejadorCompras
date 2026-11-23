@@ -1,6 +1,7 @@
 using PlanejadorCompras.Application.Features.PurchaseOrders.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PlanejadorCompras.Application.Common.Pagination;
 using PlanejadorCompras.Application.UseCases.PurchaseOrder;
 using PlanejadorCompras.API.Security;
 using PlanejadorCompras.Domain.Authorization;
@@ -23,10 +24,13 @@ public sealed class PurchaseOrdersController(
 {
     [HttpGet]
     [ProducesResponseType(
-        typeof(IReadOnlyCollection<PurchaseOrderSummaryResponseDto>),
+        typeof(PagedResponseDto<PurchaseOrderSummaryResponseDto>),
         StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
-        Ok(await getAllUseCase.ExecuteAsync(cancellationToken));
+    public async Task<IActionResult> GetAll(
+        CancellationToken cancellationToken,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = PageRequest.DefaultPageSize) =>
+        Ok(await getAllUseCase.ExecuteAsync(page, pageSize, cancellationToken));
 
     [HttpGet("draft")]
     [ProducesResponseType(typeof(PurchaseOrderDraftResponseDto), StatusCodes.Status200OK)]

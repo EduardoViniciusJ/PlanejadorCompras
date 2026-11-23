@@ -1,6 +1,7 @@
 using PlanejadorCompras.Application.Features.Suppliers.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PlanejadorCompras.Application.Common.Pagination;
 using PlanejadorCompras.Application.UseCases.Supplier;
 using PlanejadorCompras.API.Security;
 using PlanejadorCompras.Domain.Authorization;
@@ -19,9 +20,12 @@ public sealed class SuppliersController(
     DeleteSupplierUseCase deleteUseCase) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(typeof(IReadOnlyCollection<SupplierResponseDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
-        Ok(await getAllUseCase.ExecuteAsync(cancellationToken));
+    [ProducesResponseType(typeof(PagedResponseDto<SupplierResponseDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll(
+        CancellationToken cancellationToken,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = PageRequest.DefaultPageSize) =>
+        Ok(await getAllUseCase.ExecuteAsync(page, pageSize, cancellationToken));
 
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(SupplierResponseDto), StatusCodes.Status200OK)]

@@ -12,6 +12,12 @@ public interface IPurchaseOrderRepository
         Guid organizationId,
         CancellationToken cancellationToken = default);
 
+    Task<(List<Entities.PurchaseOrder> Items, int TotalCount)> GetPageByOrganizationIdAsync(
+        Guid organizationId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
+
     Task<bool> ExistsForSourceAsync(
         Guid organizationId,
         Guid shoppingListId,

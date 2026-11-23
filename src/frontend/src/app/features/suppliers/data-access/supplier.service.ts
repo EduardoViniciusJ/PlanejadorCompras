@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
 import { buildApiUrl } from '../../../core/api/api-url';
+import { fetchAllPages } from '../../../core/api/paged-response';
 import { SupplierRequestDto, SupplierResponseDto } from '../dtos/supplier.dto';
 import { mapSupplier } from '../models/supplier.mapper';
 import { Supplier } from '../models/supplier.model';
@@ -12,9 +13,9 @@ export class SupplierService {
   private readonly http = inject(HttpClient);
 
   getAll(): Observable<readonly Supplier[]> {
-    return this.http
-      .get<readonly SupplierResponseDto[]>(buildApiUrl('/api/suppliers'))
-      .pipe(map((suppliers) => suppliers.map(mapSupplier)));
+    return fetchAllPages<SupplierResponseDto>(this.http, '/api/suppliers').pipe(
+      map((suppliers) => suppliers.map(mapSupplier)),
+    );
   }
 
   getForShoppingList(shoppingListId: string): Observable<readonly Supplier[]> {

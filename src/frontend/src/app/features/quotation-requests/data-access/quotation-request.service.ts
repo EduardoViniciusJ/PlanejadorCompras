@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
 import { buildApiUrl } from '../../../core/api/api-url';
+import { fetchAllPages } from '../../../core/api/paged-response';
 import { ShoppingListReportFile } from '../../reports/models/shopping-list-report-file.model';
 import { mapReportFileResponse } from '../../reports/models/report-file-response.mapper';
 import {
@@ -16,9 +17,7 @@ export class QuotationRequestService {
   private readonly http = inject(HttpClient);
 
   getAll(): Observable<readonly QuotationRequestSummaryDto[]> {
-    return this.http.get<readonly QuotationRequestSummaryDto[]>(
-      buildApiUrl('/api/quotation-requests'),
-    );
+    return fetchAllPages<QuotationRequestSummaryDto>(this.http, '/api/quotation-requests');
   }
 
   getById(id: string): Observable<QuotationRequestDetailDto> {

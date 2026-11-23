@@ -11,6 +11,12 @@ public interface IQuotationRequestRepository
         Guid organizationId,
         CancellationToken cancellationToken = default);
 
+    Task<(List<Entities.QuotationRequest> Items, int TotalCount)> GetPageByOrganizationIdAsync(
+        Guid organizationId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
+
     Task<bool> DeleteForOrganizationAsync(Guid id, Guid organizationId, CancellationToken cancellationToken = default);
 
     Task AddAsync(

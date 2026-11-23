@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 
 import { buildApiUrl } from '../../../core/api/api-url';
+import { fetchAllPages } from '../../../core/api/paged-response';
 import { ShoppingListReportFile } from '../../reports/models/shopping-list-report-file.model';
 import { mapReportFileResponse } from '../../reports/models/report-file-response.mapper';
 import {
@@ -18,7 +19,7 @@ export class PurchaseOrderService {
   private readonly http = inject(HttpClient);
 
   getAll(): Observable<readonly PurchaseOrderSummaryDto[]> {
-    return this.http.get<readonly PurchaseOrderSummaryDto[]>(buildApiUrl('/api/purchase-orders'));
+    return fetchAllPages<PurchaseOrderSummaryDto>(this.http, '/api/purchase-orders');
   }
 
   getDraft(

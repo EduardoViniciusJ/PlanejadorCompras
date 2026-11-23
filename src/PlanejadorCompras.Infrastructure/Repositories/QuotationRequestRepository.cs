@@ -27,6 +27,26 @@ public sealed class QuotationRequestRepository(PlanejadorComprasDbContext contex
             .OrderByDescending(request => request.CreatedAtUtc)
             .ToListAsync(cancellationToken);
 
+    public async Task<(List<QuotationRequestEntity> Items, int TotalCount)> GetPageByOrganizationIdAsync(
+        Guid organizationId,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var query = context.QuotationRequests
+            .AsNoTracking()
+            .Where(request => request.OrganizationId == organizationId);
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .Include(request => request.Items)
+            .OrderByDescending(request => request.CreatedAtUtc)
+            .ThenBy(request => request.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+        return (items, totalCount);
+    }
+
     public async Task<bool> DeleteForOrganizationAsync(Guid id, Guid organizationId, CancellationToken cancellationToken = default)
     {
         var request = await context.QuotationRequests

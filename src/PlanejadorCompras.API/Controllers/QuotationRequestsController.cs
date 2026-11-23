@@ -1,6 +1,7 @@
 using PlanejadorCompras.Application.Features.QuotationRequests.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PlanejadorCompras.Application.Common.Pagination;
 using PlanejadorCompras.Application.UseCases.QuotationRequest;
 using PlanejadorCompras.API.Security;
 using PlanejadorCompras.Domain.Authorization;
@@ -21,10 +22,13 @@ public sealed class QuotationRequestsController(
 {
     [HttpGet]
     [ProducesResponseType(
-        typeof(IReadOnlyCollection<QuotationRequestSummaryResponseDto>),
+        typeof(PagedResponseDto<QuotationRequestSummaryResponseDto>),
         StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
-        Ok(await getAllUseCase.ExecuteAsync(cancellationToken));
+    public async Task<IActionResult> GetAll(
+        CancellationToken cancellationToken,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = PageRequest.DefaultPageSize) =>
+        Ok(await getAllUseCase.ExecuteAsync(page, pageSize, cancellationToken));
 
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(QuotationRequestDetailResponseDto), StatusCodes.Status200OK)]
