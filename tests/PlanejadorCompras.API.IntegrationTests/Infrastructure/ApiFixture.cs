@@ -14,8 +14,7 @@ namespace PlanejadorCompras.API.IntegrationTests.Infrastructure;
 /// </summary>
 public sealed class ApiFixture : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder()
-        .WithImage("postgres:17.11-alpine3.24")
+    private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:17.11-alpine3.24")
         .WithDatabase("planejador_compras_tests")
         .WithUsername("planejador_tests")
         .WithPassword(Convert.ToHexString(RandomNumberGenerator.GetBytes(16)))

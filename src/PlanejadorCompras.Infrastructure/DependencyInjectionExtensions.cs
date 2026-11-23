@@ -121,6 +121,7 @@ public static class DependencyInjectionExtensions
         services.AddSingleton<IPurchaseOrderCodeGenerator, PurchaseOrderCodeGenerator>();
         services.AddSingleton<ISavedEqualizationCodeGenerator, SavedEqualizationCodeGenerator>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddSingleton<ILoginAttemptLimiter, InMemoryLoginAttemptLimiter>();
         services.AddScoped<IEmailService, ResendEmailService>();
         services.AddSingleton<IFrontendUrlService, FrontendUrlService>();
     }

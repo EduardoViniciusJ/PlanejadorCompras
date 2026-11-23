@@ -15,6 +15,7 @@ public sealed class ResetPasswordUseCase
     private readonly IUserRepository _userRepository;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly ILoginAttemptLimiter _loginAttemptLimiter;
     private readonly TimeProvider _timeProvider;
     private readonly IUnitOfWork _unitOfWork;
 
@@ -23,6 +24,7 @@ public sealed class ResetPasswordUseCase
         IUserRepository userRepository,
         IRefreshTokenRepository refreshTokenRepository,
         IPasswordHasher passwordHasher,
+        ILoginAttemptLimiter loginAttemptLimiter,
         TimeProvider timeProvider,
         IUnitOfWork unitOfWork)
     {
@@ -30,6 +32,7 @@ public sealed class ResetPasswordUseCase
         _userRepository = userRepository;
         _refreshTokenRepository = refreshTokenRepository;
         _passwordHasher = passwordHasher;
+        _loginAttemptLimiter = loginAttemptLimiter;
         _timeProvider = timeProvider;
         _unitOfWork = unitOfWork;
     }
@@ -64,5 +67,9 @@ public sealed class ResetPasswordUseCase
         _userRepository.Update(userToken.User);
 
         await _unitOfWork.CommitAsync(cancellationToken);
+
+        // The owner proved control of the e-mail: a lockout caused by someone guessing the old
+        // password must not keep them out.
+        _loginAttemptLimiter.Reset(userToken.User.Email);
     }
 }

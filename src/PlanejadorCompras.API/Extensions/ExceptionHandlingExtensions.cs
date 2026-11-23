@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Diagnostics;
 using PlanejadorCompras.API.ErrorHandling;
 using PlanejadorCompras.Application.Exceptions;
@@ -30,6 +31,12 @@ public static class ExceptionHandlingExtensions
                         exception,
                         "Unhandled API exception. TraceId: {TraceId}",
                         context.TraceIdentifier);
+                }
+
+                if (exception is TooManyRequestsException { RetryAfter: { } retryAfter })
+                {
+                    context.Response.Headers.RetryAfter =
+                        ((int)Math.Ceiling(retryAfter.TotalSeconds)).ToString(CultureInfo.InvariantCulture);
                 }
 
                 await ApiProblemDetailsWriter.WriteAsync(

@@ -104,5 +104,6 @@ public sealed class GoogleAccountTakeoverTests
         _userRepositoryMock.Object,
         _passwordHasher,
         SessionTestSupport.CreateSessionService(_refreshTokens, TimeProvider.System, _jwtTokenServiceMock.Object),
+        new InMemoryLoginAttemptLimiter(TimeProvider.System),
         _unitOfWorkMock.Object);
 }

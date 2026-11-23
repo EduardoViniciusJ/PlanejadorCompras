@@ -20,7 +20,7 @@ internal static class ApiRateLimitingConfiguration
                 new ValueTask(ApiProblemDetailsWriter.WriteAsync(
                     context.HttpContext,
                     StatusCodes.Status429TooManyRequests,
-                    "Too many requests.",
+                    "Muitas tentativas em pouco tempo. Aguarde um instante e tente novamente.",
                     "rate_limited",
                     cancellationToken));
 

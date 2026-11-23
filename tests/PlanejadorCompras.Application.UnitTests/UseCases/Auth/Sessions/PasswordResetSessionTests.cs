@@ -40,6 +40,7 @@ public sealed class PasswordResetSessionTests
                 _userRepositoryMock.Object,
                 _refreshTokens,
                 _passwordHasher,
+                new InMemoryLoginAttemptLimiter(_clock),
                 _clock,
                 _unitOfWorkMock.Object)
             .ExecuteAsync(new ResetPasswordRequestDto(rawResetToken, "new-password-456"));
@@ -74,6 +75,7 @@ public sealed class PasswordResetSessionTests
             _userRepositoryMock.Object,
             _refreshTokens,
             _passwordHasher,
+            new InMemoryLoginAttemptLimiter(_clock),
             _clock,
             _unitOfWorkMock.Object);
 
